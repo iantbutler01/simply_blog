@@ -511,7 +511,7 @@ export default function EditPost() {
                                       />
                                       {field.value && (
                                         <img
-                                          src={`/api/images/${field.value}`}
+                                          src={`/uploads/image-${field.value}`}
                                           alt="Social preview"
                                           className="h-20 w-20 object-cover rounded-lg"
                                         />
@@ -543,7 +543,7 @@ export default function EditPost() {
                             <SocialPreview
                               title={form.watch("metaTitle") || form.watch("title")}
                               description={form.watch("metaDescription") || form.watch("excerpt")}
-                              imageUrl={form.watch("socialImageId") ? `/api/images/${form.watch("socialImageId")}` : undefined}
+                              imageUrl={form.watch("socialImageId") ? `/uploads/image-${form.watch("socialImageId")}` : undefined}
                               url={form.watch("canonicalUrl") || window.location.origin}
                             />
                           </div>
@@ -623,18 +623,18 @@ export default function EditPost() {
                         <figure key={index} className="my-12">
                           <div className={`flex ${
                             block.alignment === "left" ? "justify-start" :
-                            block.alignment === "right" ? "justify-end" :
-                            "justify-center"
+                              block.alignment === "right" ? "justify-end" :
+                                "justify-center"
                           }`}>
                             <div style={{
                               width: block.size === "small" ? "300px" :
-                                     block.size === "medium" ? "500px" :
-                                     block.size === "large" ? "800px" :
-                                     "100%",
+                                block.size === "medium" ? "500px" :
+                                  block.size === "large" ? "800px" :
+                                    "100%",
                               maxWidth: "100%"
                             }}>
                               <img
-                                src={`/api/images/${block.imageId}`}
+                                src={`/uploads/image-${block.imageId}`}
                                 alt={block.alt || ""}
                                 className="rounded-lg border w-full h-auto object-contain"
                                 style={{ minHeight: "200px" }}
