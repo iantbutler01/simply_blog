@@ -626,16 +626,18 @@ export default function EditPost() {
                             block.alignment === "right" ? "justify-end" :
                             "justify-center"
                           }`}>
-                            <div className={`relative ${
-                              block.size === "small" ? "w-[300px]" :
-                              block.size === "medium" ? "w-[500px]" :
-                              block.size === "large" ? "w-[800px]" :
-                              "w-full"
-                            }`}>
+                            <div style={{
+                              width: block.size === "small" ? "300px" :
+                                     block.size === "medium" ? "500px" :
+                                     block.size === "large" ? "800px" :
+                                     "100%",
+                              maxWidth: "100%"
+                            }}>
                               <img
                                 src={`/api/images/${block.imageId}`}
                                 alt={block.alt || ""}
-                                className="rounded-lg border w-full h-auto object-contain max-h-[600px]"
+                                className="rounded-lg border w-full h-auto object-contain"
+                                style={{ minHeight: "200px" }}
                               />
                             </div>
                           </div>

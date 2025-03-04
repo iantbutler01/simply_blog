@@ -154,7 +154,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
             {block.type === "image" && (
               <div className="space-y-4">
                 {block.imageId ? (
-                  <div className="pt-12 relative">
+                  <div className="pt-12">
                     <div className="absolute top-0 right-0 flex gap-2 bg-background border shadow-sm rounded-lg p-2 z-10">
                       <Toggle
                         size="sm"
@@ -202,16 +202,18 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                       block.alignment === "right" ? "justify-end" :
                       "justify-center"
                     }`}>
-                      <div className={`relative ${
-                        block.size === "small" ? "w-[300px]" :
-                        block.size === "medium" ? "w-[500px]" :
-                        block.size === "large" ? "w-[800px]" :
-                        "w-full"
-                      }`}>
+                      <div style={{
+                        width: block.size === "small" ? "300px" :
+                               block.size === "medium" ? "500px" :
+                               block.size === "large" ? "800px" :
+                               "100%",
+                        maxWidth: "100%"
+                      }}>
                         <img
                           src={`/api/images/${block.imageId}`}
                           alt={block.alt || ""}
-                          className="rounded-lg border w-full h-auto object-contain max-h-[600px]"
+                          className="rounded-lg border w-full h-auto object-contain"
+                          style={{ minHeight: "200px" }}
                         />
                       </div>
                     </div>
