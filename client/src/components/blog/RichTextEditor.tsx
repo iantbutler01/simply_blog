@@ -14,6 +14,7 @@ import {
   Undo,
   Redo,
 } from "lucide-react";
+import React from 'react';
 
 interface RichTextEditorProps {
   value: string;
@@ -39,7 +40,19 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-lg max-w-none min-h-[400px] focus:outline-none'
+      }
+    }
   });
+
+  // Update editor content when value prop changes
+  React.useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
 
   if (!editor) return null;
 
@@ -116,9 +129,9 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         </Toggle>
       </div>
 
-      <EditorContent
+      <EditorContent 
         editor={editor}
-        className="prose prose-lg max-w-none p-4 min-h-[400px] focus:outline-none"
+        className="p-4"
       />
 
       <style>{`
