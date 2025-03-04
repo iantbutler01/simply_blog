@@ -30,6 +30,15 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { TimePickerInput } from "@/components/ui/time-picker";
+import { VersionHistory } from "@/components/blog/VersionHistory";
+
+type PostVersion = {
+  title: string;
+  content: Block[];
+  excerpt: string;
+  tags: string[];
+  comment?: string;
+};
 
 type FormValues = {
   title: string;
@@ -42,6 +51,7 @@ type FormValues = {
   metaDescription: string;
   socialImageId: string;
   canonicalUrl: string;
+  comment?: string; // Optional comment for version history
 };
 
 export default function EditPost() {
@@ -130,6 +140,17 @@ export default function EditPost() {
         })
       };
 
+      // If editing existing post, save version history
+      if (postId) {
+        await apiRequest("POST", `/api/posts/${postId}/versions`, {
+          title: values.title,
+          content: values.content,
+          excerpt: values.excerpt,
+          tags: values.tags,
+          comment: values.comment,
+        });
+      }
+
       if (postId) {
         await apiRequest("PATCH", `/api/posts/${postId}`, formattedValues);
       } else {
@@ -186,6 +207,26 @@ export default function EditPost() {
       });
     },
   });
+
+  const handleRestoreVersion = async (version: PostVersion) => {
+    form.reset({
+      title: version.title,
+      content: version.content,
+      excerpt: version.excerpt,
+      tags: version.tags,
+      isDraft: form.getValues("isDraft"),
+      publishAt: form.getValues("publishAt"),
+      metaTitle: form.getValues("metaTitle"),
+      metaDescription: form.getValues("metaDescription"),
+      socialImageId: form.getValues("socialImageId"),
+      canonicalUrl: form.getValues("canonicalUrl"),
+    });
+
+    toast({
+      title: "Version restored",
+      description: "You can now review and save the changes.",
+    });
+  };
 
   return (
     <div className="container py-8">
@@ -355,6 +396,21 @@ export default function EditPost() {
                   )}
                 </div>
 
+                <FormField
+                  control={form.control}
+                  name="comment"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Comment (for version history)</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Optional comment for this version" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+
                 <Accordion type="single" collapsible>
                   <AccordionItem value="seo">
                     <AccordionTrigger>SEO Settings</AccordionTrigger>
@@ -442,6 +498,17 @@ export default function EditPost() {
                           />
                         </div>
                       </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="versions">
+                    <AccordionTrigger>Version History</AccordionTrigger>
+                    <AccordionContent>
+                      {postId && (
+                        <VersionHistory
+                          postId={Number(postId)}
+                          onRestore={handleRestoreVersion}
+                        />
+                      )}
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

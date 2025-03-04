@@ -171,6 +171,39 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // Add version routes after post routes
+  app.get("/api/posts/:id/versions", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    try {
+      const versions = await storage.getVersions(Number(req.params.id));
+      res.json(versions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch versions" });
+    }
+  });
+
+  app.get("/api/versions/:id", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    try {
+      const version = await storage.getVersion(Number(req.params.id));
+      if (!version) {
+        res.status(404).json({ message: "Version not found" });
+        return;
+      }
+      res.json(version);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch version" });
+    }
+  });
+
   // Protected image routes
   app.post("/api/images", requireAuth, upload.single('image'), async (req: AuthenticatedRequest, res) => {
     if (!isAdmin(req)) {
