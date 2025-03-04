@@ -14,7 +14,7 @@ if (!process.env.DATABASE_URL) {
 // Configure pool with recommended settings for Neon
 const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  max: 10, // Reduce max connections to prevent overwhelming the server
+  max: 5, // Further reduce max connections
   idleTimeoutMillis: 0, // Disable idle timeout as Neon handles this
   connectionTimeoutMillis: 5000, // Give more time for initial connection
   keepAlive: true, // Enable TCP keepalive
@@ -23,7 +23,7 @@ const pool = new Pool({
   }
 });
 
-// Add reconnection logic
+// Add reconnection logic with exponential backoff
 let retries = 5;
 const connectWithRetry = async () => {
   while (retries) {
@@ -36,20 +36,22 @@ const connectWithRetry = async () => {
       retries--;
       console.error(`Database connection attempt failed. ${retries} retries left:`, err);
       if (!retries) {
-        console.error('Max retries reached, but application will continue.');
+        console.error('Max retries reached. Continuing with reduced functionality.');
         break;
       }
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Exponential backoff between retries
+      const delay = Math.min(1000 * (5 - retries), 5000);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 };
 
-// Handle connection errors
+// Handle connection errors and lost connections
 pool.on('error', async (err) => {
   console.error('Unexpected error on database connection:', err);
-  if (err.message.includes('Connection terminated')) {
-    console.log('Attempting to reconnect...');
+  if (err.message.includes('Connection terminated') || err.code === '57P01') {
+    console.log('Connection lost. Attempting to reconnect...');
+    retries = 5; // Reset retries for new reconnection attempt
     await connectWithRetry();
   }
 });
