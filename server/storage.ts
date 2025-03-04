@@ -372,17 +372,4 @@ async function createInitialAdmin() {
 
 createInitialAdmin();
 
-//This is necessary because the edited code doesn't define these types.  Replace with your actual types.
-interface InsertVersion {
-  content: string;
-  // Add other relevant fields
-}
-
-interface PostVersion {
-  id: number;
-  postId: number;
-  content: string;
-  createdAt: Date;
-  version: number; // Added version field
-  // Add other relevant fields
-}
+//The types are already defined in the import statement.  Removing the duplicate definitions.
