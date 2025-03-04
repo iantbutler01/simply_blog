@@ -42,7 +42,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
 
     const newBlock: Block = type === "text"
       ? { type: "text", content: "", format: "html" }
-      : { type: "image", imageId: 0, alignment: "center", size: "full" };
+      : { type: "image", imageId: 0, alignment: "center", size: "full", imageUrl: "" };
 
     const newBlocks = [...blocks, newBlock];
     setBlocks(newBlocks);
@@ -210,7 +210,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         maxWidth: "100%"
                       }}>
                         <img
-                          src={`/uploads/image-${block.imageId}`}
+                          src={block.imageUrl}
                           alt={block.alt || ""}
                           className="rounded-lg border w-full h-auto object-contain"
                           style={{ minHeight: "200px" }}
@@ -222,11 +222,12 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                   <div className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed rounded-lg">
                     <ImageIcon className="h-8 w-8 text-muted-foreground" />
                     <ImageUpload
-                      onUpload={(imageId) => {
-                        console.log("Image uploaded, id:", imageId);
+                      onUpload={(imageId, imageUrl) => {
+                        console.log("Image uploaded, id:", imageId, "url:", imageUrl);
                         updateBlock(index, {
                           ...block,
                           imageId,
+                          imageUrl,
                         });
                       }}
                     />

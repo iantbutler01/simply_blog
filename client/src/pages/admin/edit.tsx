@@ -432,7 +432,6 @@ export default function EditPost() {
                   />
 
 
-
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="analytics">
                       <AccordionTrigger>Analytics</AccordionTrigger>
@@ -628,13 +627,13 @@ export default function EditPost() {
                           }`}>
                             <div style={{
                               width: block.size === "small" ? "300px" :
-                                block.size === "medium" ? "500px" :
-                                  block.size === "large" ? "800px" :
-                                    "100%",
+                                 block.size === "medium" ? "500px" :
+                                 block.size === "large" ? "800px" :
+                                   "100%",
                               maxWidth: "100%"
                             }}>
                               <img
-                                src={`/uploads/image-${block.imageId}`}
+                                src={block.imageUrl}
                                 alt={block.alt || ""}
                                 className="rounded-lg border w-full h-auto object-contain"
                                 style={{ minHeight: "200px" }}
