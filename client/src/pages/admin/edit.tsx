@@ -154,6 +154,8 @@ export default function EditPost() {
           tags: values.tags,
           comment: values.comment,
         });
+        // Invalidate versions query after saving
+        queryClient.invalidateQueries({ queryKey: [`/api/posts/${postId}/versions`] });
       }
 
       if (postId) {
