@@ -83,7 +83,7 @@ export const insertPostSchema = createInsertSchema(posts)
     metaTitle: z.string().optional(),
     metaDescription: z.string().max(160, "Meta description should not exceed 160 characters").optional(),
     socialImageId: z.string().optional(),
-    canonicalUrl: z.string().url("Must be a valid URL").optional().nullable(),
+    canonicalUrl: z.union([z.string().url("Must be a valid URL"), z.null()]).optional(),
   });
 
 export const insertVersionSchema = createInsertSchema(postVersions)
