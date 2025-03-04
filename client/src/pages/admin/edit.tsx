@@ -47,6 +47,7 @@ export default function EditPost() {
       tags: [],
       isDraft: true,
     },
+    mode: "onSubmit", // Only validate on form submission
   });
 
   // Update form when post data is loaded
