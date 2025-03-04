@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "lucide-react";
+import { Calendar, Clock, Eye, Share2 } from "lucide-react";
 import { Link } from "wouter";
 import { type Post } from "@shared/schema";
 import { format } from "date-fns";
@@ -18,13 +18,15 @@ export function PostCard({ post }: PostCardProps) {
             {post.title}
           </h2>
         </Link>
-        <div className="flex items-center text-muted-foreground gap-2 text-sm">
-          <Calendar className="h-4 w-4" />
-          <time dateTime={post.createdAt.toString()}>
-            {format(new Date(post.createdAt), "MMMM d, yyyy")}
-          </time>
+        <div className="flex items-center gap-4 text-muted-foreground text-sm">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <time dateTime={post.createdAt.toString()}>
+              {format(new Date(post.createdAt), "MMMM d, yyyy")}
+            </time>
+          </div>
           {post.isDraft && (
-            <Badge variant="secondary" className="ml-2">
+            <Badge variant="secondary">
               Draft
             </Badge>
           )}
@@ -44,6 +46,22 @@ export function PostCard({ post }: PostCardProps) {
               {tag}
             </Badge>
           ))}
+        </div>
+
+        {/* Analytics section */}
+        <div className="flex items-center gap-4 text-sm text-muted-foreground border-t pt-4 mt-4">
+          <div className="flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            <span>{post.views} views</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            <span>{post.readingTimeMinutes} min read</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Share2 className="h-4 w-4" />
+            <span>{post.shareCount} shares</span>
+          </div>
         </div>
       </CardContent>
     </Card>
