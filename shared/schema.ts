@@ -92,9 +92,6 @@ export const insertVersionSchema = createInsertSchema(postVersions)
     comment: z.string().optional(),
   });
 
-export const insertImageSchema = createInsertSchema(images)
-  .omit({ id: true, createdAt: true });
-
 export type Block = z.infer<typeof blockSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type Post = typeof posts.$inferSelect;

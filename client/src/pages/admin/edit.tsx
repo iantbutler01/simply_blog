@@ -33,11 +33,16 @@ import { TimePickerInput } from "@/components/ui/time-picker";
 import { VersionHistory } from "@/components/blog/VersionHistory";
 
 type PostVersion = {
-  title: string;
+  id: number;
+  createdAt: Date;
   content: Block[];
+  title: string;
   excerpt: string;
   tags: string[];
-  comment?: string;
+  postId: number;
+  createdBy: number;
+  version: number;
+  comment: string | null;
 };
 
 type FormValues = {
