@@ -25,6 +25,11 @@ export const posts = pgTable("posts", {
   tags: text("tags").array().notNull(),
   isDraft: boolean("is_draft").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  // SEO fields
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  socialImageId: text("social_image_id"), // Reference to the uploaded image
+  canonicalUrl: text("canonical_url"),
 });
 
 export const images = pgTable("images", {
@@ -43,6 +48,10 @@ export const insertPostSchema = createInsertSchema(posts)
     content: z.array(blockSchema),
     excerpt: z.string().min(1, "Excerpt is required"),
     tags: z.array(z.string()).min(1, "At least one tag is required"),
+    metaTitle: z.string().optional(),
+    metaDescription: z.string().max(160, "Meta description should not exceed 160 characters").optional(),
+    socialImageId: z.string().optional(),
+    canonicalUrl: z.string().url("Must be a valid URL").optional(),
   });
 
 export const insertImageSchema = createInsertSchema(images)

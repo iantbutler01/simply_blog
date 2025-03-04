@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { type Post } from "@shared/schema";
+import { Head } from "@/components/blog/Head";
 
 export default function BlogPost() {
   const { id } = useParams();
@@ -36,6 +37,8 @@ export default function BlogPost() {
 
   return (
     <div className="container py-8 max-w-4xl">
+      <Head post={post} />
+
       <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
 
       <div className="flex items-center gap-4 mb-8 text-muted-foreground">

@@ -18,6 +18,8 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { insertPostSchema, type Post, type Block } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ImageUpload } from "@/components/blog/ImageUpload";
 
 type FormValues = {
   title: string;
@@ -25,6 +27,10 @@ type FormValues = {
   excerpt: string;
   tags: string[];
   isDraft: boolean;
+  metaTitle: string;
+  metaDescription: string;
+  socialImageId: string;
+  canonicalUrl: string;
 };
 
 export default function EditPost() {
@@ -46,6 +52,10 @@ export default function EditPost() {
       excerpt: "",
       tags: [],
       isDraft: true,
+      metaTitle: "",
+      metaDescription: "",
+      socialImageId: "",
+      canonicalUrl: "",
     },
     mode: "onSubmit", // Only validate on form submission
   });
@@ -64,6 +74,10 @@ export default function EditPost() {
         excerpt: post.excerpt,
         tags: post.tags,
         isDraft: post.isDraft,
+        metaTitle: post.metaTitle || "",
+        metaDescription: post.metaDescription || "",
+        socialImageId: post.socialImageId || "",
+        canonicalUrl: post.canonicalUrl || "",
       });
     }
   }, [post, form]);
@@ -218,6 +232,83 @@ export default function EditPost() {
               </FormItem>
             )}
           />
+
+          <Accordion type="single" collapsible>
+            <AccordionItem value="seo">
+              <AccordionTrigger>SEO Settings</AccordionTrigger>
+              <AccordionContent className="space-y-4 pt-4">
+                <FormField
+                  control={form.control}
+                  name="metaTitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meta Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Custom title for search engines" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="metaDescription"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meta Description</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Brief description for search results (max 160 characters)" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="socialImageId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Social Share Image</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center gap-4">
+                          <ImageUpload
+                            onUpload={(url) => {
+                              const id = url.split('/').pop() || '';
+                              field.onChange(id);
+                            }}
+                          />
+                          {field.value && (
+                            <img
+                              src={`/uploads/${field.value}`}
+                              alt="Social preview"
+                              className="h-20 w-20 object-cover rounded-lg"
+                            />
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="canonicalUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Canonical URL</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="https://example.com/original-article" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           <div className="flex gap-4">
             <Button
