@@ -225,7 +225,78 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // Add these routes after the existing post routes
+  // Add these comment-related routes after the post routes
+  // Public routes for submitting and viewing comments
+  app.post("/api/posts/:id/comments", async (req, res) => {
+    const result = insertCommentSchema.safeParse(req.body);
+    if (!result.success) {
+      res.status(400).json({ message: result.error.message });
+      return;
+    }
+
+    try {
+      const comment = await storage.createComment({
+        ...result.data,
+        postId: Number(req.params.id),
+      });
+      res.status(201).json(comment);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to save comment" });
+    }
+  });
+
+  app.get("/api/posts/:id/comments", async (req, res) => {
+    try {
+      const comments = await storage.getApprovedComments(Number(req.params.id));
+      res.json(comments);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch comments" });
+    }
+  });
+
+  // Protected admin routes for managing comments
+  app.get("/api/comments/pending", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    try {
+      const comments = await storage.getPendingComments();
+      res.json(comments);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch pending comments" });
+    }
+  });
+
+  app.post("/api/comments/:id/approve", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    try {
+      const comment = await storage.approveComment(Number(req.params.id));
+      res.json(comment);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to approve comment" });
+    }
+  });
+
+  app.post("/api/comments/:id/reject", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    try {
+      await storage.deleteComment(Number(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to reject comment" });
+    }
+  });
+
   // Increment view count
   app.post("/api/posts/:id/view", async (req, res) => {
     try {

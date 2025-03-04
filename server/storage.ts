@@ -1,4 +1,4 @@
-import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser, postVersions, type PostVersion } from "@shared/schema";
+import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser, postVersions, type PostVersion, comments, type Comment, type InsertComment } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, or, sql, and, lt, isNotNull } from "drizzle-orm";
 import * as crypto from 'crypto';
@@ -39,6 +39,13 @@ export interface IStorage {
   incrementShareCount(id: number): Promise<void>;
   updateReadingTime(id: number, content: any[]): Promise<void>;
   sessionStore: session.Store;
+
+  // Comment methods
+  createComment(comment: InsertComment): Promise<Comment>;
+  getApprovedComments(postId: number): Promise<Comment[]>;
+  getPendingComments(): Promise<Comment[]>;
+  approveComment(id: number): Promise<Comment>;
+  deleteComment(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -421,6 +428,80 @@ export class DatabaseStorage implements IStorage {
       console.log(`Updated reading time for post ${id} to ${readingTimeMinutes} minutes`);
     } catch (error) {
       console.error(`Failed to update reading time for post ${id}:`, error);
+      throw error;
+    }
+  }
+
+  // Comment management methods
+  async createComment(insertComment: InsertComment): Promise<Comment> {
+    try {
+      const [comment] = await db
+        .insert(comments)
+        .values({
+          ...insertComment,
+          createdAt: new Date(),
+        })
+        .returning();
+      console.log('Created new comment:', comment.id);
+      return comment;
+    } catch (error) {
+      console.error('Failed to create comment:', error);
+      throw error;
+    }
+  }
+
+  async getApprovedComments(postId: number): Promise<Comment[]> {
+    try {
+      const results = await db
+        .select()
+        .from(comments)
+        .where(and(eq(comments.postId, postId), eq(comments.isApproved, true)))
+        .orderBy(desc(comments.createdAt));
+      console.log(`Retrieved ${results.length} approved comments for post ${postId}`);
+      return results;
+    } catch (error) {
+      console.error(`Failed to get approved comments for post ${postId}:`, error);
+      throw error;
+    }
+  }
+
+  async getPendingComments(): Promise<Comment[]> {
+    try {
+      const results = await db
+        .select()
+        .from(comments)
+        .where(eq(comments.isApproved, false))
+        .orderBy(desc(comments.createdAt));
+      console.log(`Retrieved ${results.length} pending comments`);
+      return results;
+    } catch (error) {
+      console.error('Failed to get pending comments:', error);
+      throw error;
+    }
+  }
+
+  async approveComment(commentId: number): Promise<Comment> {
+    try {
+      const [comment] = await db
+        .update(comments)
+        .set({ isApproved: true })
+        .where(eq(comments.id, commentId))
+        .returning();
+      if (!comment) throw new Error("Comment not found");
+      console.log(`Approved comment ${commentId}`);
+      return comment;
+    } catch (error) {
+      console.error(`Failed to approve comment ${commentId}:`, error);
+      throw error;
+    }
+  }
+
+  async deleteComment(commentId: number): Promise<void> {
+    try {
+      await db.delete(comments).where(eq(comments.id, commentId));
+      console.log(`Deleted comment ${commentId}`);
+    } catch (error) {
+      console.error(`Failed to delete comment ${commentId}:`, error);
       throw error;
     }
   }

@@ -73,6 +73,17 @@ export const images = pgTable("images", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Add the comments table after the images table
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
+  postId: serial("post_id").notNull().references(() => posts.id),
+  content: text("content").notNull(),
+  authorName: text("author_name").notNull(),
+  authorEmail: text("author_email").notNull(),
+  isApproved: boolean("is_approved").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users)
   .omit({ id: true, createdAt: true })
   .extend({
@@ -112,6 +123,15 @@ export const insertImageSchema = createInsertSchema(images)
     size: z.string().min(1, "Size is required"),
   });
 
+// Add the comment schema after the image schema
+export const insertCommentSchema = createInsertSchema(comments)
+  .omit({ id: true, createdAt: true, isApproved: true })
+  .extend({
+    content: z.string().min(1, "Comment is required").max(1000, "Comment is too long"),
+    authorName: z.string().min(1, "Name is required"),
+    authorEmail: z.string().email("Invalid email address"),
+  });
+
 export type Block = z.infer<typeof blockSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type Post = typeof posts.$inferSelect;
@@ -121,3 +141,6 @@ export type InsertImage = z.infer<typeof insertImageSchema>;
 export type Image = typeof images.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+// Add comment types to exports
+export type InsertComment = z.infer<typeof insertCommentSchema>;
+export type Comment = typeof comments.$inferSelect;
