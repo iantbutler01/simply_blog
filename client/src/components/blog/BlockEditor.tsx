@@ -15,7 +15,13 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
 
   // Sync blocks with form value
   useEffect(() => {
-    setBlocks(value);
+    // Create new block instances to ensure isolation
+    const newBlocks = value.map(block => ({
+      ...block,
+      content: block.type === "text" ? block.content : "",
+      imageId: block.type === "image" ? block.imageId : 0
+    }));
+    setBlocks(newBlocks);
   }, [value]);
 
   const updateBlock = (index: number, updatedBlock: Block) => {
