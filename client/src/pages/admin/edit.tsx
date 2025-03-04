@@ -20,6 +20,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ImageUpload } from "@/components/blog/ImageUpload";
+import { SocialPreview } from "@/components/blog/SocialPreview";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type FormValues = {
   title: string;
@@ -236,76 +239,90 @@ export default function EditPost() {
           <Accordion type="single" collapsible>
             <AccordionItem value="seo">
               <AccordionTrigger>SEO Settings</AccordionTrigger>
-              <AccordionContent className="space-y-4 pt-4">
-                <FormField
-                  control={form.control}
-                  name="metaTitle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Meta Title</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Custom title for search engines" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <AccordionContent className="space-y-6 pt-4">
+                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="metaTitle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Meta Title</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Custom title for search engines" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="metaDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Meta Description</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Brief description for search results (max 160 characters)" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="metaDescription"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Meta Description</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Brief description for search results (max 160 characters)" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="socialImageId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Social Share Image</FormLabel>
-                      <FormControl>
-                        <div className="flex items-center gap-4">
-                          <ImageUpload
-                            onUpload={(url) => {
-                              const id = url.split('/').pop() || '';
-                              field.onChange(id);
-                            }}
-                          />
-                          {field.value && (
-                            <img
-                              src={`/uploads/${field.value}`}
-                              alt="Social preview"
-                              className="h-20 w-20 object-cover rounded-lg"
-                            />
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="socialImageId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Social Share Image</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-4">
+                              <ImageUpload
+                                onUpload={(url) => {
+                                  const id = url.split('/').pop() || '';
+                                  field.onChange(id);
+                                }}
+                              />
+                              {field.value && (
+                                <img
+                                  src={`/uploads/${field.value}`}
+                                  alt="Social preview"
+                                  className="h-20 w-20 object-cover rounded-lg"
+                                />
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="canonicalUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Canonical URL</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="https://example.com/original-article" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="canonicalUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Canonical URL</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="https://example.com/original-article" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="lg:border-l lg:pl-6">
+                    <h3 className="font-medium mb-4">Social Preview</h3>
+                    <SocialPreview
+                      title={form.watch("metaTitle") || form.watch("title")}
+                      description={form.watch("metaDescription") || form.watch("excerpt")}
+                      imageUrl={form.watch("socialImageId") ? `/uploads/${form.watch("socialImageId")}` : undefined}
+                      url={form.watch("canonicalUrl") || window.location.origin}
+                    />
+                  </div>
+                </div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
