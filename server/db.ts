@@ -11,28 +11,50 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Add error handling for database connection
+// Configure pool with recommended settings for Neon
 const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+  max: 10, // Reduce max connections to prevent overwhelming the server
+  idleTimeoutMillis: 0, // Disable idle timeout as Neon handles this
+  connectionTimeoutMillis: 5000, // Give more time for initial connection
+  keepAlive: true, // Enable TCP keepalive
+  ssl: {
+    rejectUnauthorized: true // Required for Neon's SSL
+  }
 });
 
-// Handle idle connection termination gracefully
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  // Don't exit process, just log the error
-  // The pool will automatically create new connections as needed
+// Add reconnection logic
+let retries = 5;
+const connectWithRetry = async () => {
+  while (retries) {
+    try {
+      await pool.connect();
+      console.log('Successfully connected to PostgreSQL database');
+      retries = 5; // Reset retries on successful connection
+      return;
+    } catch (err) {
+      retries--;
+      console.error(`Database connection attempt failed. ${retries} retries left:`, err);
+      if (!retries) {
+        console.error('Max retries reached, but application will continue.');
+        break;
+      }
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
+};
+
+// Handle connection errors
+pool.on('error', async (err) => {
+  console.error('Unexpected error on database connection:', err);
+  if (err.message.includes('Connection terminated')) {
+    console.log('Attempting to reconnect...');
+    await connectWithRetry();
+  }
 });
 
-// Test database connection
-pool.connect().then(() => {
-  console.log('Successfully connected to PostgreSQL database');
-}).catch((err) => {
-  console.error('Failed to connect to PostgreSQL database:', err);
-  // Don't exit process, let the application continue
-  // The pool will retry connections automatically
-});
+// Initial connection
+connectWithRetry().catch(console.error);
 
 export const db = drizzle({ client: pool, schema });
