@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { Link } from "wouter";
@@ -11,23 +11,36 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
+    <Card className="hover:shadow-lg transition-all duration-300 group">
+      <CardHeader className="space-y-2">
         <Link href={`/blog/${post.id}`}>
-          <CardTitle className="text-2xl font-bold hover:text-primary cursor-pointer">
+          <h2 className="text-2xl font-bold group-hover:text-primary transition-colors cursor-pointer">
             {post.title}
-          </CardTitle>
+          </h2>
         </Link>
         <div className="flex items-center text-muted-foreground gap-2 text-sm">
           <Calendar className="h-4 w-4" />
-          <span>{format(new Date(post.createdAt), "MMMM d, yyyy")}</span>
+          <time dateTime={post.createdAt.toString()}>
+            {format(new Date(post.createdAt), "MMMM d, yyyy")}
+          </time>
+          {post.isDraft && (
+            <Badge variant="secondary" className="ml-2">
+              Draft
+            </Badge>
+          )}
         </div>
       </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground mb-4">{post.excerpt}</p>
+      <CardContent className="space-y-4">
+        <p className="text-muted-foreground leading-relaxed">
+          {post.excerpt}
+        </p>
         <div className="flex gap-2 flex-wrap">
           {post.tags.map((tag) => (
-            <Badge key={tag} variant="secondary">
+            <Badge
+              key={tag}
+              variant="outline"
+              className="hover:bg-primary/5 transition-colors cursor-default"
+            >
               {tag}
             </Badge>
           ))}

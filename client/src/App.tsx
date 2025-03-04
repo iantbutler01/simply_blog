@@ -2,6 +2,7 @@ import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { Nav } from "@/components/ui/nav";
 import NotFound from "@/pages/not-found";
 import BlogIndex from "@/pages/blog";
 import BlogPost from "@/pages/blog/[id]";
@@ -10,13 +11,18 @@ import EditPost from "@/pages/admin/edit";
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={BlogIndex} />
-      <Route path="/blog/:id" component={BlogPost} />
-      <Route path="/admin/posts" component={AdminPosts} />
-      <Route path="/admin/edit" component={EditPost} />
-      <Route component={NotFound} />
-    </Switch>
+    <div className="min-h-screen bg-background">
+      <Nav />
+      <main>
+        <Switch>
+          <Route path="/" component={BlogIndex} />
+          <Route path="/blog/:id" component={BlogPost} />
+          <Route path="/admin/posts" component={AdminPosts} />
+          <Route path="/admin/edit" component={EditPost} />
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+    </div>
   );
 }
 
