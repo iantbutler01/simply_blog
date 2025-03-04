@@ -36,11 +36,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       })
       .catch(() => {
-        setAuthState({
-          user: null,
-          isAdmin: false,
-          isLoading: false,
-        });
+        // In development, still authenticate as admin even if the fetch fails
+        if (process.env.NODE_ENV === 'development') {
+          setAuthState({
+            user: {
+              id: 'dev-1',
+              name: 'Developer',
+              roles: 'admin'
+            },
+            isAdmin: true,
+            isLoading: false,
+          });
+        } else {
+          setAuthState({
+            user: null,
+            isAdmin: false,
+            isLoading: false,
+          });
+        }
       });
   }, []);
 
