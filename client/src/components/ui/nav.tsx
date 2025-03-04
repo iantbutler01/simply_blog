@@ -1,8 +1,10 @@
 import { Link, useLocation } from "wouter";
+import { useAuth } from "@/lib/auth";
 
 export function Nav() {
   const [location] = useLocation();
-  
+  const { user, isAdmin } = useAuth();
+
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4 py-4">
@@ -22,13 +24,15 @@ export function Nav() {
                 Blog
               </span>
             </Link>
-            <Link href="/admin/posts">
-              <span className={`hover:text-primary transition-colors ${
-                location.startsWith("/admin") ? "text-primary font-medium" : "text-muted-foreground"
-              }`}>
-                Admin
-              </span>
-            </Link>
+            {isAdmin && (
+              <Link href="/admin/posts">
+                <span className={`hover:text-primary transition-colors ${
+                  location.startsWith("/admin") ? "text-primary font-medium" : "text-muted-foreground"
+                }`}>
+                  Admin
+                </span>
+              </Link>
+            )}
           </div>
         </div>
       </div>
