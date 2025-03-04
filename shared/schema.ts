@@ -129,7 +129,7 @@ export const insertCommentSchema = createInsertSchema(comments)
   .extend({
     content: z.string().min(1, "Comment is required").max(1000, "Comment is too long"),
     authorName: z.string().min(1, "Name is required"),
-    authorEmail: z.string().email("Invalid email address").optional(), // Make email optional
+    authorEmail: z.string().email("Invalid email address").nullish(),
   });
 
 export type Block = z.infer<typeof blockSchema>;

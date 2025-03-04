@@ -27,7 +27,7 @@ export function CommentForm({ postId }: CommentFormProps) {
     defaultValues: {
       content: "",
       authorName: "",
-      authorEmail: "",
+      authorEmail: undefined,
     },
   });
 
@@ -93,7 +93,7 @@ export function CommentForm({ postId }: CommentFormProps) {
             name="authorEmail"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Email (optional)</FormLabel>
                 <FormControl>
                   <Input {...field} type="email" />
                 </FormControl>
