@@ -77,7 +77,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   if (!editor) return null;
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="w-full border rounded-lg overflow-hidden">
       <div className="flex items-center gap-1 p-2 border-b bg-muted/50">
         <Toggle
           size="sm"
@@ -153,13 +153,14 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
       <EditorContent 
         editor={editor}
-        className="p-4"
+        className="p-4 w-full"
       />
 
       <style>{`
         .ProseMirror {
           min-height: 400px;
           outline: none;
+          width: 100%;
         }
         .ProseMirror p.is-editor-empty:first-child::before {
           color: #adb5bd;

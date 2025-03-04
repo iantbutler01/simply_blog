@@ -20,16 +20,23 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     onChange(newBlocks);
   };
 
-  const addBlock = (type: "text" | "image") => {
+  const addBlock = (type: "text" | "image", e: React.MouseEvent) => {
+    // Prevent form submission and event bubbling
+    e.preventDefault();
+    e.stopPropagation();
+
     const newBlock: Block = type === "text" 
       ? { type: "text", content: "", format: "html" }
       : { type: "image", imageId: 0 };
-    
+
     setBlocks([...blocks, newBlock]);
     onChange([...blocks, newBlock]);
   };
 
-  const removeBlock = (index: number) => {
+  const removeBlock = (index: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     const newBlocks = blocks.filter((_, i) => i !== index);
     setBlocks(newBlocks);
     onChange(newBlocks);
@@ -44,11 +51,11 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       {blocks.map((block, index) => (
         <div
           key={index}
-          className="group relative flex gap-2 rounded-lg border bg-card p-4"
+          className="group relative flex gap-2 rounded-lg border bg-card p-4 w-full"
         >
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <GripVertical className="h-4 w-4 cursor-move" />
@@ -56,19 +63,22 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
               variant="ghost"
               size="icon"
               className="h-6 w-6 opacity-0 group-hover:opacity-100"
-              onClick={() => removeBlock(index)}
+              onClick={(e) => removeBlock(index, e)}
+              type="button"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
 
           {block.type === "text" && (
-            <RichTextEditor
-              value={block.content}
-              onChange={(content) =>
-                updateBlock(index, { ...block, content })
-              }
-            />
+            <div className="flex-1">
+              <RichTextEditor
+                value={block.content}
+                onChange={(content) =>
+                  updateBlock(index, { ...block, content })
+                }
+              />
+            </div>
           )}
 
           {block.type === "image" && (
@@ -106,7 +116,8 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => addBlock("text")}
+          onClick={(e) => addBlock("text", e)}
+          type="button"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Text
@@ -114,7 +125,8 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => addBlock("image")}
+          onClick={(e) => addBlock("image", e)}
+          type="button"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Image
