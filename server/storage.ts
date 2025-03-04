@@ -242,6 +242,8 @@ export class DatabaseStorage implements IStorage {
         .set({ isDraft: true })
         .where(eq(posts.id, postId));
 
+      console.log(`Unpublished post ${postId} before saving version ${nextVersion}`);
+
       // Then save the version
       const [savedVersion] = await db
         .insert(postVersions)
