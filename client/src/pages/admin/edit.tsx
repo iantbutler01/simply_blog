@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, useSearch } from "wouter";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,8 +22,6 @@ import { useEffect } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ImageUpload } from "@/components/blog/ImageUpload";
 import { SocialPreview } from "@/components/blog/SocialPreview";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -30,6 +29,7 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { TimePickerInput } from "@/components/ui/time-picker";
 
 type FormValues = {
   title: string;
@@ -49,6 +49,7 @@ export default function EditPost() {
   const search = useSearch();
   const { toast } = useToast();
   const postId = new URLSearchParams(search).get("id");
+  const [selectedTime, setSelectedTime] = useState<string>("12:00");
 
   const { data: post } = useQuery<Post>({
     queryKey: [`/api/posts/${postId}`],
@@ -69,24 +70,23 @@ export default function EditPost() {
       socialImageId: "",
       canonicalUrl: "",
     },
-    mode: "onSubmit", // Only validate on form submission
   });
 
   // Update form when post data is loaded
   useEffect(() => {
     if (post) {
-      // Ensure post.content is treated as Block[]
-      const content = Array.isArray(post.content)
-        ? post.content
-        : [{ type: "text", content: post.content as string, format: "html" }];
+      const publishDate = post.publishAt ? new Date(post.publishAt) : null;
+      if (publishDate) {
+        setSelectedTime(format(publishDate, "HH:mm"));
+      }
 
       form.reset({
         title: post.title,
-        content,
+        content: Array.isArray(post.content) ? post.content : [{ type: "text", content: post.content as string, format: "html" }],
         excerpt: post.excerpt,
         tags: post.tags,
         isDraft: post.isDraft,
-        publishAt: post.publishAt ? new Date(post.publishAt) : null,
+        publishAt: publishDate,
         metaTitle: post.metaTitle || "",
         metaDescription: post.metaDescription || "",
         socialImageId: post.socialImageId || "",
@@ -97,9 +97,18 @@ export default function EditPost() {
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      // Ensure content is properly formatted as Block[]
+      // Combine date and time for publishAt if both are set
+      let publishAt = values.publishAt;
+      if (publishAt && !values.isDraft) {
+        const timeparts = selectedTime.split(":");
+        publishAt = new Date(publishAt);
+        publishAt.setHours(parseInt(timeparts[0], 10));
+        publishAt.setMinutes(parseInt(timeparts[1], 10));
+      }
+
       const formattedValues = {
         ...values,
+        publishAt: values.isDraft ? null : publishAt,
         content: values.content.map(block => {
           if (block.type === "text") {
             return {
@@ -257,47 +266,55 @@ export default function EditPost() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="publishAt"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Schedule Publication</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value || undefined}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date < new Date() || date < new Date("1900-01-01")
-                              }
-                              initialFocus
+                  {!form.watch("isDraft") && (
+                    <FormField
+                      control={form.control}
+                      name="publishAt"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Schedule Publication</FormLabel>
+                          <div className="flex gap-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                      "w-[240px] pl-3 text-left font-normal",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value ? (
+                                      format(field.value, "PPP")
+                                    ) : (
+                                      <span>Pick a date</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value || undefined}
+                                  onSelect={field.onChange}
+                                  disabled={(date) =>
+                                    date < new Date() || date < new Date("1900-01-01")
+                                  }
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <TimePickerInput
+                              value={selectedTime}
+                              onChange={setSelectedTime}
                             />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </div>
 
                 <Accordion type="single" collapsible>
