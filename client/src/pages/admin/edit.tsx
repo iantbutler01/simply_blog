@@ -619,21 +619,23 @@ export default function EditPost() {
                       );
                     } else if (block.type === "image" && block.imageId) {
                       return (
-                        <figure key={index} className="my-8">
-                          <img
-                            src={`/api/images/${block.imageId}`}
-                            alt={block.alt || ""}
-                            className={`rounded-lg ${
-                              block.size === "small" ? "max-w-sm" :
-                              block.size === "medium" ? "max-w-lg" :
-                              block.size === "large" ? "max-w-2xl" :
-                              "w-full"
-                            } ${
-                              block.alignment === "left" ? "mr-auto" :
-                              block.alignment === "right" ? "ml-auto" :
-                              "mx-auto"
-                            } border`}
-                          />
+                        <figure key={index} className="my-12">
+                          <div className={`flex ${
+                            block.alignment === "left" ? "justify-start" :
+                              block.alignment === "right" ? "justify-end" :
+                              "justify-center"
+                          }`}>
+                            <img
+                              src={`/api/images/${block.imageId}`}
+                              alt={block.alt || ""}
+                              className={`rounded-lg border ${
+                                block.size === "small" ? "max-w-[300px]" :
+                                  block.size === "medium" ? "max-w-[500px]" :
+                                  block.size === "large" ? "max-w-[800px]" :
+                                  "w-full"
+                              } max-h-[600px] object-contain`}
+                            />
+                          </div>
                           {block.caption && (
                             <figcaption className="mt-4 text-sm text-muted-foreground text-center">
                               {block.caption}
