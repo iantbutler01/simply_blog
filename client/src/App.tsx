@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import BlogIndex from "@/pages/blog";
 import BlogPost from "@/pages/blog/[id]";
 import AdminPosts from "@/pages/admin/posts";
+import AdminComments from "@/pages/admin/comments";
 import EditPost from "@/pages/admin/edit";
 import AuthPage from "@/pages/auth";
 
@@ -36,6 +37,9 @@ function Router() {
           <Route path="/auth" component={AuthPage} />
           <Route path="/admin/posts">
             <ProtectedRoute component={AdminPosts} />
+          </Route>
+          <Route path="/admin/comments">
+            <ProtectedRoute component={AdminComments} />
           </Route>
           <Route path="/admin/edit">
             <ProtectedRoute component={EditPost} />
