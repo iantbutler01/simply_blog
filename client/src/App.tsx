@@ -9,6 +9,7 @@ import BlogIndex from "@/pages/blog";
 import BlogPost from "@/pages/blog/[id]";
 import AdminPosts from "@/pages/admin/posts";
 import EditPost from "@/pages/admin/edit";
+import AuthPage from "@/pages/auth";
 
 function ProtectedRoute({ component: Component, ...rest }: any) {
   const { user, isAdmin, isLoading } = useAuth();
@@ -18,7 +19,7 @@ function ProtectedRoute({ component: Component, ...rest }: any) {
   }
 
   if (!user || !isAdmin) {
-    return <Redirect to="/" />;
+    return <Redirect to="/auth" />;
   }
 
   return <Component {...rest} />;
@@ -32,6 +33,7 @@ function Router() {
         <Switch>
           <Route path="/" component={BlogIndex} />
           <Route path="/blog/:id" component={BlogPost} />
+          <Route path="/auth" component={AuthPage} />
           <Route path="/admin/posts">
             <ProtectedRoute component={AdminPosts} />
           </Route>
