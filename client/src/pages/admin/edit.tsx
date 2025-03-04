@@ -432,6 +432,7 @@ export default function EditPost() {
                   />
 
 
+
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="analytics">
                       <AccordionTrigger>Analytics</AccordionTrigger>
@@ -641,9 +642,9 @@ export default function EditPost() {
                             </div>
                           </div>
                           {block.caption && (
-                            <figcaption className="mt-4 text-sm text-muted-foreground text-center">
-                              {block.caption}
-                            </figcaption>
+                            <div className="mt-4 text-center">
+                              <p className="text-sm text-muted-foreground">{block.caption}</p>
+                            </div>
                           )}
                         </figure>
                       );

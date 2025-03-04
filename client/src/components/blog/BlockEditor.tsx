@@ -199,14 +199,14 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                     </div>
                     <div className={`flex ${
                       block.alignment === "left" ? "justify-start" :
-                      block.alignment === "right" ? "justify-end" :
-                      "justify-center"
+                        block.alignment === "right" ? "justify-end" :
+                          "justify-center"
                     }`}>
                       <div style={{
                         width: block.size === "small" ? "300px" :
-                               block.size === "medium" ? "500px" :
-                               block.size === "large" ? "800px" :
-                               "100%",
+                          block.size === "medium" ? "500px" :
+                            block.size === "large" ? "800px" :
+                              "100%",
                         maxWidth: "100%"
                       }}>
                         <img
@@ -217,6 +217,11 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         />
                       </div>
                     </div>
+                    {block.caption && (
+                      <div className="mt-4 text-center">
+                        <p className="text-sm text-muted-foreground">{block.caption}</p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed rounded-lg">
