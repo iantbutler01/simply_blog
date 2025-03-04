@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean, jsonb, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -40,6 +40,10 @@ export const posts = pgTable("posts", {
   metaDescription: text("meta_description"),
   socialImageId: text("social_image_id"),
   canonicalUrl: text("canonical_url"),
+  // Analytics fields
+  views: integer("views").notNull().default(0),
+  shareCount: integer("share_count").notNull().default(0),
+  readingTimeMinutes: integer("reading_time_minutes").notNull().default(0),
 });
 
 // New table for version history
@@ -84,6 +88,10 @@ export const insertPostSchema = createInsertSchema(posts)
     metaDescription: z.string().max(160, "Meta description should not exceed 160 characters").optional(),
     socialImageId: z.string().optional(),
     canonicalUrl: z.union([z.string().url("Must be a valid URL"), z.string().max(0), z.null()]).optional(),
+    views: z.number().optional(),
+    shareCount: z.number().optional(),
+    readingTimeMinutes: z.number().optional(),
+
   });
 
 export const insertVersionSchema = createInsertSchema(postVersions)

@@ -2,6 +2,7 @@ import { posts, type Post, type InsertPost, images, type Image, type InsertImage
 import { db } from "./db";
 import { eq, desc, or, sql, and, lt, isNotNull } from "drizzle-orm";
 import * as crypto from 'crypto';
+import { calculateReadingTime } from "./utils/analytics";
 
 function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString('hex');
@@ -40,6 +41,11 @@ export interface IStorage {
   getScheduledPosts(): Promise<Post[]>;
   publishScheduledPosts(): Promise<void>;
   publishPost(id: number): Promise<Post>;
+
+  // Analytics methods
+  incrementViews(id: number): Promise<void>;
+  incrementShareCount(id: number): Promise<void>;
+  updateReadingTime(id: number, content: any[]): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -67,13 +73,17 @@ export class DatabaseStorage implements IStorage {
 
   async createPost(insertPost: InsertPost): Promise<Post> {
     try {
+      const readingTimeMinutes = calculateReadingTime(insertPost.content);
+
       const [post] = await db
         .insert(posts)
         .values({
           ...insertPost,
+          readingTimeMinutes,
           createdAt: new Date(),
         })
         .returning();
+
       console.log('Created new post:', post.id);
       return post;
     } catch (error) {
@@ -84,9 +94,16 @@ export class DatabaseStorage implements IStorage {
 
   async updatePost(id: number, updatePost: Partial<InsertPost>): Promise<Post> {
     try {
+      const updates = { ...updatePost };
+
+      // If content is being updated, recalculate reading time
+      if (updates.content) {
+        updates.readingTimeMinutes = calculateReadingTime(updates.content);
+      }
+
       const [post] = await db
         .update(posts)
-        .set(updatePost)
+        .set(updates)
         .where(eq(posts.id, id))
         .returning();
 
@@ -351,6 +368,54 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
+  async incrementViews(id: number): Promise<void> {
+    try {
+      await db
+        .update(posts)
+        .set({
+          views: sql`${posts.views} + 1`
+        })
+        .where(eq(posts.id, id));
+
+      console.log(`Incremented views for post ${id}`);
+    } catch (error) {
+      console.error(`Failed to increment views for post ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async incrementShareCount(id: number): Promise<void> {
+    try {
+      await db
+        .update(posts)
+        .set({
+          shareCount: sql`${posts.shareCount} + 1`
+        })
+        .where(eq(posts.id, id));
+
+      console.log(`Incremented share count for post ${id}`);
+    } catch (error) {
+      console.error(`Failed to increment share count for post ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async updateReadingTime(id: number, content: any[]): Promise<void> {
+    try {
+      const readingTimeMinutes = calculateReadingTime(content);
+
+      await db
+        .update(posts)
+        .set({ readingTimeMinutes })
+        .where(eq(posts.id, id));
+
+      console.log(`Updated reading time for post ${id} to ${readingTimeMinutes} minutes`);
+    } catch (error) {
+      console.error(`Failed to update reading time for post ${id}:`, error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
@@ -373,5 +438,4 @@ async function createInitialAdmin() {
 }
 
 createInitialAdmin();
-
 //The types are already defined in the import statement.  Removing the duplicate definitions.

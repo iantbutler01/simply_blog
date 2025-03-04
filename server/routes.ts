@@ -228,6 +228,28 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // Add these routes after the existing post routes
+  // Increment view count
+  app.post("/api/posts/:id/view", async (req, res) => {
+    try {
+      await storage.incrementViews(Number(req.params.id));
+      res.sendStatus(200);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to record view" });
+    }
+  });
+
+  // Record social share
+  app.post("/api/posts/:id/share", async (req, res) => {
+    try {
+      await storage.incrementShareCount(Number(req.params.id));
+      res.sendStatus(200);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to record share" });
+    }
+  });
+
+
   // Protected image routes
   app.post("/api/images", requireAuth, upload.single('image'), async (req: AuthenticatedRequest, res) => {
     if (!isAdmin(req)) {
