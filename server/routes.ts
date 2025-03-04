@@ -32,12 +32,15 @@ const upload = multer({
 export async function registerRoutes(app: Express) {
   // Session setup
   app.use(session({
-    secret: 'your-secret-key', // Replace with a strong secret key in production
+    store: storage.sessionStore,
+    secret: process.env.SESSION_SECRET || 'your-secret-key', // In production, always use environment variable
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
+      httpOnly: true, // Prevent XSS attacks
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: 'lax' // Protect against CSRF
     }
   }));
 

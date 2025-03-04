@@ -1,20 +1,12 @@
-import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser, postVersions, type PostVersion, type InsertVersion } from "@shared/schema";
+import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser, postVersions, type PostVersion } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, or, sql, and, lt, isNotNull } from "drizzle-orm";
 import * as crypto from 'crypto';
 import { calculateReadingTime } from "./utils/analytics";
+import session from 'express-session';
+import connectPg from 'connect-pg-simple';
 
-function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-  return `${salt}:${hash}`;
-}
-
-function verifyPassword(stored: string, supplied: string): boolean {
-  const [salt, hash] = stored.split(':');
-  const suppliedHash = crypto.pbkdf2Sync(supplied, salt, 1000, 64, 'sha512').toString('hex');
-  return hash === suppliedHash;
-}
+const PostgresStore = connectPg(session);
 
 export interface IStorage {
   // Post methods
@@ -35,7 +27,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   validateCredentials(username: string, password: string): Promise<User | undefined>;
-  saveVersion(postId: number, version: InsertVersion): Promise<PostVersion>;
+  saveVersion(postId: number, version: InsertPost): Promise<PostVersion>;
   getVersions(postId: number): Promise<PostVersion[]>;
   getVersion(versionId: number): Promise<PostVersion | undefined>;
   getScheduledPosts(): Promise<Post[]>;
@@ -46,9 +38,25 @@ export interface IStorage {
   incrementViews(id: number): Promise<void>;
   incrementShareCount(id: number): Promise<void>;
   updateReadingTime(id: number, content: any[]): Promise<void>;
+  sessionStore: session.Store;
 }
 
 export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+
+  constructor() {
+    // Initialize PostgreSQL session store
+    this.sessionStore = new PostgresStore({
+      createTableIfMissing: true,
+      tableName: 'user_sessions',
+      // Use the existing database connection
+      conObject: {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      }
+    });
+  }
+
   async getPosts(): Promise<Post[]> {
     try {
       const result = await db.select().from(posts).orderBy(desc(posts.createdAt));
@@ -241,7 +249,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async saveVersion(postId: number, version: InsertVersion): Promise<PostVersion> {
+  async saveVersion(postId: number, version: InsertPost): Promise<PostVersion> {
     try {
       // First get the current version number
       const [latestVersion] = await db
@@ -438,4 +446,15 @@ async function createInitialAdmin() {
 }
 
 createInitialAdmin();
-//The types are already defined in the import statement.  Removing the duplicate definitions.
+
+function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(stored: string, supplied: string): boolean {
+  const [salt, hash] = stored.split(':');
+  const suppliedHash = crypto.pbkdf2Sync(supplied, salt, 1000, 64, 'sha512').toString('hex');
+  return hash === suppliedHash;
+}
