@@ -24,7 +24,10 @@ import { SocialPreview } from "@/components/blog/SocialPreview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Calendar } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 
@@ -34,6 +37,7 @@ type FormValues = {
   excerpt: string;
   tags: string[];
   isDraft: boolean;
+  publishAt: Date | null;
   metaTitle: string;
   metaDescription: string;
   socialImageId: string;
@@ -59,6 +63,7 @@ export default function EditPost() {
       excerpt: "",
       tags: [],
       isDraft: true,
+      publishAt: null,
       metaTitle: "",
       metaDescription: "",
       socialImageId: "",
@@ -81,6 +86,7 @@ export default function EditPost() {
         excerpt: post.excerpt,
         tags: post.tags,
         isDraft: post.isDraft,
+        publishAt: post.publishAt ? new Date(post.publishAt) : null,
         metaTitle: post.metaTitle || "",
         metaDescription: post.metaDescription || "",
         socialImageId: post.socialImageId || "",
@@ -136,6 +142,13 @@ export default function EditPost() {
       if (!postId) {
         navigate("/admin/posts");
       }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -222,26 +235,70 @@ export default function EditPost() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="isDraft"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel>Draft</FormLabel>
-                        <div className="text-sm text-muted-foreground">
-                          Keep this post as a draft to prevent it from being published
+                <div className="space-y-4 rounded-lg border p-4">
+                  <FormField
+                    control={form.control}
+                    name="isDraft"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <FormLabel>Draft</FormLabel>
+                          <div className="text-sm text-muted-foreground">
+                            Keep this post as a draft
+                          </div>
                         </div>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="publishAt"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Schedule Publication</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value || undefined}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date < new Date() || date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <Accordion type="single" collapsible>
                   <AccordionItem value="seo">
@@ -365,7 +422,7 @@ export default function EditPost() {
 
               <div className="flex items-center gap-4 mb-8 text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
+                  <CalendarIcon className="h-4 w-4" />
                   <time dateTime={new Date().toISOString()}>
                     {format(new Date(), "MMMM d, yyyy")}
                   </time>
