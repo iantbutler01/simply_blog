@@ -145,8 +145,15 @@ export default function EditPost() {
         })
       };
 
-      // If editing existing post, save version history
+      // If editing existing post, first update with draft status
       if (postId) {
+        // First set the post to draft state
+        await apiRequest("PATCH", `/api/posts/${postId}`, {
+          ...formattedValues,
+          isDraft: true
+        });
+
+        // Then save the version
         await apiRequest("POST", `/api/posts/${postId}/versions`, {
           title: values.title,
           content: values.content,
@@ -154,19 +161,16 @@ export default function EditPost() {
           tags: values.tags,
           comment: values.comment,
         });
+
         // Invalidate versions query after saving
         queryClient.invalidateQueries({ queryKey: [`/api/posts/${postId}/versions`] });
 
-        // After saving a version, set the post back to draft status
+        // Update form state to reflect draft status
         form.setValue("isDraft", true);
         toast({
           title: "Version saved",
           description: "Post has been unpublished. Review and publish when ready.",
         });
-      }
-
-      if (postId) {
-        await apiRequest("PATCH", `/api/posts/${postId}`, formattedValues);
       } else {
         await apiRequest("POST", "/api/posts", formattedValues);
       }
