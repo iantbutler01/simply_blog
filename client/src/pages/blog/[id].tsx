@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
@@ -72,10 +72,35 @@ export default function BlogPost() {
         ))}
       </div>
 
-      <div 
-        className="prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+      <div className="space-y-8">
+        {post.content.map((block, index) => {
+          if (block.type === "text") {
+            return (
+              <div
+                key={index}
+                className="prose prose-lg max-w-none"
+                dangerouslySetInnerHTML={{ __html: block.content }}
+              />
+            );
+          } else if (block.type === "image" && block.imageId) {
+            return (
+              <figure key={index} className="my-8">
+                <img
+                  src={`/uploads/${block.imageId}`}
+                  alt={block.alt || ""}
+                  className="rounded-lg w-full"
+                />
+                {block.caption && (
+                  <figcaption className="mt-2 text-sm text-muted-foreground text-center">
+                    {block.caption}
+                  </figcaption>
+                )}
+              </figure>
+            );
+          }
+          return null;
+        })}
+      </div>
     </div>
   );
 }
