@@ -360,7 +360,7 @@ export default function EditPost() {
 
         <ResizablePanel defaultSize={50}>
           <div className="p-8 h-full overflow-auto">
-            <div className="prose prose-lg max-w-none">
+            <div className="prose prose-lg max-w-none min-w-[500px]">
               <h1 className="text-4xl font-bold mb-4">{form.watch("title")}</h1>
 
               <div className="flex items-center gap-4 mb-8 text-muted-foreground">
@@ -379,29 +379,30 @@ export default function EditPost() {
                 </div>
               </div>
 
-              <div className="prose prose-lg max-w-none">
+              <div className="space-y-8">
                 {form.watch("content").map((block, index) => {
                   if (block.type === "text") {
                     return (
                       <div
                         key={index}
+                        className="prose prose-lg max-w-none"
                         dangerouslySetInnerHTML={{ __html: block.content }}
                       />
                     );
                   } else if (block.type === "image" && block.imageId) {
                     return (
-                      <div key={index} className="my-8">
+                      <figure key={index} className="my-8">
                         <img
                           src={`/uploads/${block.imageId}`}
                           alt={block.alt || ""}
-                          className="rounded-lg"
+                          className="rounded-lg w-full"
                         />
                         {block.caption && (
-                          <p className="mt-2 text-sm text-muted-foreground text-center">
+                          <figcaption className="mt-2 text-sm text-muted-foreground text-center">
                             {block.caption}
-                          </p>
+                          </figcaption>
                         )}
-                      </div>
+                      </figure>
                     );
                   }
                   return null;
