@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 
 export function Nav() {
   const [location] = useLocation();
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
 
   return (
     <nav className="border-b">
@@ -24,15 +24,13 @@ export function Nav() {
                 Blog
               </span>
             </Link>
-            {isAdmin && (
-              <Link href="/admin/posts">
-                <span className={`hover:text-primary transition-colors ${
-                  location.startsWith("/admin") ? "text-primary font-medium" : "text-muted-foreground"
-                }`}>
-                  Admin
-                </span>
-              </Link>
-            )}
+            <Link href="/admin/posts">
+              <span className={`hover:text-primary transition-colors ${
+                location.startsWith("/admin") ? "text-primary font-medium" : "text-muted-foreground"
+              }`}>
+                Admin
+              </span>
+            </Link>
           </div>
         </div>
       </div>
