@@ -12,6 +12,15 @@ export const posts = pgTable("posts", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const images = pgTable("images", {
+  id: serial("id").primaryKey(),
+  filename: text("filename").notNull(),
+  url: text("url").notNull(),
+  mimeType: text("mime_type").notNull(),
+  size: text("size").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertPostSchema = createInsertSchema(posts)
   .omit({ id: true, createdAt: true })
   .extend({
@@ -21,5 +30,10 @@ export const insertPostSchema = createInsertSchema(posts)
     tags: z.array(z.string()).min(1, "At least one tag is required"),
   });
 
+export const insertImageSchema = createInsertSchema(images)
+  .omit({ id: true, createdAt: true });
+
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type Post = typeof posts.$inferSelect;
+export type InsertImage = z.infer<typeof insertImageSchema>;
+export type Image = typeof images.$inferSelect;

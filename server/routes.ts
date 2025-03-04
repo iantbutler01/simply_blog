@@ -1,9 +1,65 @@
 import type { Express } from "express";
 import { createServer } from "http";
 import { storage } from "./storage";
-import { insertPostSchema } from "@shared/schema";
+import { insertPostSchema, insertImageSchema } from "@shared/schema";
+import multer from "multer";
+import path from "path";
+import express from 'express';
+
+// Configure multer for handling file uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: 'uploads/',
+    filename: (req, file, cb) => {
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+      cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
+    }
+  }),
+  fileFilter: (_req, file, cb) => {
+    // Accept images only
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error('Only image files are allowed!'));
+    }
+    cb(null, true);
+  }
+});
 
 export async function registerRoutes(app: Express) {
+  // Ensure uploads directory exists
+  app.use('/uploads', express.static('uploads'));
+
+  // Image upload endpoint
+  app.post("/api/images", upload.single('image'), async (req, res) => {
+    if (!req.file) {
+      res.status(400).json({ message: "No image file provided" });
+      return;
+    }
+
+    try {
+      const imageData = {
+        filename: req.file.originalname,
+        url: `/uploads/${req.file.filename}`,
+        mimeType: req.file.mimetype,
+        size: req.file.size.toString(),
+      };
+
+      const image = await storage.createImage(imageData);
+      res.status(201).json(image);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to save image" });
+    }
+  });
+
+  app.delete("/api/images/:id", async (req, res) => {
+    try {
+      await storage.deleteImage(Number(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete image" });
+    }
+  });
+
+  // Existing post routes
   app.get("/api/posts", async (req, res) => {
     const { search, tag, published } = req.query;
 

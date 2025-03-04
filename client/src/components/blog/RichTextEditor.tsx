@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
 import { Toggle } from "@/components/ui/toggle";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -15,6 +16,7 @@ import {
   Redo,
 } from "lucide-react";
 import React from 'react';
+import { ImageUpload } from "./ImageUpload";
 
 interface RichTextEditorProps {
   value: string;
@@ -35,6 +37,11 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
       Link.configure({
         openOnClick: false,
       }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'rounded-lg max-w-full',
+        },
+      }),
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -53,6 +60,10 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
       editor.commands.setContent(value);
     }
   }, [value, editor]);
+
+  const addImage = (url: string) => {
+    editor?.chain().focus().setImage({ src: url }).run();
+  };
 
   if (!editor) return null;
 
@@ -108,6 +119,8 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
           <Quote className="h-4 w-4" />
         </Toggle>
 
+        <ImageUpload onUpload={addImage} />
+
         <Separator orientation="vertical" className="mx-1 h-6" />
 
         <Toggle
@@ -145,6 +158,12 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
           float: left;
           height: 0;
           pointer-events: none;
+        }
+        .ProseMirror img {
+          max-width: 100%;
+          height: auto;
+          margin: 1rem 0;
+          border-radius: 0.5rem;
         }
       `}</style>
     </div>
