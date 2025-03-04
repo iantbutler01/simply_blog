@@ -37,7 +37,7 @@ export default function BlogPost() {
 
   if (isLoading) {
     return (
-      <div className="container py-8 max-w-4xl">
+      <div className="container py-12 max-w-3xl mx-auto px-6">
         <div className="h-96 animate-pulse bg-muted rounded-lg" />
       </div>
     );
@@ -46,10 +46,10 @@ export default function BlogPost() {
   if (!post) return null;
 
   return (
-    <div className="container py-8 max-w-4xl">
+    <div className="container py-12 max-w-3xl mx-auto px-6">
       <Head post={post} />
 
-      <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+      <h1 className="text-4xl font-bold mb-6">{post.title}</h1>
 
       <div className="flex items-center gap-4 mb-8 text-muted-foreground">
         <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export default function BlogPost() {
         ))}
       </div>
 
-      <div className="space-y-8">
+      <article className="space-y-8">
         {post.content.map((block, index) => {
           if (block.type === "text") {
             return (
@@ -84,14 +84,14 @@ export default function BlogPost() {
             );
           } else if (block.type === "image" && block.imageId) {
             return (
-              <figure key={index} className="my-8">
+              <figure key={index} className="my-12">
                 <img
                   src={`/uploads/${block.imageId}`}
                   alt={block.alt || ""}
                   className="rounded-lg w-full"
                 />
                 {block.caption && (
-                  <figcaption className="mt-2 text-sm text-muted-foreground text-center">
+                  <figcaption className="mt-4 text-sm text-muted-foreground text-center">
                     {block.caption}
                   </figcaption>
                 )}
@@ -100,7 +100,7 @@ export default function BlogPost() {
           }
           return null;
         })}
-      </div>
+      </article>
     </div>
   );
 }
