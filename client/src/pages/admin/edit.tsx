@@ -140,8 +140,11 @@ export default function EditPost() {
             return {
               type: "image",
               imageId: block.imageId,
+              imageUrl: block.imageUrl,
               caption: block.caption,
-              alt: block.alt
+              alt: block.alt,
+              alignment: block.alignment,
+              size: block.size
             };
           }
         })
