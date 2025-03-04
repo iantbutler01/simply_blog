@@ -13,6 +13,8 @@ export default function BlogIndex() {
     queryFn: async () => {
       const url = new URL("/api/posts", window.location.origin);
       if (search) url.searchParams.set("search", search);
+      // Only show published posts
+      url.searchParams.set("published", "true");
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch posts");
       return res.json();
@@ -55,7 +57,7 @@ export default function BlogIndex() {
             <p className="text-muted-foreground mt-2">
               {search
                 ? "Try adjusting your search terms"
-                : "Start by creating your first blog post"}
+                : "Check back later for new posts"}
             </p>
           </div>
         ) : (

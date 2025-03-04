@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { format } from "date-fns";
@@ -7,9 +7,21 @@ import { type Post } from "@shared/schema";
 
 export default function BlogPost() {
   const { id } = useParams();
+  const [, navigate] = useLocation();
 
   const { data: post, isLoading } = useQuery<Post>({
     queryKey: [`/api/posts/${id}`],
+    queryFn: async () => {
+      const res = await fetch(`/api/posts/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch post");
+      const post = await res.json();
+      // Redirect if trying to access a draft post directly
+      if (post.isDraft && !window.location.pathname.startsWith('/admin')) {
+        navigate('/');
+        return null;
+      }
+      return post;
+    },
   });
 
   if (isLoading) {

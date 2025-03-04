@@ -5,17 +5,31 @@ import { insertPostSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express) {
   app.get("/api/posts", async (req, res) => {
-    const { search, tag } = req.query;
+    const { search, tag, published } = req.query;
 
-    let posts;
+    let posts = await storage.getPosts();
+
+    // Filter out drafts for public view
+    if (published === "true") {
+      posts = posts.filter(post => !post.isDraft);
+    }
+
+    // Apply search filter if present
     if (search && typeof search === "string") {
       posts = await storage.searchPosts(search);
-    } else if (tag && typeof tag === "string") {
-      posts = await storage.getPostsByTag(tag);
-    } else {
-      posts = await storage.getPosts();
+      if (published === "true") {
+        posts = posts.filter(post => !post.isDraft);
+      }
     }
-    
+
+    // Apply tag filter if present
+    if (tag && typeof tag === "string") {
+      posts = await storage.getPostsByTag(tag);
+      if (published === "true") {
+        posts = posts.filter(post => !post.isDraft);
+      }
+    }
+
     res.json(posts);
   });
 
