@@ -30,7 +30,6 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
   };
 
   const addBlock = (type: "text" | "image", e: React.MouseEvent) => {
-    // Prevent form submission and event bubbling
     e.preventDefault();
     e.stopPropagation();
 
@@ -122,9 +121,9 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
           onDragOver={(e) => handleDragOver(e, index)}
           onDragLeave={handleDragLeave}
           onDrop={(e) => handleDrop(e, index)}
-          className="group relative flex gap-2 rounded-lg border bg-card p-4 w-full hover:shadow-sm transition-shadow"
+          className="group relative flex gap-2 border bg-card rounded-lg overflow-hidden"
         >
-          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground p-4">
             <GripVertical className="h-4 w-4 cursor-move" />
             <Button
               variant="ghost"
@@ -137,44 +136,44 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
             </Button>
           </div>
 
-          {block.type === "text" && (
-            <div className="flex-1">
+          <div className="flex-1 min-w-0 p-4">
+            {block.type === "text" && (
               <RichTextEditor
                 value={block.content}
                 onChange={(content) =>
                   updateBlock(index, { ...block, content })
                 }
               />
-            </div>
-          )}
+            )}
 
-          {block.type === "image" && (
-            <div className="flex-1">
-              {block.imageId ? (
-                <div className="relative aspect-video">
-                  <img
-                    src={`/uploads/${block.imageId}`}
-                    alt={block.alt || ""}
-                    className="rounded-lg object-cover"
+            {block.type === "image" && (
+              <div className="flex-1">
+                {block.imageId ? (
+                  <div className="relative aspect-video">
+                    <img
+                      src={`/uploads/${block.imageId}`}
+                      alt={block.alt || ""}
+                      className="rounded-lg object-cover"
+                    />
+                    {block.caption && (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {block.caption}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <ImageUpload
+                    onUpload={(url) =>
+                      updateBlock(index, {
+                        ...block,
+                        imageId: parseInt(url.split('/').pop() || '0', 10),
+                      })
+                    }
                   />
-                  {block.caption && (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {block.caption}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <ImageUpload
-                  onUpload={(url) =>
-                    updateBlock(index, {
-                      ...block,
-                      imageId: parseInt(url.split('/').pop() || '0', 10),
-                    })
-                  }
-                />
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
         </div>
       ))}
 

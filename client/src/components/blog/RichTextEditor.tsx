@@ -49,7 +49,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-lg max-w-none min-h-[400px] focus:outline-none'
+        class: 'prose prose-lg max-w-none min-h-[200px] focus:outline-none'
       }
     }
   });
@@ -63,13 +63,11 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
   const addImage = (url: string) => {
     if (editor) {
-      // Ensure editor has focus before inserting
       editor.chain()
         .focus()
         .setImage({ src: url })
         .run();
 
-      // Trigger onChange to ensure content is saved
       onChange(editor.getHTML());
     }
   };
@@ -78,7 +76,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
   return (
     <div className="w-full border rounded-lg overflow-hidden">
-      <div className="flex items-center gap-1 p-2 border-b bg-muted/50">
+      <div className="flex items-center gap-1 p-2 border-b bg-muted/50 overflow-x-auto">
         <Toggle
           size="sm"
           pressed={editor.isActive("bold")}
@@ -158,9 +156,11 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
       <style>{`
         .ProseMirror {
-          min-height: 400px;
+          min-height: 200px;
           outline: none;
           width: 100%;
+          overflow-x: hidden;
+          overflow-y: auto;
         }
         .ProseMirror p.is-editor-empty:first-child::before {
           color: #adb5bd;
