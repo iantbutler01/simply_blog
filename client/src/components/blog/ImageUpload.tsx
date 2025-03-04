@@ -26,7 +26,10 @@ export function ImageUpload({ onUpload }: ImageUploadProps) {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Failed to upload image");
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to upload image');
+      }
 
       const image: Image = await res.json();
       onUpload(image.url);
@@ -35,9 +38,10 @@ export function ImageUpload({ onUpload }: ImageUploadProps) {
         description: "Image uploaded successfully",
       });
     } catch (error) {
+      console.error('Image upload error:', error);
       toast({
         title: "Error",
-        description: "Failed to upload image",
+        description: error instanceof Error ? error.message : "Failed to upload image",
         variant: "destructive",
       });
     } finally {

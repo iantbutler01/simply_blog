@@ -16,11 +16,15 @@ const upload = multer({
     }
   }),
   fileFilter: (_req, file, cb) => {
-    // Accept images only
-    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-      return cb(new Error('Only image files are allowed!'));
+    // Accept images and SVGs
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif|svg)$/i)) {
+      return cb(new Error('Only image files (jpg, jpeg, png, gif, svg) are allowed!'));
     }
-    cb(null, true);
+    if (file.mimetype.startsWith('image/') || file.mimetype === 'image/svg+xml') {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images are allowed.'));
+    }
   }
 });
 
@@ -31,11 +35,19 @@ export async function registerRoutes(app: Express) {
   // Image upload endpoint
   app.post("/api/images", upload.single('image'), async (req, res) => {
     if (!req.file) {
-      res.status(400).json({ message: "No image file provided" });
+      const error = req.fileValidationError || "No image file provided";
+      console.error('Image upload failed:', error);
+      res.status(400).json({ message: error });
       return;
     }
 
     try {
+      console.log('Processing uploaded file:', {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      });
+
       const imageData = {
         filename: req.file.originalname,
         url: `/uploads/${req.file.filename}`,
@@ -44,9 +56,11 @@ export async function registerRoutes(app: Express) {
       };
 
       const image = await storage.createImage(imageData);
+      console.log('Image saved to database:', image);
       res.status(201).json(image);
     } catch (error) {
-      res.status(500).json({ message: "Failed to save image" });
+      console.error('Failed to save image:', error);
+      res.status(500).json({ message: "Failed to save image", error: String(error) });
     }
   });
 
