@@ -432,6 +432,7 @@ export default function EditPost() {
                   />
 
 
+
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="analytics">
                       <AccordionTrigger>Analytics</AccordionTrigger>
@@ -622,19 +623,21 @@ export default function EditPost() {
                         <figure key={index} className="my-12">
                           <div className={`flex ${
                             block.alignment === "left" ? "justify-start" :
-                              block.alignment === "right" ? "justify-end" :
-                              "justify-center"
+                            block.alignment === "right" ? "justify-end" :
+                            "justify-center"
                           }`}>
-                            <img
-                              src={`/api/images/${block.imageId}`}
-                              alt={block.alt || ""}
-                              className={`rounded-lg border ${
-                                block.size === "small" ? "max-w-[300px]" :
-                                  block.size === "medium" ? "max-w-[500px]" :
-                                  block.size === "large" ? "max-w-[800px]" :
-                                  "w-full"
-                              } max-h-[600px] object-contain`}
-                            />
+                            <div className={`relative ${
+                              block.size === "small" ? "w-[300px]" :
+                              block.size === "medium" ? "w-[500px]" :
+                              block.size === "large" ? "w-[800px]" :
+                              "w-full"
+                            }`}>
+                              <img
+                                src={`/api/images/${block.imageId}`}
+                                alt={block.alt || ""}
+                                className="rounded-lg border w-full h-auto object-contain max-h-[600px]"
+                              />
+                            </div>
                           </div>
                           {block.caption && (
                             <figcaption className="mt-4 text-sm text-muted-foreground text-center">

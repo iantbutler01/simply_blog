@@ -128,7 +128,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
           onDrop={(e) => handleDrop(e, index)}
           className="group relative flex gap-2 border bg-card rounded-lg overflow-hidden"
         >
-          <div className="flex flex-col items-center gap-2 text-muted-foreground p-4 border-r">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground p-4 border-r bg-muted/10">
             <GripVertical className="h-4 w-4 cursor-move" />
             <Button
               variant="ghost"
@@ -152,68 +152,68 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
             )}
 
             {block.type === "image" && (
-              <div className="space-y-4">
+              <div className="space-y-4 relative">
                 {block.imageId ? (
-                  <div className="relative pt-8">
-                    <div className="absolute -top-3 left-0 right-0 flex justify-end px-4">
-                      <div className="flex gap-2 bg-background/95 p-2 rounded-lg shadow-lg border">
-                        <Toggle
-                          size="sm"
-                          pressed={block.alignment === "left"}
-                          onPressedChange={() => updateBlock(index, { ...block, alignment: "left" })}
-                          aria-label="Align left"
-                        >
-                          <AlignLeft className="h-4 w-4" />
-                        </Toggle>
-                        <Toggle
-                          size="sm"
-                          pressed={block.alignment === "center"}
-                          onPressedChange={() => updateBlock(index, { ...block, alignment: "center" })}
-                          aria-label="Align center"
-                        >
-                          <AlignCenter className="h-4 w-4" />
-                        </Toggle>
-                        <Toggle
-                          size="sm"
-                          pressed={block.alignment === "right"}
-                          onPressedChange={() => updateBlock(index, { ...block, alignment: "right" })}
-                          aria-label="Align right"
-                        >
-                          <AlignRight className="h-4 w-4" />
-                        </Toggle>
-                        <Select
-                          value={block.size}
-                          onValueChange={(value: "small" | "medium" | "large" | "full") =>
-                            updateBlock(index, { ...block, size: value })
-                          }
-                        >
-                          <SelectTrigger className="h-8 w-24">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="small">Small</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="large">Large</SelectItem>
-                            <SelectItem value="full">Full</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                  <div className="pt-12 relative">
+                    <div className="absolute top-0 right-0 flex gap-2 bg-background border shadow-sm rounded-lg p-2 z-10">
+                      <Toggle
+                        size="sm"
+                        pressed={block.alignment === "left"}
+                        onPressedChange={() => updateBlock(index, { ...block, alignment: "left" })}
+                        aria-label="Align left"
+                      >
+                        <AlignLeft className="h-4 w-4" />
+                      </Toggle>
+                      <Toggle
+                        size="sm"
+                        pressed={block.alignment === "center"}
+                        onPressedChange={() => updateBlock(index, { ...block, alignment: "center" })}
+                        aria-label="Align center"
+                      >
+                        <AlignCenter className="h-4 w-4" />
+                      </Toggle>
+                      <Toggle
+                        size="sm"
+                        pressed={block.alignment === "right"}
+                        onPressedChange={() => updateBlock(index, { ...block, alignment: "right" })}
+                        aria-label="Align right"
+                      >
+                        <AlignRight className="h-4 w-4" />
+                      </Toggle>
+                      <Select
+                        value={block.size}
+                        onValueChange={(value: "small" | "medium" | "large" | "full") =>
+                          updateBlock(index, { ...block, size: value })
+                        }
+                      >
+                        <SelectTrigger className="h-8 w-24">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="small">Small</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="large">Large</SelectItem>
+                          <SelectItem value="full">Full</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className={`flex ${
                       block.alignment === "left" ? "justify-start" :
                       block.alignment === "right" ? "justify-end" :
                       "justify-center"
                     }`}>
-                      <img
-                        src={`/api/images/${block.imageId}`}
-                        alt={block.alt || ""}
-                        className={`rounded-lg border ${
-                          block.size === "small" ? "max-w-[300px]" :
-                          block.size === "medium" ? "max-w-[500px]" :
-                          block.size === "large" ? "max-w-[800px]" :
-                          "w-full"
-                        } max-h-[600px] object-contain`}
-                      />
+                      <div className={`relative ${
+                        block.size === "small" ? "w-[300px]" :
+                        block.size === "medium" ? "w-[500px]" :
+                        block.size === "large" ? "w-[800px]" :
+                        "w-full"
+                      }`}>
+                        <img
+                          src={`/api/images/${block.imageId}`}
+                          alt={block.alt || ""}
+                          className="rounded-lg border w-full h-auto object-contain max-h-[600px]"
+                        />
+                      </div>
                     </div>
                   </div>
                 ) : (
