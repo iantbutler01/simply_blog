@@ -21,6 +21,7 @@ export const blockSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("image"),
     imageId: z.number(),
+    imageUrl: z.string().optional(), // URL will be a data URL from the database
     caption: z.string().optional(),
     alt: z.string().optional(),
     alignment: z.enum(["left", "center", "right"]).optional().default("center"),
@@ -62,10 +63,11 @@ export const postVersions = pgTable("post_versions", {
   comment: text("comment"), // Optional comment about the version
 });
 
+// Images table with binary storage
 export const images = pgTable("images", {
   id: serial("id").primaryKey(),
   filename: text("filename").notNull(),
-  url: text("url").notNull(),
+  data: text("data").notNull(), // Store base64 image data directly
   mimeType: text("mime_type").notNull(),
   size: text("size").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -93,13 +95,21 @@ export const insertPostSchema = createInsertSchema(posts)
     views: z.number().optional(),
     shareCount: z.number().optional(),
     readingTimeMinutes: z.number().optional(),
-
   });
 
 export const insertVersionSchema = createInsertSchema(postVersions)
   .omit({ id: true, createdAt: true, version: true })
   .extend({
     comment: z.string().optional(),
+  });
+
+export const insertImageSchema = createInsertSchema(images)
+  .omit({ id: true, createdAt: true })
+  .extend({
+    data: z.string().min(1, "Image data is required"),
+    filename: z.string().min(1, "Filename is required"),
+    mimeType: z.string().min(1, "MIME type is required"),
+    size: z.string().min(1, "Size is required"),
   });
 
 export type Block = z.infer<typeof blockSchema>;

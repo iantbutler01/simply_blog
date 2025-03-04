@@ -8,15 +8,9 @@ import express from 'express';
 import { requireAuth, AuthenticatedRequest, isAdmin } from './middleware/auth';
 import session from 'express-session';
 
-// Configure multer for handling file uploads
+// Configure multer to use memory storage
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: 'uploads/',
-    filename: (req, file, cb) => {
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-      cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
-    }
-  }),
+  storage: multer.memoryStorage(),
   fileFilter: (_req, file, cb) => {
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif|svg)$/i)) {
       return cb(new Error('Only image files are allowed!'));
@@ -44,8 +38,8 @@ export async function registerRoutes(app: Express) {
     }
   }));
 
-  // Static file serving
-  app.use('/uploads', express.static('uploads'));
+  // Static file serving - removed because we are no longer using disk storage
+  //app.use('/uploads', express.static('uploads'));
 
   // Auth Routes
   app.post('/api/login', async (req, res) => {
@@ -268,13 +262,22 @@ export async function registerRoutes(app: Express) {
     try {
       const imageData = {
         filename: req.file.originalname,
-        url: `/uploads/${req.file.filename}`,
+        data: req.file.buffer,
         mimeType: req.file.mimetype,
         size: req.file.size.toString(),
       };
 
       const image = await storage.createImage(imageData);
-      res.status(201).json(image);
+
+      // Convert the binary data to a base64 data URL
+      const base64Data = req.file.buffer.toString('base64');
+      const dataUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+
+      // Return both the image record and the data URL
+      res.status(201).json({
+        ...image,
+        url: dataUrl
+      });
     } catch (error) {
       console.error('Failed to save image:', error);
       res.status(500).json({ message: "Failed to save image" });
