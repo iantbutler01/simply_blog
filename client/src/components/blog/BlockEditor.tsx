@@ -152,7 +152,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
             )}
 
             {block.type === "image" && (
-              <div className="space-y-4 relative">
+              <div className="space-y-4">
                 {block.imageId ? (
                   <div className="pt-12 relative">
                     <div className="absolute top-0 right-0 flex gap-2 bg-background border shadow-sm rounded-lg p-2 z-10">
@@ -221,6 +221,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                     <ImageIcon className="h-8 w-8 text-muted-foreground" />
                     <ImageUpload
                       onUpload={(imageId) => {
+                        console.log("Image uploaded, id:", imageId);
                         updateBlock(index, {
                           ...block,
                           imageId,
