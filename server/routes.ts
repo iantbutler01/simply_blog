@@ -29,8 +29,14 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express) {
-  // Ensure uploads directory exists
+  // Static file serving
   app.use('/uploads', express.static('uploads'));
+  app.use('/__repl_auth', express.static('public'));
+
+  // Auth Routes
+  app.get('/__repl_auth/login', (_req, res) => {
+    res.redirect('https://replit.com/auth_with_repl_site');
+  });
 
   // Public routes
   app.get("/api/posts", async (req, res) => {
