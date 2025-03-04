@@ -12,6 +12,7 @@ interface BlockEditorProps {
 
 export function BlockEditor({ value, onChange }: BlockEditorProps) {
   const [blocks, setBlocks] = useState<Block[]>(value);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   // Sync blocks with form value
   useEffect(() => {
@@ -33,7 +34,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    const newBlock: Block = type === "text" 
+    const newBlock: Block = type === "text"
       ? { type: "text", content: "", format: "html" }
       : { type: "image", imageId: 0 };
 
@@ -59,12 +60,69 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     onChange(newBlocks);
   };
 
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLDivElement;
+
+    // Add visual feedback for drop target
+    if (draggedIndex !== null && draggedIndex !== index) {
+      const rect = target.getBoundingClientRect();
+      const middleY = rect.top + rect.height / 2;
+
+      if (e.clientY < middleY) {
+        target.style.borderTop = "2px solid var(--primary)";
+        target.style.borderBottom = "";
+      } else {
+        target.style.borderTop = "";
+        target.style.borderBottom = "2px solid var(--primary)";
+      }
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    const target = e.currentTarget as HTMLDivElement;
+    target.style.borderTop = "";
+    target.style.borderBottom = "";
+  };
+
+  const handleDrop = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLDivElement;
+    target.style.borderTop = "";
+    target.style.borderBottom = "";
+
+    if (draggedIndex === null) return;
+
+    const rect = target.getBoundingClientRect();
+    const middleY = rect.top + rect.height / 2;
+
+    // Drop below if cursor is in bottom half
+    if (e.clientY > middleY) {
+      index += 1;
+    }
+
+    if (draggedIndex !== index) {
+      moveBlock(draggedIndex, index);
+    }
+
+    setDraggedIndex(null);
+  };
+
   return (
     <div className="space-y-4 w-full">
       {blocks.map((block, index) => (
         <div
           key={index}
-          className="group relative flex gap-2 rounded-lg border bg-card p-4 w-full"
+          draggable
+          onDragStart={() => handleDragStart(index)}
+          onDragOver={(e) => handleDragOver(e, index)}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, index)}
+          className="group relative flex gap-2 rounded-lg border bg-card p-4 w-full hover:shadow-sm transition-shadow"
         >
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <GripVertical className="h-4 w-4 cursor-move" />
