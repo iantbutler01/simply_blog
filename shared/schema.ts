@@ -23,6 +23,8 @@ export const blockSchema = z.discriminatedUnion("type", [
     imageId: z.number(),
     caption: z.string().optional(),
     alt: z.string().optional(),
+    alignment: z.enum(["left", "center", "right"]).optional().default("center"),
+    size: z.enum(["small", "medium", "large", "full"]).optional().default("full"),
   }),
 ]);
 

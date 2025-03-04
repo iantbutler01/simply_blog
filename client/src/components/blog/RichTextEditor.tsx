@@ -14,9 +14,13 @@ import {
   Quote,
   Undo,
   Redo,
+  AlignLeft,
+  AlignCenter,
+  AlignRight
 } from "lucide-react";
 import React from 'react';
 import { ImageUpload } from "./ImageUpload";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface RichTextEditorProps {
   value: string;
@@ -39,8 +43,29 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
       }),
       Image.configure({
         HTMLAttributes: {
-          class: 'rounded-lg max-w-full',
+          class: 'rounded-lg',
         },
+        addAttributes() {
+          return {
+            src: {
+              default: null
+            },
+            alt: {
+              default: null
+            },
+            class: {
+              default: 'rounded-lg max-w-full mx-auto'
+            },
+            size: {
+              default: 'full',
+              rendered: false
+            },
+            alignment: {
+              default: 'center',
+              rendered: false
+            }
+          }
+        }
       }),
     ],
     content: value,
@@ -69,6 +94,68 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         .run();
 
       onChange(editor.getHTML());
+    }
+  };
+
+  const setImageSize = (size: 'small' | 'medium' | 'large' | 'full') => {
+    const { view } = editor;
+    const { tr } = view.state;
+
+    editor.chain().focus().run();
+
+    const node = editor.view.state.selection.$anchor.node();
+    if (node && node.type.name === 'image') {
+      let className = 'rounded-lg mx-auto ';
+      switch (size) {
+        case 'small':
+          className += 'max-w-sm';
+          break;
+        case 'medium':
+          className += 'max-w-lg';
+          break;
+        case 'large':
+          className += 'max-w-2xl';
+          break;
+        case 'full':
+          className += 'max-w-full';
+          break;
+      }
+
+      editor.chain()
+        .focus()
+        .updateAttributes('image', {
+          class: className,
+          size
+        })
+        .run();
+    }
+  };
+
+  const setImageAlignment = (alignment: 'left' | 'center' | 'right') => {
+    editor.chain().focus().run();
+
+    const node = editor.view.state.selection.$anchor.node();
+    if (node && node.type.name === 'image') {
+      let className = 'rounded-lg ';
+      switch (alignment) {
+        case 'left':
+          className += 'mr-auto';
+          break;
+        case 'center':
+          className += 'mx-auto';
+          break;
+        case 'right':
+          className += 'ml-auto';
+          break;
+      }
+
+      editor.chain()
+        .focus()
+        .updateAttributes('image', {
+          class: className,
+          alignment
+        })
+        .run();
     }
   };
 
@@ -130,6 +217,50 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
         <Separator orientation="vertical" className="mx-1 h-6" />
 
+        {editor.isActive('image') && (
+          <>
+            <Separator orientation="vertical" className="mx-1 h-6" />
+            <Toggle
+              size="sm"
+              pressed={editor.getAttributes('image').alignment === 'left'}
+              onPressedChange={() => setImageAlignment('left')}
+              aria-label="Align left"
+            >
+              <AlignLeft className="h-4 w-4" />
+            </Toggle>
+            <Toggle
+              size="sm"
+              pressed={editor.getAttributes('image').alignment === 'center'}
+              onPressedChange={() => setImageAlignment('center')}
+              aria-label="Align center"
+            >
+              <AlignCenter className="h-4 w-4" />
+            </Toggle>
+            <Toggle
+              size="sm"
+              pressed={editor.getAttributes('image').alignment === 'right'}
+              onPressedChange={() => setImageAlignment('right')}
+              aria-label="Align right"
+            >
+              <AlignRight className="h-4 w-4" />
+            </Toggle>
+            <Select
+              value={editor.getAttributes('image').size || 'full'}
+              onValueChange={(value: 'small' | 'medium' | 'large' | 'full') => setImageSize(value)}
+            >
+              <SelectTrigger className="h-8 w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="small">Small</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="large">Large</SelectItem>
+                <SelectItem value="full">Full</SelectItem>
+              </SelectContent>
+            </Select>
+          </>
+        )}
+
         <Toggle
           size="sm"
           onClick={() => editor.chain().focus().undo().run()}
@@ -149,7 +280,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         </Toggle>
       </div>
 
-      <EditorContent 
+      <EditorContent
         editor={editor}
         className="p-4 w-full"
       />

@@ -2,8 +2,17 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { RichTextEditor } from "./RichTextEditor";
 import { ImageUpload } from "./ImageUpload";
-import { Plus, GripVertical, X } from "lucide-react";
+import { Plus, GripVertical, X, AlignLeft, AlignCenter, AlignRight, Image as ImageIcon } from "lucide-react";
 import { type Block } from "@shared/schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Toggle } from "@/components/ui/toggle";
 
 interface BlockEditorProps {
   value: Block[];
@@ -16,7 +25,6 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
 
   // Sync blocks with form value
   useEffect(() => {
-    // Only update if the blocks array changes (length or order)
     if (JSON.stringify(blocks) !== JSON.stringify(value)) {
       setBlocks(value);
     }
@@ -35,7 +43,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
 
     const newBlock: Block = type === "text"
       ? { type: "text", content: "", format: "html" }
-      : { type: "image", imageId: 0 };
+      : { type: "image", imageId: 0, alignment: "center", size: "full" };
 
     const newBlocks = [...blocks, newBlock];
     setBlocks(newBlocks);
@@ -67,7 +75,6 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     e.preventDefault();
     const target = e.currentTarget as HTMLDivElement;
 
-    // Add visual feedback for drop target
     if (draggedIndex !== null && draggedIndex !== index) {
       const rect = target.getBoundingClientRect();
       const middleY = rect.top + rect.height / 2;
@@ -99,7 +106,6 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     const rect = target.getBoundingClientRect();
     const middleY = rect.top + rect.height / 2;
 
-    // Drop below if cursor is in bottom half
     if (e.clientY > middleY) {
       index += 1;
     }
@@ -147,30 +153,92 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
             )}
 
             {block.type === "image" && (
-              <div className="flex-1">
+              <div className="space-y-4">
                 {block.imageId ? (
-                  <div className="relative aspect-video">
+                  <div className="relative">
                     <img
                       src={`/uploads/${block.imageId}`}
                       alt={block.alt || ""}
-                      className="rounded-lg object-cover"
+                      className={`rounded-lg ${
+                        block.size === "small" ? "max-w-sm" :
+                        block.size === "medium" ? "max-w-lg" :
+                        block.size === "large" ? "max-w-2xl" :
+                        "w-full"
+                      } ${
+                        block.alignment === "left" ? "mr-auto" :
+                        block.alignment === "right" ? "ml-auto" :
+                        "mx-auto"
+                      }`}
                     />
-                    {block.caption && (
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {block.caption}
-                      </p>
-                    )}
+                    <div className="absolute top-2 right-2 flex gap-2 bg-black/50 p-2 rounded-lg backdrop-blur-sm">
+                      <Toggle
+                        size="sm"
+                        pressed={block.alignment === "left"}
+                        onPressedChange={() => updateBlock(index, { ...block, alignment: "left" })}
+                        aria-label="Align left"
+                      >
+                        <AlignLeft className="h-4 w-4" />
+                      </Toggle>
+                      <Toggle
+                        size="sm"
+                        pressed={block.alignment === "center"}
+                        onPressedChange={() => updateBlock(index, { ...block, alignment: "center" })}
+                        aria-label="Align center"
+                      >
+                        <AlignCenter className="h-4 w-4" />
+                      </Toggle>
+                      <Toggle
+                        size="sm"
+                        pressed={block.alignment === "right"}
+                        onPressedChange={() => updateBlock(index, { ...block, alignment: "right" })}
+                        aria-label="Align right"
+                      >
+                        <AlignRight className="h-4 w-4" />
+                      </Toggle>
+                      <Select
+                        value={block.size}
+                        onValueChange={(value: "small" | "medium" | "large" | "full") =>
+                          updateBlock(index, { ...block, size: value })
+                        }
+                      >
+                        <SelectTrigger className="h-8 w-24">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="small">Small</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="large">Large</SelectItem>
+                          <SelectItem value="full">Full</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 ) : (
-                  <ImageUpload
-                    onUpload={(url) =>
-                      updateBlock(index, {
-                        ...block,
-                        imageId: parseInt(url.split('/').pop() || '0', 10),
-                      })
-                    }
-                  />
+                  <div className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed rounded-lg">
+                    <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                    <ImageUpload
+                      onUpload={(url) => {
+                        const imageId = parseInt(url.split('/').pop() || '0', 10);
+                        updateBlock(index, {
+                          ...block,
+                          imageId,
+                        });
+                      }}
+                    />
+                  </div>
                 )}
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Image caption (optional)"
+                    value={block.caption || ""}
+                    onChange={(e) => updateBlock(index, { ...block, caption: e.target.value })}
+                  />
+                  <Input
+                    placeholder="Alt text for accessibility"
+                    value={block.alt || ""}
+                    onChange={(e) => updateBlock(index, { ...block, alt: e.target.value })}
+                  />
+                </div>
               </div>
             )}
           </div>
