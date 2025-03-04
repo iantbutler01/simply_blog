@@ -2,6 +2,15 @@ import { pgTable, text, serial, timestamp, boolean, jsonb } from "drizzle-orm/pg
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Users table for authentication
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Define the block types and their schemas
 export const blockSchema = z.discriminatedUnion("type", [
   z.object({
@@ -41,6 +50,13 @@ export const images = pgTable("images", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const insertUserSchema = createInsertSchema(users)
+  .omit({ id: true, createdAt: true })
+  .extend({
+    username: z.string().min(1, "Username is required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  });
+
 export const insertPostSchema = createInsertSchema(posts)
   .omit({ id: true, createdAt: true })
   .extend({
@@ -62,3 +78,5 @@ export type InsertPost = z.infer<typeof insertPostSchema>;
 export type Post = typeof posts.$inferSelect;
 export type InsertImage = z.infer<typeof insertImageSchema>;
 export type Image = typeof images.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;

@@ -1,11 +1,25 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type LoginData = z.infer<typeof loginSchema>;
 
 export default function AuthPage() {
   const [, navigate] = useLocation();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, loginMutation } = useAuth();
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginData>({
+    resolver: zodResolver(loginSchema)
+  });
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -14,9 +28,8 @@ export default function AuthPage() {
     }
   }, [user, isLoading, navigate]);
 
-  const handleLogin = () => {
-    // Replit's auth needs a full page reload
-    window.location.href = "/__repl_auth/login";
+  const onSubmit = async (data: LoginData) => {
+    await loginMutation.mutateAsync(data);
   };
 
   if (isLoading) {
@@ -35,17 +48,44 @@ export default function AuthPage() {
             Welcome Back
           </h1>
           <p className="text-muted-foreground">
-            Sign in with your Replit account to access the admin dashboard.
+            Sign in to access the admin dashboard.
           </p>
         </div>
 
-        <Button 
-          onClick={handleLogin} 
-          size="lg" 
-          className="w-full py-6 text-lg"
-        >
-          Sign in with Replit
-        </Button>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Input
+              {...register("username")}
+              placeholder="Username"
+              type="text"
+              className="py-6"
+            />
+            {errors.username && (
+              <p className="text-sm text-destructive">{errors.username.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Input
+              {...register("password")}
+              placeholder="Password"
+              type="password"
+              className="py-6"
+            />
+            {errors.password && (
+              <p className="text-sm text-destructive">{errors.password.message}</p>
+            )}
+          </div>
+
+          <Button 
+            type="submit"
+            size="lg" 
+            className="w-full py-6 text-lg"
+            disabled={loginMutation.isPending}
+          >
+            {loginMutation.isPending ? "Signing in..." : "Sign in"}
+          </Button>
+        </form>
       </div>
     </div>
   );

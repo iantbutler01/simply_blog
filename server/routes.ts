@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 import express from 'express';
 import { requireAuth, AuthenticatedRequest, isAdmin } from './middleware/auth';
+import session from 'express-session';
 
 // Configure multer for handling file uploads
 const upload = multer({
@@ -29,14 +30,51 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express) {
+  // Session setup
+  app.use(session({
+    secret: 'your-secret-key', // Replace with a strong secret key in production
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+    }
+  }));
+
   // Static file serving
   app.use('/uploads', express.static('uploads'));
-  app.use('/__repl_auth', express.static('public'));
 
   // Auth Routes
-  app.get('/__repl_auth/login', (_req, res) => {
-    res.redirect('https://replit.com/auth_with_repl_site');
+  app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = await storage.validateCredentials(username, password);
+
+    if (!user) {
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
+    }
+
+    // @ts-ignore - adding user to session
+    req.session.user = user;
+    res.json(user);
   });
+
+  app.post('/api/logout', (req, res) => {
+    req.session.destroy(() => {
+      res.sendStatus(200);
+    });
+  });
+
+  app.get('/api/auth/status', (req, res) => {
+    // @ts-ignore - checking user in session
+    if (!req.session.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+    // @ts-ignore - sending user from session
+    res.json(req.session.user);
+  });
+
 
   // Public routes
   app.get("/api/posts", async (req, res) => {
@@ -160,14 +198,14 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // Auth status endpoint
-  app.get("/api/auth/status", requireAuth, (req: AuthenticatedRequest, res) => {
-    res.json({
-      authenticated: true,
-      user: req.user,
-      isAdmin: isAdmin(req)
-    });
-  });
+  // Auth status endpoint - this line was already present
+  // app.get("/api/auth/status", requireAuth, (req: AuthenticatedRequest, res) => {
+  //   res.json({
+  //     authenticated: true,
+  //     user: req.user,
+  //     isAdmin: isAdmin(req)
+  //   });
+  // });
 
   return createServer(app);
 }

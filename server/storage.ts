@@ -1,6 +1,19 @@
-import { posts, type Post, type InsertPost, images, type Image, type InsertImage } from "@shared/schema";
+import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, or, sql } from "drizzle-orm";
+import * as crypto from 'crypto';
+
+function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(stored: string, supplied: string): boolean {
+  const [salt, hash] = stored.split(':');
+  const suppliedHash = crypto.pbkdf2Sync(supplied, salt, 1000, 64, 'sha512').toString('hex');
+  return hash === suppliedHash;
+}
 
 export interface IStorage {
   // Post methods
@@ -16,6 +29,11 @@ export interface IStorage {
   getImage(id: number): Promise<Image | undefined>;
   createImage(image: InsertImage): Promise<Image>;
   deleteImage(id: number): Promise<void>;
+
+  // User methods
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  validateCredentials(username: string, password: string): Promise<User | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -157,6 +175,67 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    try {
+      const [user] = await db.select().from(users).where(eq(users.username, username));
+      return user;
+    } catch (error) {
+      console.error(`Failed to get user ${username}:`, error);
+      throw error;
+    }
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    try {
+      const hashedPassword = hashPassword(insertUser.password);
+      const [user] = await db
+        .insert(users)
+        .values({
+          ...insertUser,
+          password: hashedPassword,
+          createdAt: new Date(),
+        })
+        .returning();
+      console.log('Created new user:', user.id);
+      return user;
+    } catch (error) {
+      console.error('Failed to create user:', error);
+      throw error;
+    }
+  }
+
+  async validateCredentials(username: string, password: string): Promise<User | undefined> {
+    try {
+      const user = await this.getUserByUsername(username);
+      if (!user || !verifyPassword(user.password, password)) {
+        return undefined;
+      }
+      return user;
+    } catch (error) {
+      console.error('Failed to validate credentials:', error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
+
+// Create initial admin user if it doesn't exist
+async function createInitialAdmin() {
+  try {
+    const existingAdmin = await storage.getUserByUsername('admin');
+    if (!existingAdmin) {
+      await storage.createUser({
+        username: 'admin',
+        password: 'bismuth@#!password1234',
+        isAdmin: true
+      });
+      console.log('Created initial admin user');
+    }
+  } catch (error) {
+    console.error('Failed to create initial admin:', error);
+  }
+}
+
+createInitialAdmin();
