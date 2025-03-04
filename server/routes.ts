@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer } from "http";
 import { storage } from "./storage";
-import { insertPostSchema, insertImageSchema, insertVersionSchema } from "@shared/schema"; // Added import
+import { insertPostSchema, insertImageSchema, insertVersionSchema, insertCommentSchema } from "@shared/schema"; 
 import multer from "multer";
 import path from "path";
 import express from 'express';
@@ -27,14 +27,14 @@ export async function registerRoutes(app: Express) {
   // Session setup
   app.use(session({
     store: storage.sessionStore,
-    secret: process.env.SESSION_SECRET || 'your-secret-key', // In production, always use environment variable
+    secret: process.env.SESSION_SECRET || 'your-secret-key', 
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
-      httpOnly: true, // Prevent XSS attacks
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      sameSite: 'lax' // Protect against CSRF
+      secure: process.env.NODE_ENV === 'production', 
+      httpOnly: true, 
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
+      sameSite: 'lax' 
     }
   }));
 
@@ -184,7 +184,7 @@ export async function registerRoutes(app: Express) {
 
       const version = await storage.saveVersion(Number(req.params.id), {
         ...result.data,
-        createdBy: req.user.id, // Add the current user's ID
+        createdBy: req.user.id, 
       });
       res.json(version);
     } catch (error) {
@@ -241,6 +241,7 @@ export async function registerRoutes(app: Express) {
       });
       res.status(201).json(comment);
     } catch (error) {
+      console.error('Failed to create comment:', error);
       res.status(500).json({ message: "Failed to save comment" });
     }
   });

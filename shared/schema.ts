@@ -79,7 +79,7 @@ export const comments = pgTable("comments", {
   postId: serial("post_id").notNull().references(() => posts.id),
   content: text("content").notNull(),
   authorName: text("author_name").notNull(),
-  authorEmail: text("author_email").notNull(),
+  authorEmail: text("author_email"), // Remove .notNull()
   isApproved: boolean("is_approved").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -129,7 +129,7 @@ export const insertCommentSchema = createInsertSchema(comments)
   .extend({
     content: z.string().min(1, "Comment is required").max(1000, "Comment is too long"),
     authorName: z.string().min(1, "Name is required"),
-    authorEmail: z.string().email("Invalid email address"),
+    authorEmail: z.string().email("Invalid email address").optional(), // Make email optional
   });
 
 export type Block = z.infer<typeof blockSchema>;
