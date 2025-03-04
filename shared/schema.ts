@@ -33,12 +33,27 @@ export const posts = pgTable("posts", {
   excerpt: text("excerpt").notNull(),
   tags: text("tags").array().notNull(),
   isDraft: boolean("is_draft").notNull().default(true),
+  publishAt: timestamp("publish_at"), // New field for scheduled publishing
   createdAt: timestamp("created_at").notNull().defaultNow(),
   // SEO fields
   metaTitle: text("meta_title"),
   metaDescription: text("meta_description"),
-  socialImageId: text("social_image_id"), // Reference to the uploaded image
+  socialImageId: text("social_image_id"),
   canonicalUrl: text("canonical_url"),
+});
+
+// New table for version history
+export const postVersions = pgTable("post_versions", {
+  id: serial("id").primaryKey(),
+  postId: serial("post_id").notNull().references(() => posts.id),
+  title: text("title").notNull(),
+  content: jsonb("content").notNull(),
+  excerpt: text("excerpt").notNull(),
+  tags: text("tags").array().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdBy: serial("created_by").notNull().references(() => users.id),
+  version: serial("version").notNull(), // Incremental version number
+  comment: text("comment"), // Optional comment about the version
 });
 
 export const images = pgTable("images", {
@@ -64,10 +79,17 @@ export const insertPostSchema = createInsertSchema(posts)
     content: z.array(blockSchema),
     excerpt: z.string().min(1, "Excerpt is required"),
     tags: z.array(z.string()).min(1, "At least one tag is required"),
+    publishAt: z.date().optional(),
     metaTitle: z.string().optional(),
     metaDescription: z.string().max(160, "Meta description should not exceed 160 characters").optional(),
     socialImageId: z.string().optional(),
     canonicalUrl: z.string().url("Must be a valid URL").optional(),
+  });
+
+export const insertVersionSchema = createInsertSchema(postVersions)
+  .omit({ id: true, createdAt: true, version: true })
+  .extend({
+    comment: z.string().optional(),
   });
 
 export const insertImageSchema = createInsertSchema(images)
@@ -76,6 +98,8 @@ export const insertImageSchema = createInsertSchema(images)
 export type Block = z.infer<typeof blockSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type Post = typeof posts.$inferSelect;
+export type InsertVersion = z.infer<typeof insertVersionSchema>;
+export type PostVersion = typeof postVersions.$inferSelect;
 export type InsertImage = z.infer<typeof insertImageSchema>;
 export type Image = typeof images.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;

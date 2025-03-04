@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import fs from "fs";
 import path from "path";
+import { startScheduler } from "./scheduler";
 
 const app = express();
 app.use(express.json());
@@ -83,5 +84,6 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    startScheduler(); // Added scheduler start here
   });
 })();

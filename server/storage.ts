@@ -1,6 +1,6 @@
 import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, or, sql } from "drizzle-orm";
+import { eq, desc, or, sql, and, lt, isNotNull } from "drizzle-orm";
 import * as crypto from 'crypto';
 
 function hashPassword(password: string): string {
@@ -34,6 +34,11 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   validateCredentials(username: string, password: string): Promise<User | undefined>;
+  saveVersion(postId: number, version: InsertVersion): Promise<PostVersion>;
+  getVersions(postId: number): Promise<PostVersion[]>;
+  getVersion(versionId: number): Promise<PostVersion | undefined>;
+  getScheduledPosts(): Promise<Post[]>;
+  publishScheduledPosts(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -217,6 +222,94 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
+  async saveVersion(postId: number, version: InsertVersion): Promise<PostVersion> {
+    try {
+      const [savedVersion] = await db
+        .insert(postVersions)
+        .values({
+          ...version,
+          postId,
+          createdAt: new Date(),
+        })
+        .returning();
+      console.log(`Created new version for post ${postId}:`, savedVersion.id);
+      return savedVersion;
+    } catch (error) {
+      console.error(`Failed to create version for post ${postId}:`, error);
+      throw error;
+    }
+  }
+
+  async getVersions(postId: number): Promise<PostVersion[]> {
+    try {
+      const versions = await db
+        .select()
+        .from(postVersions)
+        .where(eq(postVersions.postId, postId))
+        .orderBy(desc(postVersions.createdAt));
+      console.log(`Retrieved ${versions.length} versions for post ${postId}`);
+      return versions;
+    } catch (error) {
+      console.error(`Failed to get versions for post ${postId}:`, error);
+      throw error;
+    }
+  }
+
+  async getVersion(versionId: number): Promise<PostVersion | undefined> {
+    try {
+      const [version] = await db
+        .select()
+        .from(postVersions)
+        .where(eq(postVersions.id, versionId));
+      console.log(`Retrieved version ${versionId}:`, version ? 'found' : 'not found');
+      return version;
+    } catch (error) {
+      console.error(`Failed to get version ${versionId}:`, error);
+      throw error;
+    }
+  }
+
+  async getScheduledPosts(): Promise<Post[]> {
+    try {
+      const now = new Date();
+      const posts = await db
+        .select()
+        .from(posts)
+        .where(
+          and(
+            eq(posts.isDraft, true),
+            lt(posts.publishAt, now),
+            isNotNull(posts.publishAt)
+          )
+        );
+      console.log(`Found ${posts.length} posts ready to publish`);
+      return posts;
+    } catch (error) {
+      console.error('Failed to get scheduled posts:', error);
+      throw error;
+    }
+  }
+
+  async publishScheduledPosts(): Promise<void> {
+    try {
+      const now = new Date();
+      await db
+        .update(posts)
+        .set({ isDraft: false })
+        .where(
+          and(
+            eq(posts.isDraft, true),
+            lt(posts.publishAt, now),
+            isNotNull(posts.publishAt)
+          )
+        );
+      console.log('Published scheduled posts');
+    } catch (error) {
+      console.error('Failed to publish scheduled posts:', error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
@@ -239,3 +332,17 @@ async function createInitialAdmin() {
 }
 
 createInitialAdmin();
+
+//This is necessary because the edited code doesn't define these types.  Replace with your actual types.
+interface InsertVersion {
+  content: string;
+  // Add other relevant fields
+}
+
+interface PostVersion {
+  id: number;
+  postId: number;
+  content: string;
+  createdAt: Date;
+  // Add other relevant fields
+}
