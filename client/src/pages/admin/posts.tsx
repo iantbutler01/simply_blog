@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Eye, Clock, Share2 } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Clock, Share2, MessageSquare } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -26,7 +26,6 @@ import { format } from "date-fns";
 import { type Post } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import {Badge} from "@/components/ui/badge"
-
 
 export default function AdminPosts() {
   const [, navigate] = useLocation();
@@ -53,9 +52,17 @@ export default function AdminPosts() {
     <div className="container py-12 max-w-6xl mx-auto px-6">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Manage Posts</h1>
-        <Button onClick={() => navigate("/admin/edit")}>
-          <Plus className="mr-2 h-4 w-4" /> New Post
-        </Button>
+        <div className="flex gap-4">
+          <Button variant="outline" asChild>
+            <Link href="/admin/comments">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Manage Comments
+            </Link>
+          </Button>
+          <Button onClick={() => navigate("/admin/edit")}>
+            <Plus className="mr-2 h-4 w-4" /> New Post
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
