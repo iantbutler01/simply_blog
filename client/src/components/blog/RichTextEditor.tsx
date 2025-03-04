@@ -62,7 +62,16 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   }, [value, editor]);
 
   const addImage = (url: string) => {
-    editor?.chain().focus().setImage({ src: url }).run();
+    if (editor) {
+      // Ensure editor has focus before inserting
+      editor.chain()
+        .focus()
+        .setImage({ src: url })
+        .run();
+
+      // Trigger onChange to ensure content is saved
+      onChange(editor.getHTML());
+    }
   };
 
   if (!editor) return null;

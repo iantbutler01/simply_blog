@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Image as ImageIcon } from "lucide-react";
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import type { Image } from "@shared/schema";
 
 interface ImageUploadProps {
@@ -43,6 +42,10 @@ export function ImageUpload({ onUpload }: ImageUploadProps) {
       });
     } finally {
       setIsUploading(false);
+      // Clear the input so the same file can be selected again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -62,9 +65,14 @@ export function ImageUpload({ onUpload }: ImageUploadProps) {
         variant="ghost"
         size="sm"
         disabled={isUploading}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={(e) => {
+          e.preventDefault(); // Prevent form submission
+          e.stopPropagation(); // Stop event bubbling
+          fileInputRef.current?.click();
+        }}
+        type="button" // Explicitly set type to prevent form submission
       >
-        <ImageIcon className="h-4 w-4" />
+        <ImageIcon className={`h-4 w-4 ${isUploading ? 'animate-pulse' : ''}`} />
       </Button>
     </>
   );
