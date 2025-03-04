@@ -23,6 +23,10 @@ import { ImageUpload } from "@/components/blog/ImageUpload";
 import { SocialPreview } from "@/components/blog/SocialPreview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { Calendar } from "lucide-react";
+import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 type FormValues = {
   title: string;
@@ -136,216 +140,277 @@ export default function EditPost() {
   });
 
   return (
-    <div className="container py-8 max-w-4xl">
+    <div className="container py-8">
       <h1 className="text-4xl font-bold mb-8">
         {postId ? "Edit Post" : "New Post"}
       </h1>
 
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
-          className="space-y-8"
-        >
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg border">
+        <ResizablePanel defaultSize={50}>
+          <div className="p-8 h-full overflow-auto">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+                className="space-y-8"
+              >
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <FormField
-            control={form.control}
-            name="excerpt"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Excerpt</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                <FormField
+                  control={form.control}
+                  name="excerpt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Excerpt</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <FormField
-            control={form.control}
-            name="content"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Content</FormLabel>
-                <FormControl>
-                  <BlockEditor
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                <FormField
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Content</FormLabel>
+                      <FormControl>
+                        <BlockEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <FormField
-            control={form.control}
-            name="tags"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tags (comma-separated)</FormLabel>
-                <FormControl>
-                  <Input
-                    value={field.value.join(", ")}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value
-                          .split(",")
-                          .map((tag) => tag.trim())
-                          .filter(Boolean)
-                      )
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tags (comma-separated)</FormLabel>
+                      <FormControl>
+                        <Input
+                          value={field.value.join(", ")}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                .split(",")
+                                .map((tag) => tag.trim())
+                                .filter(Boolean)
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <FormField
-            control={form.control}
-            name="isDraft"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel>Draft</FormLabel>
-                  <div className="text-sm text-muted-foreground">
-                    Keep this post as a draft to prevent it from being published
-                  </div>
+                <FormField
+                  control={form.control}
+                  name="isDraft"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Draft</FormLabel>
+                        <div className="text-sm text-muted-foreground">
+                          Keep this post as a draft to prevent it from being published
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="seo">
+                    <AccordionTrigger>SEO Settings</AccordionTrigger>
+                    <AccordionContent className="space-y-6 pt-4">
+                      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                        <div className="space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="metaTitle"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Meta Title</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="Custom title for search engines" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="metaDescription"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Meta Description</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="Brief description for search results (max 160 characters)" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="socialImageId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Social Share Image</FormLabel>
+                                <FormControl>
+                                  <div className="flex items-center gap-4">
+                                    <ImageUpload
+                                      onUpload={(url) => {
+                                        const id = url.split('/').pop() || '';
+                                        field.onChange(id);
+                                      }}
+                                    />
+                                    {field.value && (
+                                      <img
+                                        src={`/uploads/${field.value}`}
+                                        alt="Social preview"
+                                        className="h-20 w-20 object-cover rounded-lg"
+                                      />
+                                    )}
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="canonicalUrl"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Canonical URL</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="https://example.com/original-article" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="lg:border-l lg:pl-6">
+                          <h3 className="font-medium mb-4">Social Preview</h3>
+                          <SocialPreview
+                            title={form.watch("metaTitle") || form.watch("title")}
+                            description={form.watch("metaDescription") || form.watch("excerpt")}
+                            imageUrl={form.watch("socialImageId") ? `/uploads/${form.watch("socialImageId")}` : undefined}
+                            url={form.watch("canonicalUrl") || window.location.origin}
+                          />
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+
+                <div className="flex gap-4">
+                  <Button
+                    type="submit"
+                    disabled={mutation.isPending}
+                    className="w-full"
+                  >
+                    {mutation.isPending ? "Saving..." : "Save"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate("/admin/posts")}
+                    className="w-full"
+                  >
+                    Cancel
+                  </Button>
                 </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <Accordion type="single" collapsible>
-            <AccordionItem value="seo">
-              <AccordionTrigger>SEO Settings</AccordionTrigger>
-              <AccordionContent className="space-y-6 pt-4">
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="metaTitle"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Meta Title</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="Custom title for search engines" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="metaDescription"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Meta Description</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="Brief description for search results (max 160 characters)" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="socialImageId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Social Share Image</FormLabel>
-                          <FormControl>
-                            <div className="flex items-center gap-4">
-                              <ImageUpload
-                                onUpload={(url) => {
-                                  const id = url.split('/').pop() || '';
-                                  field.onChange(id);
-                                }}
-                              />
-                              {field.value && (
-                                <img
-                                  src={`/uploads/${field.value}`}
-                                  alt="Social preview"
-                                  className="h-20 w-20 object-cover rounded-lg"
-                                />
-                              )}
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="canonicalUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Canonical URL</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="https://example.com/original-article" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="lg:border-l lg:pl-6">
-                    <h3 className="font-medium mb-4">Social Preview</h3>
-                    <SocialPreview
-                      title={form.watch("metaTitle") || form.watch("title")}
-                      description={form.watch("metaDescription") || form.watch("excerpt")}
-                      imageUrl={form.watch("socialImageId") ? `/uploads/${form.watch("socialImageId")}` : undefined}
-                      url={form.watch("canonicalUrl") || window.location.origin}
-                    />
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          <div className="flex gap-4">
-            <Button
-              type="submit"
-              disabled={mutation.isPending}
-              className="w-full"
-            >
-              {mutation.isPending ? "Saving..." : "Save"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/admin/posts")}
-              className="w-full"
-            >
-              Cancel
-            </Button>
+              </form>
+            </Form>
           </div>
-        </form>
-      </Form>
+        </ResizablePanel>
+
+        <ResizableHandle withHandle />
+
+        <ResizablePanel defaultSize={50}>
+          <div className="p-8 h-full overflow-auto">
+            <div className="prose prose-lg max-w-none">
+              <h1 className="text-4xl font-bold mb-4">{form.watch("title")}</h1>
+
+              <div className="flex items-center gap-4 mb-8 text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <time dateTime={new Date().toISOString()}>
+                    {format(new Date(), "MMMM d, yyyy")}
+                  </time>
+                </div>
+                <div className="flex gap-2">
+                  {form.watch("tags").map((tag) => (
+                    <Badge key={tag} variant="secondary">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="prose prose-lg max-w-none">
+                {form.watch("content").map((block, index) => {
+                  if (block.type === "text") {
+                    return (
+                      <div
+                        key={index}
+                        dangerouslySetInnerHTML={{ __html: block.content }}
+                      />
+                    );
+                  } else if (block.type === "image" && block.imageId) {
+                    return (
+                      <div key={index} className="my-8">
+                        <img
+                          src={`/uploads/${block.imageId}`}
+                          alt={block.alt || ""}
+                          className="rounded-lg"
+                        />
+                        {block.caption && (
+                          <p className="mt-2 text-sm text-muted-foreground text-center">
+                            {block.caption}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 }
