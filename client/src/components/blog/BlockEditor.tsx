@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { RichTextEditor } from "./RichTextEditor";
 import { ImageUpload } from "./ImageUpload";
@@ -12,6 +12,11 @@ interface BlockEditorProps {
 
 export function BlockEditor({ value, onChange }: BlockEditorProps) {
   const [blocks, setBlocks] = useState<Block[]>(value);
+
+  // Sync blocks with form value
+  useEffect(() => {
+    setBlocks(value);
+  }, [value]);
 
   const updateBlock = (index: number, updatedBlock: Block) => {
     const newBlocks = [...blocks];
@@ -29,8 +34,9 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
       ? { type: "text", content: "", format: "html" }
       : { type: "image", imageId: 0 };
 
-    setBlocks([...blocks, newBlock]);
-    onChange([...blocks, newBlock]);
+    const newBlocks = [...blocks, newBlock];
+    setBlocks(newBlocks);
+    onChange(newBlocks);
   };
 
   const removeBlock = (index: number, e: React.MouseEvent) => {
@@ -98,11 +104,10 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                 </div>
               ) : (
                 <ImageUpload
-                  onUpload={(image) =>
+                  onUpload={(url) =>
                     updateBlock(index, {
                       ...block,
-                      imageId: image.id,
-                      alt: image.filename,
+                      imageId: parseInt(url.split('/').pop() || '0', 10),
                     })
                   }
                 />

@@ -25,7 +25,7 @@ type FormValues = {
   excerpt: string;
   tags: string[];
   isDraft: boolean;
-}
+};
 
 export default function EditPost() {
   const [, navigate] = useLocation();
@@ -54,8 +54,8 @@ export default function EditPost() {
   useEffect(() => {
     if (post) {
       // Ensure post.content is treated as Block[]
-      const content = Array.isArray(post.content) 
-        ? post.content 
+      const content = Array.isArray(post.content)
+        ? post.content
         : [{ type: "text", content: post.content as string, format: "html" }];
 
       form.reset({
@@ -70,10 +70,31 @@ export default function EditPost() {
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
+      // Ensure content is properly formatted as Block[]
+      const formattedValues = {
+        ...values,
+        content: values.content.map(block => {
+          if (block.type === "text") {
+            return {
+              type: "text",
+              content: block.content || "",
+              format: block.format || "html"
+            };
+          } else {
+            return {
+              type: "image",
+              imageId: block.imageId,
+              caption: block.caption,
+              alt: block.alt
+            };
+          }
+        })
+      };
+
       if (postId) {
-        await apiRequest("PATCH", `/api/posts/${postId}`, values);
+        await apiRequest("PATCH", `/api/posts/${postId}`, formattedValues);
       } else {
-        await apiRequest("POST", "/api/posts", values);
+        await apiRequest("POST", "/api/posts", formattedValues);
       }
     },
     onSuccess: () => {
