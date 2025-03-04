@@ -129,7 +129,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
           onDrop={(e) => handleDrop(e, index)}
           className="group relative flex gap-2 border bg-card rounded-lg overflow-hidden"
         >
-          <div className="flex flex-col items-center gap-2 text-muted-foreground p-4">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground p-4 border-r">
             <GripVertical className="h-4 w-4 cursor-move" />
             <Button
               variant="ghost"
@@ -168,16 +168,16 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         block.alignment === "left" ? "mr-auto" :
                         block.alignment === "right" ? "ml-auto" :
                         "mx-auto"
-                      }`}
+                      } border`}
                     />
-                    <div className="absolute top-2 right-2 flex gap-2 bg-black/50 p-2 rounded-lg backdrop-blur-sm">
+                    <div className="absolute -top-3 right-0 flex gap-2 bg-background/95 p-2 rounded-lg shadow-lg border">
                       <Toggle
                         size="sm"
                         pressed={block.alignment === "left"}
                         onPressedChange={() => updateBlock(index, { ...block, alignment: "left" })}
                         aria-label="Align left"
                       >
-                        <AlignLeft className="h-4 w-4 text-white" />
+                        <AlignLeft className="h-4 w-4" />
                       </Toggle>
                       <Toggle
                         size="sm"
@@ -185,7 +185,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         onPressedChange={() => updateBlock(index, { ...block, alignment: "center" })}
                         aria-label="Align center"
                       >
-                        <AlignCenter className="h-4 w-4 text-white" />
+                        <AlignCenter className="h-4 w-4" />
                       </Toggle>
                       <Toggle
                         size="sm"
@@ -193,7 +193,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         onPressedChange={() => updateBlock(index, { ...block, alignment: "right" })}
                         aria-label="Align right"
                       >
-                        <AlignRight className="h-4 w-4 text-white" />
+                        <AlignRight className="h-4 w-4" />
                       </Toggle>
                       <Select
                         value={block.size}
@@ -201,7 +201,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                           updateBlock(index, { ...block, size: value })
                         }
                       >
-                        <SelectTrigger className="h-8 w-24 bg-transparent text-white border-white/20">
+                        <SelectTrigger className="h-8 w-24">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

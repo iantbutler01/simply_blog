@@ -632,10 +632,10 @@ export default function EditPost() {
                               block.alignment === "left" ? "mr-auto" :
                               block.alignment === "right" ? "ml-auto" :
                               "mx-auto"
-                            }`}
+                            } border`}
                           />
                           {block.caption && (
-                            <figcaption className="mt-2 text-sm text-muted-foreground text-center">
+                            <figcaption className="mt-4 text-sm text-muted-foreground text-center">
                               {block.caption}
                             </figcaption>
                           )}
