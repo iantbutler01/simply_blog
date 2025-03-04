@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer } from "http";
 import { storage } from "./storage";
-import { insertPostSchema, insertImageSchema } from "@shared/schema";
+import { insertPostSchema, insertImageSchema, insertVersionSchema } from "@shared/schema"; // Added import
 import multer from "multer";
 import path from "path";
 import express from 'express';
@@ -172,6 +172,30 @@ export async function registerRoutes(app: Express) {
   });
 
   // Add version routes after post routes
+  app.post("/api/posts/:id/versions", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    try {
+      const result = insertVersionSchema.safeParse(req.body);
+      if (!result.success) {
+        res.status(400).json({ message: result.error.message });
+        return;
+      }
+
+      const version = await storage.saveVersion(Number(req.params.id), {
+        ...result.data,
+        createdBy: req.user.id, // Add the current user's ID
+      });
+      res.json(version);
+    } catch (error) {
+      console.error('Failed to save version:', error);
+      res.status(500).json({ message: "Failed to save version" });
+    }
+  });
+
   app.get("/api/posts/:id/versions", requireAuth, async (req: AuthenticatedRequest, res) => {
     if (!isAdmin(req)) {
       res.status(403).json({ message: "Forbidden" });

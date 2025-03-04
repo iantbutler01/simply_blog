@@ -226,6 +226,16 @@ export class DatabaseStorage implements IStorage {
 
   async saveVersion(postId: number, version: InsertVersion): Promise<PostVersion> {
     try {
+      // First get the current version number
+      const [latestVersion] = await db
+        .select()
+        .from(postVersions)
+        .where(eq(postVersions.postId, postId))
+        .orderBy(desc(postVersions.version))
+        .limit(1);
+
+      const nextVersion = latestVersion ? latestVersion.version + 1 : 1;
+
       // First unpublish the post if it's currently published
       await db
         .update(posts)
@@ -238,9 +248,11 @@ export class DatabaseStorage implements IStorage {
         .values({
           ...version,
           postId,
+          version: nextVersion,
           createdAt: new Date(),
         })
         .returning();
+
       console.log(`Created new version for post ${postId}:`, savedVersion.id);
       return savedVersion;
     } catch (error) {
@@ -371,5 +383,6 @@ interface PostVersion {
   postId: number;
   content: string;
   createdAt: Date;
+  version: number; // Added version field
   // Add other relevant fields
 }
