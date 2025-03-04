@@ -14,6 +14,10 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+// Trust Replit's proxy to get correct client IP
+app.set('trust proxy', true);
+
+// Log middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -41,6 +45,12 @@ app.use((req, res, next) => {
     }
   });
 
+  next();
+});
+
+// Add CORS headers for auth
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Headers', 'X-Replit-User-Id, X-Replit-User-Name, X-Replit-User-Roles');
   next();
 });
 
