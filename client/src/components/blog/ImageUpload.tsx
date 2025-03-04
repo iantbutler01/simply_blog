@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Image } from "@shared/schema";
 
 interface ImageUploadProps {
-  onUpload: (url: string) => void;
+  onUpload: (imageId: number) => void;
 }
 
 export function ImageUpload({ onUpload }: ImageUploadProps) {
@@ -32,7 +32,7 @@ export function ImageUpload({ onUpload }: ImageUploadProps) {
       }
 
       const image: Image = await res.json();
-      onUpload(image.url);
+      onUpload(image.id);
       toast({
         title: "Success",
         description: "Image uploaded successfully",

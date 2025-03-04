@@ -217,8 +217,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                   <div className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed rounded-lg">
                     <ImageIcon className="h-8 w-8 text-muted-foreground" />
                     <ImageUpload
-                      onUpload={(url) => {
-                        const imageId = parseInt(url.split('/').pop() || '0', 10);
+                      onUpload={(imageId) => {
                         updateBlock(index, {
                           ...block,
                           imageId,
