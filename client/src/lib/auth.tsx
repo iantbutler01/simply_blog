@@ -1,61 +1,85 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "./queryClient";
 
 interface User {
-  id: string;
-  name: string;
-  roles: string;
+  id: number;
+  username: string;
+  isAdmin: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
   isLoading: boolean;
+  loginMutation: ReturnType<typeof useLoginMutation>;
+}
+
+interface LoginCredentials {
+  username: string;
+  password: string;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAdmin: false,
   isLoading: true,
+  loginMutation: {} as ReturnType<typeof useLoginMutation>,
 });
 
+function useLoginMutation() {
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (credentials: LoginCredentials) => {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Login failed');
+      }
+      return response.json();
+    },
+    onSuccess: (user) => {
+      queryClient.setQueryData(['/api/auth/status'], user);
+      toast({
+        title: "Success",
+        description: "Successfully logged in",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authState, setAuthState] = useState<AuthContextType>({
-    user: null,
-    isAdmin: false,
-    isLoading: true,
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['/api/auth/status'],
+    queryFn: async () => {
+      const response = await fetch('/api/auth/status');
+      if (!response.ok) {
+        throw new Error('Failed to fetch auth status');
+      }
+      return response.json();
+    },
   });
 
-  useEffect(() => {
-    fetch('/api/auth/status')
-      .then(res => res.json())
-      .then(data => {
-        setAuthState({
-          user: data.user,
-          isAdmin: data.isAdmin,
-          isLoading: false,
-        });
-      })
-      .catch(() => {
-        // In development, still authenticate as admin even if the fetch fails
-        if (process.env.NODE_ENV === 'development') {
-          setAuthState({
-            user: {
-              id: 'dev-1',
-              name: 'Developer',
-              roles: 'admin'
-            },
-            isAdmin: true,
-            isLoading: false,
-          });
-        } else {
-          setAuthState({
-            user: null,
-            isAdmin: false,
-            isLoading: false,
-          });
-        }
-      });
-  }, []);
+  const loginMutation = useLoginMutation();
+
+  const authState: AuthContextType = {
+    user: user || null,
+    isAdmin: user?.isAdmin || false,
+    isLoading,
+    loginMutation,
+  };
 
   return (
     <AuthContext.Provider value={authState}>
