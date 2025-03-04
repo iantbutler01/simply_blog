@@ -79,7 +79,7 @@ export const insertPostSchema = createInsertSchema(posts)
     content: z.array(blockSchema),
     excerpt: z.string().min(1, "Excerpt is required"),
     tags: z.array(z.string()).min(1, "At least one tag is required"),
-    publishAt: z.date().optional(),
+    publishAt: z.union([z.date(), z.null()]).optional(),
     metaTitle: z.string().optional(),
     metaDescription: z.string().max(160, "Meta description should not exceed 160 characters").optional(),
     socialImageId: z.string().optional(),

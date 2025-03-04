@@ -134,10 +134,8 @@ export default function EditPost() {
       }
     },
     onSuccess: () => {
-      // Invalidate the posts list query
       queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
 
-      // If editing existing post, also invalidate the current post query
       if (postId) {
         queryClient.invalidateQueries({ queryKey: [`/api/posts/${postId}`] });
       }
@@ -147,7 +145,6 @@ export default function EditPost() {
         description: `Post ${postId ? "updated" : "created"} successfully.`,
       });
 
-      // Only navigate away if this was a new post
       if (!postId) {
         navigate("/admin/posts");
       }
