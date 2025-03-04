@@ -1,4 +1,4 @@
-import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser } from "@shared/schema";
+import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser, postVersions, type PostVersion, type InsertVersion } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, or, sql, and, lt, isNotNull } from "drizzle-orm";
 import * as crypto from 'crypto';
@@ -226,6 +226,13 @@ export class DatabaseStorage implements IStorage {
 
   async saveVersion(postId: number, version: InsertVersion): Promise<PostVersion> {
     try {
+      // First unpublish the post if it's currently published
+      await db
+        .update(posts)
+        .set({ isDraft: true })
+        .where(eq(posts.id, postId));
+
+      // Then save the version
       const [savedVersion] = await db
         .insert(postVersions)
         .values({
