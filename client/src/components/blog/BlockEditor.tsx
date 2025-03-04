@@ -157,7 +157,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                 {block.imageId ? (
                   <div className="relative">
                     <img
-                      src={`/uploads/${block.imageId}`}
+                      src={`/api/images/${block.imageId}`}
                       alt={block.alt || ""}
                       className={`rounded-lg ${
                         block.size === "small" ? "max-w-sm" :
@@ -177,7 +177,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         onPressedChange={() => updateBlock(index, { ...block, alignment: "left" })}
                         aria-label="Align left"
                       >
-                        <AlignLeft className="h-4 w-4" />
+                        <AlignLeft className="h-4 w-4 text-white" />
                       </Toggle>
                       <Toggle
                         size="sm"
@@ -185,7 +185,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         onPressedChange={() => updateBlock(index, { ...block, alignment: "center" })}
                         aria-label="Align center"
                       >
-                        <AlignCenter className="h-4 w-4" />
+                        <AlignCenter className="h-4 w-4 text-white" />
                       </Toggle>
                       <Toggle
                         size="sm"
@@ -193,7 +193,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         onPressedChange={() => updateBlock(index, { ...block, alignment: "right" })}
                         aria-label="Align right"
                       >
-                        <AlignRight className="h-4 w-4" />
+                        <AlignRight className="h-4 w-4 text-white" />
                       </Toggle>
                       <Select
                         value={block.size}
@@ -201,7 +201,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                           updateBlock(index, { ...block, size: value })
                         }
                       >
-                        <SelectTrigger className="h-8 w-24">
+                        <SelectTrigger className="h-8 w-24 bg-transparent text-white border-white/20">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
