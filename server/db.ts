@@ -19,9 +19,11 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
 });
 
+// Handle idle connection termination gracefully
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+  // Don't exit process, just log the error
+  // The pool will automatically create new connections as needed
 });
 
 // Test database connection
@@ -29,7 +31,8 @@ pool.connect().then(() => {
   console.log('Successfully connected to PostgreSQL database');
 }).catch((err) => {
   console.error('Failed to connect to PostgreSQL database:', err);
-  process.exit(-1);
+  // Don't exit process, let the application continue
+  // The pool will retry connections automatically
 });
 
 export const db = drizzle({ client: pool, schema });
