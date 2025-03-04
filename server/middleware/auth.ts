@@ -1,23 +1,31 @@
-import { ReplitAuthContext } from '@replit/repl-auth';
 import { Request, Response, NextFunction } from 'express';
 
+interface ReplitUser {
+  id: string;
+  name: string;
+  roles: string;
+}
+
 export interface AuthenticatedRequest extends Request {
-  user?: ReplitAuthContext;
+  user?: ReplitUser;
 }
 
 export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  const user = req.headers['X-Replit-User-Id'];
-  if (!user) {
+  const userId = req.headers['x-replit-user-id'];
+  const userName = req.headers['x-replit-user-name'];
+  const userRoles = req.headers['x-replit-user-roles'];
+
+  if (!userId) {
     res.status(401).json({ message: 'Unauthorized' });
     return;
   }
-  
+
   req.user = {
-    id: req.headers['X-Replit-User-Id'] as string,
-    name: req.headers['X-Replit-User-Name'] as string,
-    roles: req.headers['X-Replit-User-Roles'] as string,
+    id: userId as string,
+    name: userName as string,
+    roles: userRoles as string,
   };
-  
+
   next();
 }
 
