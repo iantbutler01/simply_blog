@@ -1,11 +1,26 @@
-import { pgTable, text, serial, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// Define the block types and their schemas
+export const blockSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("text"),
+    content: z.string(),
+    format: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("image"),
+    imageId: z.number(),
+    caption: z.string().optional(),
+    alt: z.string().optional(),
+  }),
+]);
 
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  content: text("content").notNull(),
+  content: jsonb("content").notNull(), // Store blocks as JSON
   excerpt: text("excerpt").notNull(),
   tags: text("tags").array().notNull(),
   isDraft: boolean("is_draft").notNull().default(true),
@@ -25,7 +40,7 @@ export const insertPostSchema = createInsertSchema(posts)
   .omit({ id: true, createdAt: true })
   .extend({
     title: z.string().min(1, "Title is required"),
-    content: z.string().min(1, "Content is required"),
+    content: z.array(blockSchema),
     excerpt: z.string().min(1, "Excerpt is required"),
     tags: z.array(z.string()).min(1, "At least one tag is required"),
   });
@@ -33,6 +48,7 @@ export const insertPostSchema = createInsertSchema(posts)
 export const insertImageSchema = createInsertSchema(images)
   .omit({ id: true, createdAt: true });
 
+export type Block = z.infer<typeof blockSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type Post = typeof posts.$inferSelect;
 export type InsertImage = z.infer<typeof insertImageSchema>;

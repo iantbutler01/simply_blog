@@ -13,15 +13,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import { RichTextEditor } from "@/components/blog/RichTextEditor";
+import { BlockEditor } from "@/components/blog/BlockEditor";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { insertPostSchema, type Post } from "@shared/schema";
+import { insertPostSchema, type Post, type Block } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 
 type FormValues = {
   title: string;
-  content: string;
+  content: Block[];
   excerpt: string;
   tags: string[];
   isDraft: boolean;
@@ -42,7 +42,7 @@ export default function EditPost() {
     resolver: zodResolver(insertPostSchema),
     defaultValues: {
       title: "",
-      content: "",
+      content: [{ type: "text", content: "", format: "html" }],
       excerpt: "",
       tags: [],
       isDraft: true,
@@ -52,9 +52,14 @@ export default function EditPost() {
   // Update form when post data is loaded
   useEffect(() => {
     if (post) {
+      // Ensure post.content is treated as Block[]
+      const content = Array.isArray(post.content) 
+        ? post.content 
+        : [{ type: "text", content: post.content as string, format: "html" }];
+
       form.reset({
         title: post.title,
-        content: post.content,
+        content,
         excerpt: post.excerpt,
         tags: post.tags,
         isDraft: post.isDraft,
@@ -126,7 +131,7 @@ export default function EditPost() {
               <FormItem>
                 <FormLabel>Content</FormLabel>
                 <FormControl>
-                  <RichTextEditor
+                  <BlockEditor
                     value={field.value}
                     onChange={field.onChange}
                   />
