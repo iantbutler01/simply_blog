@@ -10,11 +10,6 @@ export default function BlogPost() {
 
   const { data: post, isLoading } = useQuery<Post>({
     queryKey: [`/api/posts/${id}`],
-    queryFn: async () => {
-      const res = await fetch(`/api/posts/${id}`);
-      if (!res.ok) throw new Error("Failed to fetch post");
-      return res.json();
-    },
   });
 
   if (isLoading) {
@@ -30,7 +25,7 @@ export default function BlogPost() {
   return (
     <div className="container py-8 max-w-4xl">
       <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
-      
+
       <div className="flex items-center gap-4 mb-8 text-muted-foreground">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
@@ -45,11 +40,10 @@ export default function BlogPost() {
         </div>
       </div>
 
-      <div className="prose prose-lg max-w-none">
-        {post.content.split("\n").map((paragraph, i) => (
-          <p key={i}>{paragraph}</p>
-        ))}
-      </div>
+      <div 
+        className="prose prose-lg max-w-none"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
     </div>
   );
 }
