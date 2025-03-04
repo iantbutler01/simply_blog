@@ -111,7 +111,7 @@ export default function EditPost() {
       const formattedValues = {
         ...values,
         publishAt,
-        canonicalUrl: values.canonicalUrl || null,
+        canonicalUrl: values.canonicalUrl?.trim() || null,
         content: values.content.map(block => {
           if (block.type === "text") {
             return {
