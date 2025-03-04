@@ -5,6 +5,7 @@ import { insertPostSchema, insertImageSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import express from 'express';
+import { requireAuth, AuthenticatedRequest, isAdmin } from './middleware/auth';
 
 // Configure multer for handling file uploads
 const upload = multer({
@@ -16,14 +17,13 @@ const upload = multer({
     }
   }),
   fileFilter: (_req, file, cb) => {
-    // Accept images and SVGs
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif|svg)$/i)) {
-      return cb(new Error('Only image files (jpg, jpeg, png, gif, svg) are allowed!'));
+      return cb(new Error('Only image files are allowed!'));
     }
     if (file.mimetype.startsWith('image/') || file.mimetype === 'image/svg+xml') {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only images are allowed.'));
+      cb(new Error('Invalid file type'));
     }
   }
 });
@@ -32,59 +32,15 @@ export async function registerRoutes(app: Express) {
   // Ensure uploads directory exists
   app.use('/uploads', express.static('uploads'));
 
-  // Image upload endpoint
-  app.post("/api/images", upload.single('image'), async (req, res) => {
-    if (!req.file) {
-      const error = req.fileValidationError || "No image file provided";
-      console.error('Image upload failed:', error);
-      res.status(400).json({ message: error });
-      return;
-    }
-
-    try {
-      console.log('Processing uploaded file:', {
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size
-      });
-
-      const imageData = {
-        filename: req.file.originalname,
-        url: `/uploads/${req.file.filename}`,
-        mimeType: req.file.mimetype,
-        size: req.file.size.toString(),
-      };
-
-      const image = await storage.createImage(imageData);
-      console.log('Image saved to database:', image);
-      res.status(201).json(image);
-    } catch (error) {
-      console.error('Failed to save image:', error);
-      res.status(500).json({ message: "Failed to save image", error: String(error) });
-    }
-  });
-
-  app.delete("/api/images/:id", async (req, res) => {
-    try {
-      await storage.deleteImage(Number(req.params.id));
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ message: "Failed to delete image" });
-    }
-  });
-
-  // Existing post routes
+  // Public routes
   app.get("/api/posts", async (req, res) => {
     const { search, tag, published } = req.query;
-
     let posts = await storage.getPosts();
 
-    // Filter out drafts for public view
     if (published === "true") {
       posts = posts.filter(post => !post.isDraft);
     }
 
-    // Apply search filter if present
     if (search && typeof search === "string") {
       posts = await storage.searchPosts(search);
       if (published === "true") {
@@ -92,7 +48,6 @@ export async function registerRoutes(app: Express) {
       }
     }
 
-    // Apply tag filter if present
     if (tag && typeof tag === "string") {
       posts = await storage.getPostsByTag(tag);
       if (published === "true") {
@@ -112,7 +67,13 @@ export async function registerRoutes(app: Express) {
     res.json(post);
   });
 
-  app.post("/api/posts", async (req, res) => {
+  // Protected admin routes
+  app.post("/api/posts", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
     const result = insertPostSchema.safeParse(req.body);
     if (!result.success) {
       res.status(400).json({ message: result.error.message });
@@ -122,7 +83,12 @@ export async function registerRoutes(app: Express) {
     res.status(201).json(post);
   });
 
-  app.patch("/api/posts/:id", async (req, res) => {
+  app.patch("/api/posts/:id", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
     const result = insertPostSchema.partial().safeParse(req.body);
     if (!result.success) {
       res.status(400).json({ message: result.error.message });
@@ -136,9 +102,65 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/posts/:id", async (req, res) => {
+  app.delete("/api/posts/:id", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
     await storage.deletePost(Number(req.params.id));
     res.status(204).send();
+  });
+
+  // Protected image routes
+  app.post("/api/images", requireAuth, upload.single('image'), async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({ message: "No image file provided" });
+      return;
+    }
+
+    try {
+      const imageData = {
+        filename: req.file.originalname,
+        url: `/uploads/${req.file.filename}`,
+        mimeType: req.file.mimetype,
+        size: req.file.size.toString(),
+      };
+
+      const image = await storage.createImage(imageData);
+      res.status(201).json(image);
+    } catch (error) {
+      console.error('Failed to save image:', error);
+      res.status(500).json({ message: "Failed to save image" });
+    }
+  });
+
+  app.delete("/api/images/:id", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    try {
+      await storage.deleteImage(Number(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete image" });
+    }
+  });
+
+  // Auth status endpoint
+  app.get("/api/auth/status", requireAuth, (req: AuthenticatedRequest, res) => {
+    res.json({
+      authenticated: true,
+      user: req.user,
+      isAdmin: isAdmin(req)
+    });
   });
 
   return createServer(app);
