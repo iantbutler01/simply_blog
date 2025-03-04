@@ -104,11 +104,14 @@ export default function EditPost() {
         publishAt = new Date(publishAt);
         publishAt.setHours(parseInt(timeparts[0], 10));
         publishAt.setMinutes(parseInt(timeparts[1], 10));
+      } else {
+        publishAt = null;
       }
 
       const formattedValues = {
         ...values,
-        publishAt: values.isDraft ? null : publishAt,
+        publishAt,
+        canonicalUrl: values.canonicalUrl || null,
         content: values.content.map(block => {
           if (block.type === "text") {
             return {
