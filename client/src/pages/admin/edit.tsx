@@ -161,6 +161,32 @@ export default function EditPost() {
     },
   });
 
+  const publishNowMutation = useMutation({
+    mutationFn: async () => {
+      if (!postId) throw new Error("No post ID available");
+      await apiRequest("POST", `/api/posts/${postId}/publish`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      if (postId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/posts/${postId}`] });
+      }
+      toast({
+        title: "Success",
+        description: "Post published successfully.",
+      });
+      form.setValue("isDraft", false);
+      form.setValue("publishAt", null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <div className="container py-8">
       <h1 className="text-4xl font-bold mb-8">
@@ -256,12 +282,24 @@ export default function EditPost() {
                             Keep this post as a draft
                           </div>
                         </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
+                        <div className="flex items-center gap-4">
+                          {postId && field.value && (
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              onClick={() => publishNowMutation.mutate()}
+                              disabled={publishNowMutation.isPending}
+                            >
+                              {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
+                            </Button>
+                          )}
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </div>
                       </FormItem>
                     )}
                   />

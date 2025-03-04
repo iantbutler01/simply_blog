@@ -156,6 +156,21 @@ export async function registerRoutes(app: Express) {
     res.status(204).send();
   });
 
+  // Add the publish endpoint after other post endpoints
+  app.post("/api/posts/:id/publish", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    try {
+      const post = await storage.publishPost(Number(req.params.id));
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to publish post" });
+    }
+  });
+
   // Protected image routes
   app.post("/api/images", requireAuth, upload.single('image'), async (req: AuthenticatedRequest, res) => {
     if (!isAdmin(req)) {

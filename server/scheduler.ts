@@ -10,4 +10,6 @@ export function startScheduler() {
   setInterval(() => {
     storage.publishScheduledPosts().catch(console.error);
   }, SCHEDULER_INTERVAL);
+
+  console.log("Post scheduler started - checking every minute");
 }

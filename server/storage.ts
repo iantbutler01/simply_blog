@@ -39,6 +39,7 @@ export interface IStorage {
   getVersion(versionId: number): Promise<PostVersion | undefined>;
   getScheduledPosts(): Promise<Post[]>;
   publishScheduledPosts(): Promise<void>;
+  publishPost(id: number): Promise<Post>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -307,6 +308,25 @@ export class DatabaseStorage implements IStorage {
       console.log('Published scheduled posts');
     } catch (error) {
       console.error('Failed to publish scheduled posts:', error);
+      throw error;
+    }
+  }
+  async publishPost(id: number): Promise<Post> {
+    try {
+      const [post] = await db
+        .update(posts)
+        .set({
+          isDraft: false,
+          publishAt: null
+        })
+        .where(eq(posts.id, id))
+        .returning();
+
+      if (!post) throw new Error("Post not found");
+      console.log(`Published post ${id} immediately`);
+      return post;
+    } catch (error) {
+      console.error(`Failed to publish post ${id}:`, error);
       throw error;
     }
   }
