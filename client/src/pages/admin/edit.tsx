@@ -12,10 +12,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
 import { RichTextEditor } from "@/components/blog/RichTextEditor";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { insertPostSchema, type Post } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
+
+type FormValues = {
+  title: string;
+  content: string;
+  excerpt: string;
+  tags: string[];
+  isDraft: boolean;
+}
 
 export default function EditPost() {
   const [, navigate] = useLocation();
@@ -28,19 +38,32 @@ export default function EditPost() {
     enabled: !!postId,
   });
 
-  const form = useForm({
+  const form = useForm<FormValues>({
     resolver: zodResolver(insertPostSchema),
     defaultValues: {
-      title: post?.title || "",
-      content: post?.content || "",
-      excerpt: post?.excerpt || "",
-      tags: post?.tags || [],
-      isDraft: post?.isDraft ?? true,
+      title: "",
+      content: "",
+      excerpt: "",
+      tags: [],
+      isDraft: true,
     },
   });
 
+  // Update form when post data is loaded
+  useEffect(() => {
+    if (post) {
+      form.reset({
+        title: post.title,
+        content: post.content,
+        excerpt: post.excerpt,
+        tags: post.tags,
+        isDraft: post.isDraft,
+      });
+    }
+  }, [post, form]);
+
   const mutation = useMutation({
-    mutationFn: async (values: typeof form.getValues) => {
+    mutationFn: async (values: FormValues) => {
       if (postId) {
         await apiRequest("PATCH", `/api/posts/${postId}`, values);
       } else {
@@ -133,6 +156,27 @@ export default function EditPost() {
                   />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="isDraft"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel>Draft</FormLabel>
+                  <div className="text-sm text-muted-foreground">
+                    Keep this post as a draft to prevent it from being published
+                  </div>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />
