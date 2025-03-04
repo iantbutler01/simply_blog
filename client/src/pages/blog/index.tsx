@@ -63,7 +63,7 @@ export default function BlogIndex() {
         ) : (
           <div className="space-y-6">
             {posts?.map((post) => (
-              <PostCard key={post.id} post={post} />
+              <PostCard key={post.id} post={post} isAdmin={false} />
             ))}
           </div>
         )}
