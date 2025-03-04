@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import { type Post } from "@shared/schema";
 import { Head } from "@/components/blog/Head";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { CommentForm } from "@/components/blog/CommentForm";
+import { CommentList } from "@/components/blog/CommentList";
 
 export default function BlogPost() {
   const { id } = useParams();
@@ -33,6 +35,12 @@ export default function BlogPost() {
       viewMutation.mutate();
       return post;
     },
+  });
+
+  // Fetch approved comments for this post
+  const { data: comments = [] } = useQuery({
+    queryKey: [`/api/posts/${id}/comments`],
+    enabled: !!id,
   });
 
   if (isLoading) {
@@ -86,7 +94,7 @@ export default function BlogPost() {
             return (
               <figure key={index} className="my-12">
                 <img
-                  src={`/uploads/${block.imageId}`}
+                  src={block.imageUrl}
                   alt={block.alt || ""}
                   className="rounded-lg w-full"
                 />
@@ -101,6 +109,16 @@ export default function BlogPost() {
           return null;
         })}
       </article>
+
+      {/* Comments Section */}
+      <div className="mt-16 pt-8 border-t">
+        <h2 className="text-2xl font-bold mb-8">Comments</h2>
+        <CommentList comments={comments} />
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">Leave a Comment</h3>
+          <CommentForm postId={Number(id)} />
+        </div>
+      </div>
     </div>
   );
 }
