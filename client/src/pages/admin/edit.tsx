@@ -156,6 +156,13 @@ export default function EditPost() {
         });
         // Invalidate versions query after saving
         queryClient.invalidateQueries({ queryKey: [`/api/posts/${postId}/versions`] });
+
+        // After saving a version, set the post back to draft status
+        form.setValue("isDraft", true);
+        toast({
+          title: "Version saved",
+          description: "Post has been unpublished. Review and publish when ready.",
+        });
       }
 
       if (postId) {
