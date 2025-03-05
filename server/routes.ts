@@ -393,6 +393,26 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // Add this endpoint with other image endpoints
+  app.get("/api/images/:id", async (req, res) => {
+    try {
+      const image = await storage.getImage(Number(req.params.id));
+      if (!image) {
+        res.status(404).json({ message: "Image not found" });
+        return;
+      }
+
+      // Set content type based on the image's mimeType
+      res.setHeader('Content-Type', image.mimeType);
+
+      // Send the image data
+      res.send(Buffer.from(image.data));
+    } catch (error) {
+      console.error('Failed to get image:', error);
+      res.status(500).json({ message: "Failed to get image" });
+    }
+  });
+
   // Auth status endpoint - this line was already present
   // app.get("/api/auth/status", requireAuth, (req: AuthenticatedRequest, res) => {
   //   res.json({

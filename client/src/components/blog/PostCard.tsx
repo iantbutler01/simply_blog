@@ -19,7 +19,7 @@ export function PostCard({ post, isAdmin }: PostCardProps) {
           <div className="md:w-1/3 relative">
             <Link href={`/blog/${post.id}`}>
               <img
-                src={`/uploads/${post.socialImageId}`}
+                src={`/api/images/${post.socialImageId}`}
                 alt={post.title}
                 className="w-full h-48 md:h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105"
               />

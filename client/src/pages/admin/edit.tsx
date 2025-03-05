@@ -513,7 +513,7 @@ export default function EditPost() {
                                       />
                                       {field.value && (
                                         <img
-                                          src={`/uploads/image-${field.value}`}
+                                          src={`/api/images/${field.value}`}
                                           alt="Social preview"
                                           className="h-20 w-20 object-cover rounded-lg"
                                         />
@@ -545,7 +545,7 @@ export default function EditPost() {
                             <SocialPreview
                               title={form.watch("metaTitle") || form.watch("title")}
                               description={form.watch("metaDescription") || form.watch("excerpt")}
-                              imageUrl={form.watch("socialImageId") ? `/uploads/image-${form.watch("socialImageId")}` : undefined}
+                              imageUrl={form.watch("socialImageId") ? `/api/images/${form.watch("socialImageId")}` : undefined}
                               url={form.watch("canonicalUrl") || window.location.origin}
                             />
                           </div>
