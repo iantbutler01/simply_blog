@@ -3,11 +3,59 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --primary: theme('colors.blue.600');
+    --primary-foreground: theme('colors.white');
+
+    --theme-radius: 0px;
+  }
+
+  [data-theme-variant="professional"] {
+    --text-primary: theme('colors.gray.900');
+    --text-secondary: theme('colors.gray.600');
+  }
+
+  [data-theme-variant="tint"] {
+    --text-primary: var(--primary);
+    --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.600'));
+  }
+
+  [data-theme-variant="vibrant"] {
+    --text-primary: var(--primary);
+    --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.900'));
+  }
+
+  .dark {
+    [data-theme-variant="professional"] {
+      --text-primary: theme('colors.gray.100');
+      --text-secondary: theme('colors.gray.400');
+    }
+
+    [data-theme-variant="tint"] {
+      --text-primary: var(--primary);
+      --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.300'));
+    }
+
+    [data-theme-variant="vibrant"] {
+      --text-primary: var(--primary);
+      --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.100'));
+    }
+  }
+
   * {
     @apply border-border;
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-background;
+    color: var(--text-primary);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+  }
+
+  p, span, div {
+    color: var(--text-secondary);
   }
 }

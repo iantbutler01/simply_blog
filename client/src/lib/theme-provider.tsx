@@ -19,7 +19,11 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const { data: settings } = useQuery({ queryKey: ["/api/settings"] });
+  const { data: settings } = useQuery({ 
+    queryKey: ["/api/settings"],
+    staleTime: 60000, // Refetch after 1 minute
+  });
+
   const [theme, setTheme] = useState<ThemeSettings>({
     primary: "#007ACC",
     variant: "professional",
@@ -42,7 +46,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Apply theme settings
     document.documentElement.style.setProperty("--primary", theme.primary);
     document.documentElement.setAttribute("data-theme-variant", theme.variant);
-    
+    document.documentElement.style.setProperty("--theme-radius", `${theme.radius}px`);
+
+    // Apply color scheme
     const applyAppearance = (appearance: ThemeAppearance) => {
       if (appearance === "system") {
         const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
