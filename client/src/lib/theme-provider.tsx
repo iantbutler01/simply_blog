@@ -56,12 +56,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (isDark) {
         document.documentElement.classList.add('dark');
       }
+      console.log('Dark mode set to:', isDark); // Debug log
     };
 
     if (theme.appearance === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
       const handleChange = () => {
+        console.log('System theme changed, dark mode:', mediaQuery.matches); // Debug log
         setDarkMode(mediaQuery.matches);
       };
 
@@ -73,6 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return () => mediaQuery.removeEventListener("change", handleChange);
     } else {
       // Direct application of light/dark mode
+      console.log('Manual theme changed to:', theme.appearance); // Debug log
       setDarkMode(theme.appearance === "dark");
     }
   }, [theme.appearance]);

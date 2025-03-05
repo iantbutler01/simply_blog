@@ -12,36 +12,34 @@
     --theme-radius: 0px;
   }
 
-  [data-theme-variant="professional"] {
+  :root:not(.dark) [data-theme-variant="professional"] {
     --text-primary: theme('colors.gray.900');
     --text-secondary: theme('colors.gray.600');
   }
 
-  [data-theme-variant="tint"] {
+  :root:not(.dark) [data-theme-variant="tint"] {
     --text-primary: var(--primary);
     --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.600'));
   }
 
-  [data-theme-variant="vibrant"] {
+  :root:not(.dark) [data-theme-variant="vibrant"] {
     --text-primary: var(--primary);
     --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.900'));
   }
 
-  .dark {
-    [data-theme-variant="professional"] {
-      --text-primary: theme('colors.gray.100');
-      --text-secondary: theme('colors.gray.400');
-    }
+  :root.dark [data-theme-variant="professional"] {
+    --text-primary: theme('colors.gray.100');
+    --text-secondary: theme('colors.gray.400');
+  }
 
-    [data-theme-variant="tint"] {
-      --text-primary: var(--primary);
-      --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.300'));
-    }
+  :root.dark [data-theme-variant="tint"] {
+    --text-primary: var(--primary);
+    --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.300'));
+  }
 
-    [data-theme-variant="vibrant"] {
-      --text-primary: var(--primary);
-      --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.100'));
-    }
+  :root.dark [data-theme-variant="vibrant"] {
+    --text-primary: var(--primary);
+    --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.100'));
   }
 
   * {
@@ -59,7 +57,7 @@
   h4:where(:not([class*="ignore-theme"])),
   h5:where(:not([class*="ignore-theme"])),
   h6:where(:not([class*="ignore-theme"])) {
-    color: var(--text-secondary) !important;
+    color: var(--text-primary) !important;
     @apply font-bold;
   }
 
