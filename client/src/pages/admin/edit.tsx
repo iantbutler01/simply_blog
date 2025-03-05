@@ -732,7 +732,7 @@ export default function EditPost() {
                               }}
                             >
                               <img
-                                src={block.imageUrl}
+                                src={`/api/images/${block.imageId}`}
                                 alt={block.alt || ""}
                                 className="rounded-lg border w-full h-auto object-contain"
                                 style={{ minHeight: "200px" }}
