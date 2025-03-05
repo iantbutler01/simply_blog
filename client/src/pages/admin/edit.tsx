@@ -69,7 +69,7 @@ type FormValues = {
   publishAt: Date | null;
   metaTitle: string;
   metaDescription: string;
-  socialImageId: string | null;
+  socialImageId: string;
   canonicalUrl: string;
   comment?: string; // Optional comment for version history
 };
@@ -97,7 +97,7 @@ export default function EditPost() {
       publishAt: null,
       metaTitle: "",
       metaDescription: "",
-      socialImageId: null, // Changed from empty string to null
+      socialImageId: "",
       canonicalUrl: "",
     },
   });
@@ -121,7 +121,7 @@ export default function EditPost() {
         publishAt: publishDate,
         metaTitle: post.metaTitle || "",
         metaDescription: post.metaDescription || "",
-        socialImageId: post.socialImageId || null,
+        socialImageId: post.socialImageId || "",
         canonicalUrl: post.canonicalUrl || "",
       });
     }
@@ -341,14 +341,14 @@ export default function EditPost() {
                         <FormControl>
                           <Input
                             value={field.value.join(", ")}
-                            onChange={(e) => {
-                              const tags = e.target.value
-                                .split(/,\s*/) // Split on comma followed by optional whitespace
-                                .map((tag) => tag.trim())
-                                .filter((tag) => tag.length > 0); // Only keep non-empty tags
-                              field.onChange(tags);
-                            }}
-                            placeholder="Enter tags separated by commas"
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value
+                                  .split(",")
+                                  .map((tag) => tag.trim())
+                                  .filter(Boolean),
+                              )
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -556,8 +556,12 @@ export default function EditPost() {
                                   <FormControl>
                                     <div className="flex items-center gap-4">
                                       <ImageUpload
-                                        onUpload={(imageId) => {
-                                          field.onChange(imageId); // ImageId will be a number from the server
+                                        onUpload={(imageId, imageUrl) => {
+                                          console.log("Upload response:", {
+                                            imageId,
+                                            imageUrl,
+                                          });
+                                          field.onChange(imageId);
                                         }}
                                       />
                                       {field.value && (
