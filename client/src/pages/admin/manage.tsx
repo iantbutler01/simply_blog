@@ -211,7 +211,7 @@ export default function AdminManage() {
                             <FormLabel>Theme Variant</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -237,7 +237,7 @@ export default function AdminManage() {
                             <FormLabel>Theme Appearance</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
