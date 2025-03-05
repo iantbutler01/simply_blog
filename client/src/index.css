@@ -14,7 +14,7 @@
 
   [data-theme-variant="professional"] {
     --text-primary: theme('colors.gray.900');
-    --text-secondary: theme('colors.gray.100');
+    --text-secondary: theme('colors.gray.600');
   }
 
   [data-theme-variant="tint"] {
@@ -29,8 +29,8 @@
 
   .dark {
     [data-theme-variant="professional"] {
-      --text-primary: theme('colors.gray.50');
-      --text-secondary: theme('colors.gray.500');
+      --text-primary: theme('colors.gray.100');
+      --text-secondary: theme('colors.gray.100');
     }
 
     [data-theme-variant="tint"] {
