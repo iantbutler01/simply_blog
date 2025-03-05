@@ -64,12 +64,12 @@ type FormValues = {
   title: string;
   content: Block[];
   excerpt: string;
-  tags: string[];
+  tags: string;
   isDraft: boolean;
   publishAt: Date | null;
   metaTitle: string;
   metaDescription: string;
-  socialImageId: string;
+  socialImageId: number | null;
   canonicalUrl: string;
   comment?: string; // Optional comment for version history
 };
@@ -92,12 +92,12 @@ export default function EditPost() {
       title: "",
       content: [{ type: "text", content: "", format: "html" }],
       excerpt: "",
-      tags: [],
+      tags: "",
       isDraft: true,
       publishAt: null,
       metaTitle: "",
       metaDescription: "",
-      socialImageId: "",
+      socialImageId: null,
       canonicalUrl: "",
     },
   });
@@ -116,12 +116,12 @@ export default function EditPost() {
           ? post.content
           : [{ type: "text", content: post.content as string, format: "html" }],
         excerpt: post.excerpt,
-        tags: post.tags,
+        tags: post.tags.join(","),
         isDraft: post.isDraft,
         publishAt: publishDate,
         metaTitle: post.metaTitle || "",
         metaDescription: post.metaDescription || "",
-        socialImageId: post.socialImageId || "",
+        socialImageId: post.socialImageId,
         canonicalUrl: post.canonicalUrl || "",
       });
     }
@@ -165,6 +165,8 @@ export default function EditPost() {
         }),
       };
 
+      formattedValues["tags"] = formattedValues["tags"].join(",");
+
       // If editing existing post, first update with draft status
       if (postId) {
         // First set the post to draft state
@@ -178,7 +180,7 @@ export default function EditPost() {
           title: values.title,
           content: values.content,
           excerpt: values.excerpt,
-          tags: values.tags,
+          tags: values.tags.split(","),
           comment: values.comment,
         });
 
@@ -254,7 +256,7 @@ export default function EditPost() {
       title: version.title,
       content: version.content,
       excerpt: version.excerpt,
-      tags: version.tags,
+      tags: version.tags.join(","),
       isDraft: form.getValues("isDraft"),
       publishAt: form.getValues("publishAt"),
       metaTitle: form.getValues("metaTitle"),
@@ -340,15 +342,8 @@ export default function EditPost() {
                         <FormLabel>Tags (comma-separated)</FormLabel>
                         <FormControl>
                           <Input
-                            value={field.value.join(", ")}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value
-                                  .split(",")
-                                  .map((tag) => tag.trim())
-                                  .filter(Boolean),
-                              )
-                            }
+                            value={field.value}
+                            onChange={(e) => field.onChange(e.target.value)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -672,11 +667,14 @@ export default function EditPost() {
                     </time>
                   </div>
                   <div className="flex gap-2">
-                    {form.watch("tags").map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
+                    {form
+                      .watch("tags")
+                      .split(",")
+                      .map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
                   </div>
                 </div>
 

@@ -10,7 +10,12 @@ interface SocialPreviewProps {
   url?: string;
 }
 
-function TwitterCard({ title, description, imageUrl, url }: SocialPreviewProps) {
+function TwitterCard({
+  title,
+  description,
+  imageUrl,
+  url,
+}: SocialPreviewProps) {
   return (
     <div className="w-[500px] rounded-xl border bg-white shadow-lg overflow-hidden">
       {imageUrl && (
@@ -23,19 +28,26 @@ function TwitterCard({ title, description, imageUrl, url }: SocialPreviewProps) 
         </div>
       )}
       <div className="p-4">
-        <p className="text-sm text-gray-500 truncate">{url || window.location.origin}</p>
+        <p className="text-sm text-gray-500 truncate">
+          {url || window.location.origin}
+        </p>
         <h3 className="font-bold text-lg mt-1 line-clamp-2">
-          {title || 'Title preview'}
+          {title || "Title preview"}
         </h3>
         <p className="text-gray-700 text-sm mt-1 line-clamp-3">
-          {description || 'Description preview'}
+          {description || "Description preview"}
         </p>
       </div>
     </div>
   );
 }
 
-function FacebookCard({ title, description, imageUrl, url }: SocialPreviewProps) {
+function FacebookCard({
+  title,
+  description,
+  imageUrl,
+  url,
+}: SocialPreviewProps) {
   return (
     <div className="w-[500px] rounded border bg-white shadow-lg overflow-hidden">
       {imageUrl && (
@@ -52,17 +64,22 @@ function FacebookCard({ title, description, imageUrl, url }: SocialPreviewProps)
           {url || window.location.origin}
         </p>
         <h3 className="font-bold text-lg mt-1 line-clamp-2">
-          {title || 'Title preview'}
+          {title || "Title preview"}
         </h3>
         <p className="text-gray-600 text-sm mt-1 line-clamp-3">
-          {description || 'Description preview'}
+          {description || "Description preview"}
         </p>
       </div>
     </div>
   );
 }
 
-function LinkedInCard({ title, description, imageUrl, url }: SocialPreviewProps) {
+function LinkedInCard({
+  title,
+  description,
+  imageUrl,
+  url,
+}: SocialPreviewProps) {
   return (
     <div className="w-[500px] rounded border bg-white shadow-lg overflow-hidden">
       {imageUrl && (
@@ -77,18 +94,22 @@ function LinkedInCard({ title, description, imageUrl, url }: SocialPreviewProps)
       <div className="p-4">
         <p className="text-sm text-gray-500">{url || window.location.origin}</p>
         <h3 className="font-bold text-xl mt-1 line-clamp-2">
-          {title || 'Title preview'}
+          {title || "Title preview"}
         </h3>
         <p className="text-gray-700 text-sm mt-2 line-clamp-3">
-          {description || 'Description preview'}
+          {description || "Description preview"}
         </p>
       </div>
     </div>
   );
 }
 
-export function SocialPreview({ title, description, imageUrl, url }: SocialPreviewProps) {
-  console.log('SocialPreview imageUrl:', imageUrl);
+export function SocialPreview({
+  title,
+  description,
+  imageUrl,
+  url,
+}: SocialPreviewProps) {
   return (
     <div className="w-full space-y-4">
       <Tabs defaultValue="twitter">

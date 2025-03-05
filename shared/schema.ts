@@ -1,4 +1,12 @@
-import { pgTable, text, serial, timestamp, boolean, jsonb, integer } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  timestamp,
+  boolean,
+  jsonb,
+  integer,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -25,14 +33,19 @@ export const blockSchema = z.discriminatedUnion("type", [
     caption: z.string().optional(),
     alt: z.string().optional(),
     alignment: z.enum(["left", "center", "right"]).optional().default("center"),
-    size: z.enum(["small", "medium", "large", "full"]).optional().default("full"),
+    size: z
+      .enum(["small", "medium", "large", "full"])
+      .optional()
+      .default("full"),
   }),
   z.object({
     type: z.literal("cta"),
     content: z.string(),
     buttonText: z.string(),
     buttonUrl: z.string().url("Please enter a valid URL"),
-    buttonVariant: z.enum(["default", "outline", "secondary"]).default("default"),
+    buttonVariant: z
+      .enum(["default", "outline", "secondary"])
+      .default("default"),
     alignment: z.enum(["left", "center", "right"]).default("center"),
   }),
 ]);
@@ -60,13 +73,17 @@ export const posts = pgTable("posts", {
 // New table for version history
 export const postVersions = pgTable("post_versions", {
   id: serial("id").primaryKey(),
-  postId: serial("post_id").notNull().references(() => posts.id),
+  postId: serial("post_id")
+    .notNull()
+    .references(() => posts.id),
   title: text("title").notNull(),
   content: jsonb("content").notNull(),
   excerpt: text("excerpt").notNull(),
   tags: text("tags").array().notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  createdBy: serial("created_by").notNull().references(() => users.id),
+  createdBy: serial("created_by")
+    .notNull()
+    .references(() => users.id),
   version: serial("version").notNull(), // Incremental version number
   comment: text("comment"), // Optional comment about the version
 });
@@ -84,7 +101,9 @@ export const images = pgTable("images", {
 // Add the comments table after the images table
 export const comments = pgTable("comments", {
   id: serial("id").primaryKey(),
-  postId: serial("post_id").notNull().references(() => posts.id),
+  postId: serial("post_id")
+    .notNull()
+    .references(() => posts.id),
   content: text("content").notNull(),
   authorName: text("author_name").notNull(),
   authorEmail: text("author_email"), // Remove .notNull()
@@ -95,7 +114,9 @@ export const comments = pgTable("comments", {
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
   blogName: text("blog_name").notNull().default("My Blog"),
-  blogDescription: text("blog_description").notNull().default("Discover interesting articles and insights"),
+  blogDescription: text("blog_description")
+    .notNull()
+    .default("Discover interesting articles and insights"),
   // Add theme settings
   themePrimary: text("theme_primary").notNull().default("#007ACC"),
   themeVariant: text("theme_variant").notNull().default("professional"),
@@ -128,12 +149,31 @@ export const insertPostSchema = createInsertSchema(posts)
     title: z.string().min(1, "Title is required"),
     content: z.array(blockSchema),
     excerpt: z.string().min(1, "Excerpt is required"),
-    tags: z.array(z.string()).min(1, "At least one tag is required"),
+    tags: z
+      .string()
+      .transform((str) =>
+        str
+          ? str
+              .split(",")
+              .map((tag) => tag.trim())
+              .filter(Boolean)
+          : [],
+      )
+      .pipe(z.array(z.string()).min(1, "At least one tag is required")),
     publishAt: z.union([z.date(), z.null()]).optional(),
     metaTitle: z.string().optional(),
-    metaDescription: z.string().max(160, "Meta description should not exceed 160 characters").optional(),
-    socialImageId: z.number().optional(), // Changed from string to number
-    canonicalUrl: z.union([z.string().url("Must be a valid URL"), z.string().max(0), z.null()]).optional(),
+    metaDescription: z
+      .string()
+      .max(160, "Meta description should not exceed 160 characters")
+      .optional(),
+    socialImageId: z.number().nullable().optional(), // Changed from string to number
+    canonicalUrl: z
+      .union([
+        z.string().url("Must be a valid URL"),
+        z.string().max(0),
+        z.null(),
+      ])
+      .optional(),
     views: z.number().optional(),
     shareCount: z.number().optional(),
     readingTimeMinutes: z.number().optional(),
@@ -158,7 +198,10 @@ export const insertImageSchema = createInsertSchema(images)
 export const insertCommentSchema = createInsertSchema(comments)
   .omit({ id: true, createdAt: true, isApproved: true })
   .extend({
-    content: z.string().min(1, "Comment is required").max(1000, "Comment is too long"),
+    content: z
+      .string()
+      .min(1, "Comment is required")
+      .max(1000, "Comment is too long"),
     authorName: z.string().min(1, "Name is required"),
     authorEmail: z.string().email("Invalid email address").nullish(),
   });
