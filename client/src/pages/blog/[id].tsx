@@ -20,7 +20,7 @@ export default function BlogPost() {
     },
   });
 
-  const { data: post, isLoading } = useQuery<Post>({
+  const { data: post, isLoading: postLoading } = useQuery<Post>({
     queryKey: [`/api/posts/${id}`],
     queryFn: async () => {
       const res = await fetch(`/api/posts/${id}`);
@@ -37,13 +37,12 @@ export default function BlogPost() {
     },
   });
 
-  // Fetch approved comments for this post
-  const { data: comments = [] } = useQuery({
+  const { data: comments = [], isLoading: commentsLoading } = useQuery({
     queryKey: [`/api/posts/${id}/comments`],
     enabled: !!id,
   });
 
-  if (isLoading) {
+  if (postLoading || commentsLoading) {
     return (
       <div className="container py-12 max-w-3xl mx-auto px-6">
         <div className="h-96 animate-pulse bg-muted rounded-lg" />
@@ -113,7 +112,7 @@ export default function BlogPost() {
       {/* Comments Section */}
       <div className="mt-16 pt-8 border-t">
         <h2 className="text-2xl font-bold mb-8">Comments</h2>
-        <CommentList comments={comments} />
+        <CommentList postId={Number(id)} />
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4">Leave a Comment</h3>
           <CommentForm postId={Number(id)} />
