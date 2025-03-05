@@ -43,6 +43,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 
 export default function AdminManage() {
   const [, navigate] = useLocation();
@@ -65,7 +66,7 @@ export default function AdminManage() {
   });
 
   // Update form when settings are loaded
-  React.useEffect(() => {
+  useEffect(() => {
     if (settings) {
       form.reset({
         blogName: settings.blogName,
@@ -75,14 +76,20 @@ export default function AdminManage() {
   }, [settings, form]);
 
   const settingsMutation = useMutation({
-    mutationFn: async (values: typeof form.getValues()) => {
-      await apiRequest("PATCH", "/api/settings", values);
-    },
+    mutationFn: (values: { blogName: string; blogDescription: string }) => 
+      apiRequest("PATCH", "/api/settings", values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
       toast({
         title: "Settings updated",
         description: "Your blog settings have been saved successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update settings",
+        description: error.message,
+        variant: "destructive",
       });
     },
   });
@@ -118,10 +125,10 @@ export default function AdminManage() {
       </div>
 
       <div className="space-y-8">
-        <Accordion type="single" collapsible>
+        <Accordion type="single" collapsible defaultValue="settings">
           <AccordionItem value="settings">
             <AccordionTrigger className="text-xl font-semibold">Blog Settings</AccordionTrigger>
-            <AccordionContent>
+            <AccordionContent className="space-y-4 pt-4">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit((data) => settingsMutation.mutate(data))} className="space-y-4">
                   <FormField

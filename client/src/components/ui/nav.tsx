@@ -24,7 +24,7 @@ export function Nav() {
                 Blog
               </span>
             </Link>
-            <Link href="/admin/posts">
+            <Link href="/admin/manage">
               <span className={`hover:text-primary transition-colors ${
                 location.startsWith("/admin") ? "text-primary font-medium" : "text-muted-foreground"
               }`}>

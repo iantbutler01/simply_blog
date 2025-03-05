@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
 import BlogIndex from "@/pages/blog";
 import BlogPost from "@/pages/blog/[id]";
-import AdminPosts from "@/pages/admin/posts";
+import AdminManage from "@/pages/admin/manage";
 import AdminComments from "@/pages/admin/comments";
 import EditPost from "@/pages/admin/edit";
 import AuthPage from "@/pages/auth";
@@ -35,8 +35,8 @@ function Router() {
           <Route path="/" component={BlogIndex} />
           <Route path="/blog/:id" component={BlogPost} />
           <Route path="/auth" component={AuthPage} />
-          <Route path="/admin/posts">
-            <ProtectedRoute component={AdminPosts} />
+          <Route path="/admin/manage">
+            <ProtectedRoute component={AdminManage} />
           </Route>
           <Route path="/admin/comments">
             <ProtectedRoute component={AdminComments} />
