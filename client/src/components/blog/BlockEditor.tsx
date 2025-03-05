@@ -2,7 +2,15 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { RichTextEditor } from "./RichTextEditor";
 import { ImageUpload } from "./ImageUpload";
-import { Plus, GripVertical, X, AlignLeft, AlignCenter, AlignRight, Image as ImageIcon } from "lucide-react";
+import {
+  Plus,
+  GripVertical,
+  X,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Image as ImageIcon,
+} from "lucide-react";
 import { type Block } from "@shared/schema";
 import {
   Select,
@@ -14,7 +22,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import { CTABlockEditor } from "./CTABlockEditor"; // Import the new component
-
 
 interface BlockEditorProps {
   value: Block[];
@@ -41,12 +48,27 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
   const addBlock = (type: "text" | "image" | "cta", e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    const newBlock: Block = type === "text"
-      ? { type: "text", content: "", format: "html" }
-      : type === "image"
-      ? { type: "image", imageId: 0, alignment: "center", size: "full", imageUrl: "" }
-      : { type: "cta", content: "", buttonText: "Click here", buttonUrl: "", alignment: "center", buttonVariant: "default" };
+    var newBlock: Block | null = null;
+    if (type === "text") {
+      newBlock = { type: "text", content: "", format: "html" };
+    } else if (type === "image") {
+      newBlock = {
+        type: "image",
+        imageId: 0,
+        alignment: "center",
+        size: "full",
+        imageUrl: "",
+      };
+    } else {
+      newBlock = {
+        type: "cta",
+        content: "",
+        buttonText: "Click here",
+        buttonUrl: "",
+        alignment: "center",
+        buttonVariant: "default",
+      };
+    }
 
     const newBlocks = [...blocks, newBlock];
     setBlocks(newBlocks);
@@ -163,7 +185,9 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                       <Toggle
                         size="sm"
                         pressed={block.alignment === "left"}
-                        onPressedChange={() => updateBlock(index, { ...block, alignment: "left" })}
+                        onPressedChange={() =>
+                          updateBlock(index, { ...block, alignment: "left" })
+                        }
                         aria-label="Align left"
                       >
                         <AlignLeft className="h-4 w-4" />
@@ -171,7 +195,9 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                       <Toggle
                         size="sm"
                         pressed={block.alignment === "center"}
-                        onPressedChange={() => updateBlock(index, { ...block, alignment: "center" })}
+                        onPressedChange={() =>
+                          updateBlock(index, { ...block, alignment: "center" })
+                        }
                         aria-label="Align center"
                       >
                         <AlignCenter className="h-4 w-4" />
@@ -179,16 +205,18 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                       <Toggle
                         size="sm"
                         pressed={block.alignment === "right"}
-                        onPressedChange={() => updateBlock(index, { ...block, alignment: "right" })}
+                        onPressedChange={() =>
+                          updateBlock(index, { ...block, alignment: "right" })
+                        }
                         aria-label="Align right"
                       >
                         <AlignRight className="h-4 w-4" />
                       </Toggle>
                       <Select
                         value={block.size}
-                        onValueChange={(value: "small" | "medium" | "large" | "full") =>
-                          updateBlock(index, { ...block, size: value })
-                        }
+                        onValueChange={(
+                          value: "small" | "medium" | "large" | "full",
+                        ) => updateBlock(index, { ...block, size: value })}
                       >
                         <SelectTrigger className="h-8 w-24">
                           <SelectValue />
@@ -201,18 +229,28 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className={`flex ${
-                      block.alignment === "left" ? "justify-start" :
-                        block.alignment === "right" ? "justify-end" :
-                          "justify-center"
-                    }`}>
-                      <div style={{
-                        width: block.size === "small" ? "300px" :
-                          block.size === "medium" ? "500px" :
-                            block.size === "large" ? "800px" :
-                              "100%",
-                        maxWidth: "100%"
-                      }}>
+                    <div
+                      className={`flex ${
+                        block.alignment === "left"
+                          ? "justify-start"
+                          : block.alignment === "right"
+                            ? "justify-end"
+                            : "justify-center"
+                      }`}
+                    >
+                      <div
+                        style={{
+                          width:
+                            block.size === "small"
+                              ? "300px"
+                              : block.size === "medium"
+                                ? "500px"
+                                : block.size === "large"
+                                  ? "800px"
+                                  : "100%",
+                          maxWidth: "100%",
+                        }}
+                      >
                         <img
                           src={block.imageUrl}
                           alt={block.alt || ""}
@@ -223,7 +261,9 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                     </div>
                     {block.caption && (
                       <div className="mt-4 text-center">
-                        <p className="text-sm text-muted-foreground">{block.caption}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {block.caption}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -232,7 +272,12 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                     <ImageIcon className="h-8 w-8 text-muted-foreground" />
                     <ImageUpload
                       onUpload={(imageId, imageUrl) => {
-                        console.log("Image uploaded, id:", imageId, "url:", imageUrl);
+                        console.log(
+                          "Image uploaded, id:",
+                          imageId,
+                          "url:",
+                          imageUrl,
+                        );
                         updateBlock(index, {
                           ...block,
                           imageId,
@@ -246,12 +291,16 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                   <Input
                     placeholder="Image caption (optional)"
                     value={block.caption || ""}
-                    onChange={(e) => updateBlock(index, { ...block, caption: e.target.value })}
+                    onChange={(e) =>
+                      updateBlock(index, { ...block, caption: e.target.value })
+                    }
                   />
                   <Input
                     placeholder="Alt text for accessibility"
                     value={block.alt || ""}
-                    onChange={(e) => updateBlock(index, { ...block, alt: e.target.value })}
+                    onChange={(e) =>
+                      updateBlock(index, { ...block, alt: e.target.value })
+                    }
                   />
                 </div>
               </div>

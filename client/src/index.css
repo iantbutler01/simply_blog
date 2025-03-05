@@ -14,7 +14,7 @@
 
   [data-theme-variant="professional"] {
     --text-primary: theme('colors.gray.900');
-    --text-secondary: theme('colors.gray.100');
+    --text-secondary: theme('colors.gray.600');
   }
 
   [data-theme-variant="tint"] {
@@ -52,6 +52,10 @@
   h6:where(:not([class*="ignore-theme"])) {
     color: var(--text-primary) !important;
     @apply font-bold;
+  }
+
+  a:where(:not([class*="ignore-theme"])) {
+    color: var(--text-secondary) !important;
   }
 
   * {

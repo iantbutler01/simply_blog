@@ -151,7 +151,7 @@ export default function EditPost() {
               content: block.content || "",
               format: block.format || "html",
             };
-          } else {
+          } else if (block.type === "image") {
             return {
               type: "image",
               imageId: block.imageId,
@@ -160,6 +160,15 @@ export default function EditPost() {
               alt: block.alt,
               alignment: block.alignment,
               size: block.size,
+            };
+          } else {
+            return {
+              type: "cta",
+              content: block.content,
+              buttonText: block.buttonText,
+              buttonUrl: block.buttonUrl,
+              alignment: block.alignment,
+              buttonVariant: block.buttonVariant,
             };
           }
         }),
