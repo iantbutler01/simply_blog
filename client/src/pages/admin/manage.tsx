@@ -1,7 +1,15 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Eye, Clock, Share2, MessageSquare } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  Clock,
+  Share2,
+  MessageSquare,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -55,14 +63,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
 
-const passwordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const passwordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
@@ -209,10 +219,17 @@ export default function AdminManage() {
       <div className="space-y-8">
         <Accordion type="single" collapsible defaultValue="settings">
           <AccordionItem value="settings">
-            <AccordionTrigger className="text-xl font-semibold">Blog Settings</AccordionTrigger>
+            <AccordionTrigger className="text-xl font-semibold">
+              Blog Settings
+            </AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit((data) => settingsMutation.mutate(data))} className="space-y-4">
+                <form
+                  onSubmit={form.handleSubmit((data) =>
+                    settingsMutation.mutate(data),
+                  )}
+                  className="space-y-4"
+                >
                   <FormField
                     control={form.control}
                     name="blogName"
@@ -220,7 +237,10 @@ export default function AdminManage() {
                       <FormItem>
                         <FormLabel>Blog Name</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Enter your blog name" />
+                          <Input
+                            {...field}
+                            placeholder="Enter your blog name"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -234,7 +254,10 @@ export default function AdminManage() {
                       <FormItem>
                         <FormLabel>Blog Description</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Enter a brief description of your blog" />
+                          <Input
+                            {...field}
+                            placeholder="Enter a brief description of your blog"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -253,11 +276,17 @@ export default function AdminManage() {
                             <FormLabel>Primary Color</FormLabel>
                             <FormControl>
                               <div className="flex gap-2">
-                                <Input type="color" {...field} className="w-12 h-10 p-1" />
+                                <Input
+                                  type="color"
+                                  {...field}
+                                  className="w-12 h-10 p-1"
+                                />
                                 <Input
                                   type="text"
                                   value={field.value}
-                                  onChange={(e) => field.onChange(e.target.value)}
+                                  onChange={(e) =>
+                                    field.onChange(e.target.value)
+                                  }
                                   placeholder="#000000"
                                   className="flex-1"
                                 />
@@ -284,7 +313,9 @@ export default function AdminManage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="professional">Professional</SelectItem>
+                                <SelectItem value="professional">
+                                  Professional
+                                </SelectItem>
                                 <SelectItem value="tint">Tint</SelectItem>
                                 <SelectItem value="vibrant">Vibrant</SelectItem>
                               </SelectContent>
@@ -333,10 +364,14 @@ export default function AdminManage() {
                                   max={20}
                                   step={1}
                                   value={[field.value]}
-                                  onValueChange={([value]) => field.onChange(value)}
+                                  onValueChange={([value]) =>
+                                    field.onChange(value)
+                                  }
                                   className="flex-1"
                                 />
-                                <span className="w-12 text-right">{field.value}px</span>
+                                <span className="w-12 text-right">
+                                  {field.value}px
+                                </span>
                               </div>
                             </FormControl>
                             <FormMessage />
@@ -355,11 +390,15 @@ export default function AdminManage() {
           </AccordionItem>
 
           <AccordionItem value="security">
-            <AccordionTrigger className="text-xl font-semibold">Security Settings</AccordionTrigger>
+            <AccordionTrigger className="text-xl font-semibold">
+              Security Settings
+            </AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
               <Form {...passwordForm}>
                 <form
-                  onSubmit={passwordForm.handleSubmit((data) => passwordMutation.mutate(data))}
+                  onSubmit={passwordForm.handleSubmit((data) =>
+                    passwordMutation.mutate(data),
+                  )}
                   className="space-y-6"
                 >
                   <FormField
@@ -421,7 +460,9 @@ export default function AdminManage() {
                     disabled={passwordMutation.isPending}
                     className="w-full"
                   >
-                    {passwordMutation.isPending ? "Updating..." : "Update Password"}
+                    {passwordMutation.isPending
+                      ? "Updating..."
+                      : "Update Password"}
                   </Button>
                 </form>
               </Form>
@@ -461,7 +502,10 @@ export default function AdminManage() {
                           <Eye className="h-4 w-4" />
                           <span>{post.views}</span>
                         </div>
-                        <div className="flex items-center gap-1" title="Reading time">
+                        <div
+                          className="flex items-center gap-1"
+                          title="Reading time"
+                        >
                           <Clock className="h-4 w-4" />
                           <span>{post.readingTimeMinutes}m</span>
                         </div>
@@ -493,8 +537,8 @@ export default function AdminManage() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete Post</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete this post? This action
-                                cannot be undone.
+                                Are you sure you want to delete this post? This
+                                action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -509,7 +553,9 @@ export default function AdminManage() {
                                 }}
                                 disabled={deleteMutation.isPending}
                               >
-                                {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                                {deleteMutation.isPending
+                                  ? "Deleting..."
+                                  : "Delete"}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
