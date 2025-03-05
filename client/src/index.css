@@ -48,14 +48,25 @@
 
   body {
     @apply font-sans antialiased bg-background;
-    color: var(--text-primary);
   }
 
+  /* Explicitly style headings */
   h1, h2, h3, h4, h5, h6 {
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
+    @apply font-bold;
   }
 
-  p, span, div {
+  /* Style regular text */
+  p, span, div:not([class*="prose"]) {
     color: var(--text-secondary);
+  }
+
+  /* Override for specific text that should use primary color */
+  .text-primary-color {
+    color: var(--text-primary) !important;
+  }
+
+  .text-secondary-color {
+    color: var(--text-secondary) !important;
   }
 }
