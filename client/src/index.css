@@ -50,8 +50,13 @@
     @apply font-sans antialiased bg-background;
   }
 
-  /* Explicitly style headings */
-  h1, h2, h3, h4, h5, h6 {
+  /* Explicitly style headings with high specificity */
+  h1:where(:not([class*="ignore-theme"])), 
+  h2:where(:not([class*="ignore-theme"])), 
+  h3:where(:not([class*="ignore-theme"])), 
+  h4:where(:not([class*="ignore-theme"])), 
+  h5:where(:not([class*="ignore-theme"])), 
+  h6:where(:not([class*="ignore-theme"])) {
     color: var(--text-primary) !important;
     @apply font-bold;
   }
@@ -61,7 +66,7 @@
     color: var(--text-secondary);
   }
 
-  /* Override for specific text that should use primary color */
+  /* Override classes for explicit color control */
   .text-primary-color {
     color: var(--text-primary) !important;
   }
