@@ -12,9 +12,29 @@
     --theme-radius: 0px;
   }
 
+  .dark h1.text-transparent,
+  .dark h2.text-transparent {
+    background-image: linear-gradient(to right, var(--text-secondary), color-mix(in srgb, var(--text-secondary) 70%, transparent)) !important;
+  }
+
+  [data-theme-variant="professional"].dark {
+    --text-primary: theme('colors.gray.200');
+    --text-secondary: theme('colors.gray.100');
+  }
+
+  [data-theme-variant="tint"].dark {
+    --text-primary: var(--primary);
+    --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.300'));
+  }
+
+  [data-theme-variant="vibrant"].dark {
+    --text-primary: var(--primary);
+    --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.100'));
+  }
+
   [data-theme-variant="professional"] {
     --text-primary: theme('colors.gray.900');
-    --text-secondary: theme('colors.gray.100');
+    --text-secondary: theme('colors.gray.600');
   }
 
   [data-theme-variant="tint"] {
@@ -27,22 +47,8 @@
     --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.900'));
   }
 
-  .dark {
-    [data-theme-variant="professional"] {
-      --text-primary: theme('colors.gray.50');
-      --text-secondary: theme('colors.gray.500');
-    }
 
-    [data-theme-variant="tint"] {
-      --text-primary: var(--primary);
-      --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.300'));
-    }
 
-    [data-theme-variant="vibrant"] {
-      --text-primary: var(--primary);
-      --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.100'));
-    }
-  }
 
   h1:where(:not([class*="ignore-theme"])),
   h2:where(:not([class*="ignore-theme"])),
@@ -50,7 +56,7 @@
   h4:where(:not([class*="ignore-theme"])),
   h5:where(:not([class*="ignore-theme"])),
   h6:where(:not([class*="ignore-theme"])) {
-    color: var(--text-secondary) !important;
+    color: var(--text-primary) !important;
     @apply font-bold;
   }
 

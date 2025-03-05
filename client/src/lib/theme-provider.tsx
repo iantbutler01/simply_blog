@@ -19,7 +19,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const { data: settings } = useQuery({ 
+  const { data: settings } = useQuery({
     queryKey: ["/api/settings"],
     staleTime: 60000, // Refetch after 1 minute
   });
@@ -46,13 +46,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Apply theme settings
     document.documentElement.style.setProperty("--primary", theme.primary);
     document.documentElement.setAttribute("data-theme-variant", theme.variant);
-    document.documentElement.style.setProperty("--theme-radius", `${theme.radius}px`);
+    document.documentElement.style.setProperty(
+      "--theme-radius",
+      `${theme.radius}px`,
+    );
 
     // Apply dark mode
     const applyDarkMode = (isDark: boolean) => {
-      const html = document.querySelector('html');
+      const html = document.querySelector("html");
       if (html) {
-        html.classList.toggle('dark', isDark);
+        html.classList.toggle("dark", isDark);
       }
     };
 
@@ -72,7 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   const updateTheme = (settings: Partial<ThemeSettings>) => {
-    setTheme(prev => ({ ...prev, ...settings }));
+    setTheme((prev) => ({ ...prev, ...settings }));
   };
 
   return (
