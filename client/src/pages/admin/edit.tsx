@@ -32,7 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { TimePickerInput } from "@/components/ui/time-picker";
 import { VersionHistory } from "@/components/blog/VersionHistory";
 import { Eye, Clock, Share2 } from "lucide-react";
-
+import { CTABlock } from "@/components/blog/CTABlock";
 
 type PostVersion = {
   id: number;
