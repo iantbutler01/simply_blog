@@ -13,8 +13,8 @@
   }
 
   [data-theme-variant="professional"] {
-    --text-primary: theme('colors.gray.900');
-    --text-secondary: theme('colors.gray.600');
+    --text-primary: theme('colors.gray.950');
+    --text-secondary: theme('colors.gray.700');
   }
 
   [data-theme-variant="tint"] {
@@ -29,8 +29,8 @@
 
   .dark {
     [data-theme-variant="professional"] {
-      --text-primary: theme('colors.gray.100');
-      --text-secondary: theme('colors.gray.400');
+      --text-primary: theme('colors.gray.50');
+      --text-secondary: theme('colors.gray.300');
     }
 
     [data-theme-variant="tint"] {
