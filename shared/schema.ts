@@ -21,11 +21,19 @@ export const blockSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("image"),
     imageId: z.number(),
-    imageUrl: z.string().optional(), // URL will be a data URL from the database
+    imageUrl: z.string().optional(),
     caption: z.string().optional(),
     alt: z.string().optional(),
     alignment: z.enum(["left", "center", "right"]).optional().default("center"),
     size: z.enum(["small", "medium", "large", "full"]).optional().default("full"),
+  }),
+  z.object({
+    type: z.literal("cta"),
+    content: z.string(),
+    buttonText: z.string(),
+    buttonUrl: z.string().url("Please enter a valid URL"),
+    buttonVariant: z.enum(["default", "outline", "secondary"]).default("default"),
+    alignment: z.enum(["left", "center", "right"]).default("center"),
   }),
 ]);
 
