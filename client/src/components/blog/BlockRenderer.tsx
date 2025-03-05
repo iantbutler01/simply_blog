@@ -18,18 +18,28 @@ export function BlockRenderer({ block }: BlockRendererProps) {
       if (!block.imageId) return null;
       return (
         <figure className="my-12">
-          <div className={`flex ${
-            block.alignment === "left" ? "justify-start" :
-              block.alignment === "right" ? "justify-end" :
-                "justify-center"
-          }`}>
-            <div style={{
-              width: block.size === "small" ? "300px" :
-                block.size === "medium" ? "500px" :
-                block.size === "large" ? "800px" :
-                  "100%",
-              maxWidth: "100%"
-            }}>
+          <div
+            className={`flex ${
+              block.alignment === "left"
+                ? "justify-start"
+                : block.alignment === "right"
+                ? "justify-end"
+                : "justify-center"
+            }`}
+          >
+            <div
+              style={{
+                width:
+                  block.size === "small"
+                    ? "300px"
+                    : block.size === "medium"
+                    ? "500px"
+                    : block.size === "large"
+                    ? "800px"
+                    : "100%",
+                maxWidth: "100%",
+              }}
+            >
               <img
                 src={`/api/images/${block.imageId}`}
                 alt={block.alt || ""}
@@ -46,7 +56,11 @@ export function BlockRenderer({ block }: BlockRendererProps) {
         </figure>
       );
     case "cta":
-      return <CTABlock block={block} />;
+      return (
+        <div className="my-12">
+          <CTABlock block={block} />
+        </div>
+      );
     default:
       return null;
   }

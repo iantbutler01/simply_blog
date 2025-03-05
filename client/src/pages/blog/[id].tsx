@@ -8,6 +8,7 @@ import { Head } from "@/components/blog/Head";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { CommentForm } from "@/components/blog/CommentForm";
 import { CommentList } from "@/components/blog/CommentList";
+import { BlockRenderer } from "@/components/blog/BlockRenderer";
 
 export default function BlogPost() {
   const { id } = useParams();
@@ -80,33 +81,9 @@ export default function BlogPost() {
       </div>
 
       <article className="space-y-8">
-        {post.content.map((block, index) => {
-          if (block.type === "text") {
-            return (
-              <div
-                key={index}
-                className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{ __html: block.content }}
-              />
-            );
-          } else if (block.type === "image" && block.imageId) {
-            return (
-              <figure key={index} className="my-12">
-                <img
-                  src={block.imageUrl}
-                  alt={block.alt || ""}
-                  className="rounded-lg w-full"
-                />
-                {block.caption && (
-                  <figcaption className="mt-4 text-sm text-muted-foreground text-center">
-                    {block.caption}
-                  </figcaption>
-                )}
-              </figure>
-            );
-          }
-          return null;
-        })}
+        {post.content.map((block, index) => (
+          <BlockRenderer key={index} block={block} />
+        ))}
       </article>
 
       {/* Comments Section */}
