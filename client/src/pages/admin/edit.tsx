@@ -651,6 +651,8 @@ export default function EditPost() {
                           )}
                         </figure>
                       );
+                    } else if (block.type === "cta") {
+                      return <CTABlock key={index} block={block} />;
                     }
                     return null;
                   })}

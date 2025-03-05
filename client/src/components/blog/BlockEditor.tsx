@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
+import { CTABlockEditor } from "./CTABlockEditor"; // Import the new component
+
 
 interface BlockEditorProps {
   value: Block[];
@@ -36,13 +38,15 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     onChange(newBlocks);
   };
 
-  const addBlock = (type: "text" | "image", e: React.MouseEvent) => {
+  const addBlock = (type: "text" | "image" | "cta", e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     const newBlock: Block = type === "text"
       ? { type: "text", content: "", format: "html" }
-      : { type: "image", imageId: 0, alignment: "center", size: "full", imageUrl: "" };
+      : type === "image"
+      ? { type: "image", imageId: 0, alignment: "center", size: "full", imageUrl: "" }
+      : { type: "cta", content: "", buttonText: "Click here", buttonUrl: "", alignment: "center", buttonVariant: "default" };
 
     const newBlocks = [...blocks, newBlock];
     setBlocks(newBlocks);
@@ -252,6 +256,14 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                 </div>
               </div>
             )}
+
+            {block.type === "cta" && (
+              <CTABlockEditor
+                block={block}
+                onChange={(updatedBlock) => updateBlock(index, updatedBlock)}
+                onRemove={() => removeBlock(index)}
+              />
+            )}
           </div>
         </div>
       ))}
@@ -274,6 +286,15 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Image
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => addBlock("cta", e)}
+          type="button"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add CTA
         </Button>
       </div>
     </div>
