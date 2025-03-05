@@ -506,10 +506,9 @@ export default function EditPost() {
                                   <FormControl>
                                     <div className="flex items-center gap-4">
                                       <ImageUpload
-                                        onUpload={(image) => {
-                                          if (typeof image === 'object' && 'id' in image) {
-                                            field.onChange(image.id);
-                                          }
+                                        onUpload={(imageId, imageUrl) => {
+                                          console.log('Upload response:', { imageId, imageUrl });
+                                          field.onChange(imageId);
                                         }}
                                       />
                                       {field.value && (
@@ -546,7 +545,7 @@ export default function EditPost() {
                             <SocialPreview
                               title={form.watch("metaTitle") || form.watch("title")}
                               description={form.watch("metaDescription") || form.watch("excerpt")}
-                              imageUrl={form.watch("socialImageId") ? `/uploads/${form.watch("socialImageId")}` : undefined}
+                              imageUrl={form.watch("socialImageId") ? `/uploads/image-${form.watch("socialImageId")}` : undefined}
                               url={form.watch("canonicalUrl") || window.location.origin}
                             />
                           </div>

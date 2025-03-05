@@ -33,7 +33,11 @@ export function ImageUpload({ onUpload }: ImageUploadProps) {
 
       const image: Image = await res.json();
       console.log("Upload successful, image:", image);
-      onUpload(image.id, image.url);
+
+      // Always use the format: /uploads/image-{id}
+      const imageUrl = `/uploads/image-${image.id}`;
+      onUpload(image.id, imageUrl);
+
       toast({
         title: "Success",
         description: "Image uploaded successfully",
@@ -78,7 +82,7 @@ export function ImageUpload({ onUpload }: ImageUploadProps) {
         type="button" // Explicitly set type to prevent form submission
       >
         <ImageIcon className={`h-4 w-4 ${isUploading ? 'animate-pulse' : ''}`} />
-        {isUploading ? "Uploading..." : "Upload Image"}
+        <span className="ml-2">{isUploading ? "Uploading..." : "Upload Image"}</span>
       </Button>
     </>
   );

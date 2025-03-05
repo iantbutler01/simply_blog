@@ -11,6 +11,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, isAdmin }: PostCardProps) {
+  console.log('PostCard socialImageId:', post.socialImageId); // Add logging
   return (
     <Card className="hover:shadow-lg transition-all duration-300 group overflow-hidden">
       <div className="flex flex-col md:flex-row">

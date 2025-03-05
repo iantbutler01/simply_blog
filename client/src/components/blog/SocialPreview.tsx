@@ -88,6 +88,7 @@ function LinkedInCard({ title, description, imageUrl, url }: SocialPreviewProps)
 }
 
 export function SocialPreview({ title, description, imageUrl, url }: SocialPreviewProps) {
+  console.log('SocialPreview imageUrl:', imageUrl);
   return (
     <div className="w-full space-y-4">
       <Tabs defaultValue="twitter">
@@ -104,7 +105,7 @@ export function SocialPreview({ title, description, imageUrl, url }: SocialPrevi
         </TabsList>
         <ScrollArea className="w-full rounded-md border bg-muted/50 mt-4">
           <div className="p-4">
-            <TabsContent value="twitter">
+            <TabsContent value="twitter" className="mt-0">
               <TwitterCard
                 title={title}
                 description={description}
@@ -112,7 +113,7 @@ export function SocialPreview({ title, description, imageUrl, url }: SocialPrevi
                 url={url}
               />
             </TabsContent>
-            <TabsContent value="facebook">
+            <TabsContent value="facebook" className="mt-0">
               <FacebookCard
                 title={title}
                 description={description}
@@ -120,7 +121,7 @@ export function SocialPreview({ title, description, imageUrl, url }: SocialPrevi
                 url={url}
               />
             </TabsContent>
-            <TabsContent value="linkedin">
+            <TabsContent value="linkedin" className="mt-0">
               <LinkedInCard
                 title={title}
                 description={description}
