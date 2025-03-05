@@ -78,7 +78,7 @@ export default function CommentsPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Pending Comments</h1>
           <Button variant="outline" asChild>
-            <Link href="/admin/posts">
+            <Link href="/admin/manage">
               <LinkIcon className="w-4 h-4 mr-2" />
               Back to Posts
             </Link>

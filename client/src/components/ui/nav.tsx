@@ -1,9 +1,14 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
+import { useQuery } from "@tanstack/react-query";
 
 export function Nav() {
   const [location] = useLocation();
   const { user } = useAuth();
+
+  const { data: settings } = useQuery({
+    queryKey: ["/api/settings"],
+  });
 
   return (
     <nav className="border-b">
@@ -12,7 +17,7 @@ export function Nav() {
           <div className="flex items-center gap-2">
             <Link href="/">
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                My Blog
+                {settings?.blogName || "My Blog"}
               </span>
             </Link>
           </div>

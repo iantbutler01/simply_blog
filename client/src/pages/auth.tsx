@@ -24,7 +24,7 @@ export default function AuthPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (!isLoading && user) {
-      navigate("/admin/posts");
+      navigate("/admin/manage");
     }
   }, [user, isLoading, navigate]);
 

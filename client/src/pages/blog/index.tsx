@@ -32,7 +32,7 @@ export default function BlogIndex() {
       <div className="space-y-8">
         <div>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            {settings?.blogName || "Latest Posts"}
+            Latest Posts
           </h1>
           <p className="text-muted-foreground text-lg">
             {settings?.blogDescription || "Discover interesting articles and insights"}
