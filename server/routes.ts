@@ -62,6 +62,30 @@ export async function registerRoutes(app: Express) {
     });
   });
 
+  // Add after other auth routes
+  app.post("/api/auth/password", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    try {
+      const user = await storage.validateCredentials(req.user.username, currentPassword);
+      if (!user) {
+        res.status(401).json({ message: "Current password is incorrect" });
+        return;
+      }
+
+      await storage.updatePassword(req.user.id, newPassword);
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error('Failed to update password:', error);
+      res.status(500).json({ message: "Failed to update password" });
+    }
+  });
+
   // Get site settings
   app.get("/api/settings", async (req, res) => {
     try {

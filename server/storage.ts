@@ -51,6 +51,7 @@ export interface IStorage {
   // Add site settings methods
   getSiteSettings(): Promise<SiteSettings>;
   updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings>;
+  updatePassword(userId: number, newPassword: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -572,6 +573,20 @@ export class DatabaseStorage implements IStorage {
       return settings;
     } catch (error) {
       console.error('Failed to update site settings:', error);
+      throw error;
+    }
+  }
+  async updatePassword(userId: number, newPassword: string): Promise<void> {
+    try {
+      const hashedPassword = hashPassword(newPassword);
+      await db
+        .update(users)
+        .set({ password: hashedPassword })
+        .where(eq(users.id, userId));
+
+      console.log(`Updated password for user ${userId}`);
+    } catch (error) {
+      console.error(`Failed to update password for user ${userId}:`, error);
       throw error;
     }
   }
