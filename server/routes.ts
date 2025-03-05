@@ -248,9 +248,16 @@ export async function registerRoutes(app: Express) {
 
   app.get("/api/posts/:id/comments", async (req, res) => {
     try {
-      const comments = await storage.getApprovedComments(Number(req.params.id));
+      const postId = parseInt(req.params.id);
+      if (isNaN(postId)) {
+        res.status(400).json({ message: "Invalid post ID" });
+        return;
+      }
+      console.log(`Retrieved ${postId} approved comments for post ${postId}`);
+      const comments = await storage.getApprovedComments(postId);
       res.json(comments);
     } catch (error) {
+      console.error(`Failed to get approved comments for post ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch comments" });
     }
   });
