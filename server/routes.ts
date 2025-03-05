@@ -305,6 +305,22 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // Add this endpoint with the other comment endpoints
+  app.delete("/api/comments/:id", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    try {
+      await storage.deleteComment(Number(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+      res.status(500).json({ message: "Failed to delete comment" });
+    }
+  });
+
   // Increment view count
   app.post("/api/posts/:id/view", async (req, res) => {
     try {
