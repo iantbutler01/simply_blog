@@ -4,9 +4,14 @@ import { PostCard } from "@/components/blog/PostCard";
 import { useState } from "react";
 import { type Post } from "@shared/schema";
 import { PenSquare } from "lucide-react";
+import { Head } from "@/components/blog/Head";
 
 export default function BlogIndex() {
   const [search, setSearch] = useState("");
+
+  const { data: settings } = useQuery({
+    queryKey: ["/api/settings"],
+  });
 
   const { data: posts, isLoading } = useQuery<Post[]>({
     queryKey: ["/api/posts", search],
@@ -23,13 +28,14 @@ export default function BlogIndex() {
 
   return (
     <div className="container py-8 max-w-4xl mx-auto px-4">
+      <Head />
       <div className="space-y-8">
         <div>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Latest Posts
+            {settings?.blogName || "Latest Posts"}
           </h1>
           <p className="text-muted-foreground text-lg">
-            Discover interesting articles and insights
+            {settings?.blogDescription || "Discover interesting articles and insights"}
           </p>
         </div>
 

@@ -1,4 +1,4 @@
-import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser, postVersions, type PostVersion, comments, type Comment, type InsertComment } from "@shared/schema";
+import { posts, type Post, type InsertPost, images, type Image, type InsertImage, users, type User, type InsertUser, postVersions, type PostVersion, comments, type Comment, type InsertComment, siteSettings, type SiteSettings, type InsertSiteSettings } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, or, sql, and, lt, isNotNull } from "drizzle-orm";
 import * as crypto from 'crypto';
@@ -46,6 +46,10 @@ export interface IStorage {
   getPendingComments(): Promise<Comment[]>;
   approveComment(id: number): Promise<Comment>;
   deleteComment(id: number): Promise<void>;
+
+  // Add site settings methods
+  getSiteSettings(): Promise<SiteSettings>;
+  updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -502,6 +506,59 @@ export class DatabaseStorage implements IStorage {
       console.log(`Deleted comment ${commentId}`);
     } catch (error) {
       console.error(`Failed to delete comment ${commentId}:`, error);
+      throw error;
+    }
+  }
+
+  async getSiteSettings(): Promise<SiteSettings> {
+    try {
+      const [settings] = await db.select().from(siteSettings).limit(1);
+      if (!settings) {
+        // Return default settings if none exist
+        return {
+          id: 1,
+          blogName: "My Blog",
+          blogDescription: "Discover interesting articles and insights",
+          updatedAt: new Date(),
+        };
+      }
+      return settings;
+    } catch (error) {
+      console.error('Failed to get site settings:', error);
+      throw error;
+    }
+  }
+
+  async updateSiteSettings(updates: Partial<InsertSiteSettings>): Promise<SiteSettings> {
+    try {
+      // Get existing settings or create default
+      let [settings] = await db.select().from(siteSettings).limit(1);
+
+      if (settings) {
+        // Update existing settings
+        [settings] = await db
+          .update(siteSettings)
+          .set({
+            ...updates,
+            updatedAt: new Date(),
+          })
+          .where(eq(siteSettings.id, settings.id))
+          .returning();
+      } else {
+        // Create new settings
+        [settings] = await db
+          .insert(siteSettings)
+          .values({
+            ...updates,
+            updatedAt: new Date(),
+          })
+          .returning();
+      }
+
+      console.log('Updated site settings:', settings);
+      return settings;
+    } catch (error) {
+      console.error('Failed to update site settings:', error);
       throw error;
     }
   }

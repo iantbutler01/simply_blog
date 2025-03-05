@@ -84,6 +84,19 @@ export const comments = pgTable("comments", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  blogName: text("blog_name").notNull().default("My Blog"),
+  blogDescription: text("blog_description").notNull().default("Discover interesting articles and insights"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertSiteSettingsSchema = createInsertSchema(siteSettings)
+  .omit({ id: true, updatedAt: true });
+
+export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
+export type SiteSettings = typeof siteSettings.$inferSelect;
+
 export const insertUserSchema = createInsertSchema(users)
   .omit({ id: true, createdAt: true })
   .extend({

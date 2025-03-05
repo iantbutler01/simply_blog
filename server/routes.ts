@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer } from "http";
 import { storage } from "./storage";
-import { insertPostSchema, insertImageSchema, insertVersionSchema, insertCommentSchema } from "@shared/schema"; 
+import { insertPostSchema, insertImageSchema, insertVersionSchema, insertCommentSchema, insertSiteSettingsSchema } from "@shared/schema"; 
 import multer from "multer";
 import path from "path";
 import express from 'express';
@@ -62,14 +62,36 @@ export async function registerRoutes(app: Express) {
     });
   });
 
-  app.get('/api/auth/status', (req, res) => {
-    // @ts-ignore - checking user in session
-    if (!req.session.user) {
-      res.status(401).json({ message: 'Unauthorized' });
+  // Get site settings
+  app.get("/api/settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error('Failed to get site settings:', error);
+      res.status(500).json({ message: "Failed to get site settings" });
+    }
+  });
+
+  // Update site settings
+  app.patch("/api/settings", requireAuth, async (req: AuthenticatedRequest, res) => {
+    if (!isAdmin(req)) {
+      res.status(403).json({ message: "Forbidden" });
       return;
     }
-    // @ts-ignore - sending user from session
-    res.json(req.session.user);
+
+    try {
+      const result = insertSiteSettingsSchema.partial().safeParse(req.body);
+      if (!result.success) {
+        res.status(400).json({ message: result.error.message });
+        return;
+      }
+      const settings = await storage.updateSiteSettings(result.data);
+      res.json(settings);
+    } catch (error) {
+      console.error('Failed to update site settings:', error);
+      res.status(500).json({ message: "Failed to update site settings" });
+    }
   });
 
 
@@ -413,14 +435,15 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // Auth status endpoint - this line was already present
-  // app.get("/api/auth/status", requireAuth, (req: AuthenticatedRequest, res) => {
-  //   res.json({
-  //     authenticated: true,
-  //     user: req.user,
-  //     isAdmin: isAdmin(req)
-  //   });
-  // });
+  app.get('/api/auth/status', (req, res) => {
+    // @ts-ignore - checking user in session
+    if (!req.session.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+    // @ts-ignore - sending user from session
+    res.json(req.session.user);
+  });
 
   return createServer(app);
 }
