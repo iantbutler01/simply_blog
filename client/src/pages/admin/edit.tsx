@@ -193,7 +193,7 @@ export default function EditPost() {
       });
 
       if (!postId) {
-        navigate("/admin/posts");
+        navigate("/admin/manage");
       }
     },
     onError: (error: Error) => {
@@ -435,6 +435,7 @@ export default function EditPost() {
                   />
 
 
+
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="analytics">
                       <AccordionTrigger>Analytics</AccordionTrigger>
@@ -576,7 +577,7 @@ export default function EditPost() {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => navigate("/admin/posts")}
+                      onClick={() => navigate("/admin/manage")}
                       className="w-full"
                     >
                       Cancel
