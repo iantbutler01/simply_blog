@@ -42,43 +42,34 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [settings]);
 
-  // Effect to handle the primary color and variant
   useEffect(() => {
+    // Apply theme settings
     document.documentElement.style.setProperty("--primary", theme.primary);
     document.documentElement.setAttribute("data-theme-variant", theme.variant);
     document.documentElement.style.setProperty("--theme-radius", `${theme.radius}px`);
-  }, [theme.primary, theme.variant, theme.radius]);
 
-  // Separate effect to handle dark mode
-  useEffect(() => {
-    const setDarkMode = (isDark: boolean) => {
-      document.documentElement.classList.remove('dark');
-      if (isDark) {
-        document.documentElement.classList.add('dark');
+    // Apply dark mode
+    const applyDarkMode = (isDark: boolean) => {
+      const html = document.querySelector('html');
+      if (html) {
+        html.classList.toggle('dark', isDark);
       }
-      console.log('Dark mode set to:', isDark); // Debug log
     };
 
+    // Handle appearance changes
     if (theme.appearance === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      applyDarkMode(mediaQuery.matches);
 
-      const handleChange = () => {
-        console.log('System theme changed, dark mode:', mediaQuery.matches); // Debug log
-        setDarkMode(mediaQuery.matches);
+      const handler = (e: MediaQueryListEvent) => {
+        applyDarkMode(e.matches);
       };
-
-      // Initial application
-      handleChange();
-
-      // Listen for changes
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
+      mediaQuery.addEventListener("change", handler);
+      return () => mediaQuery.removeEventListener("change", handler);
     } else {
-      // Direct application of light/dark mode
-      console.log('Manual theme changed to:', theme.appearance); // Debug log
-      setDarkMode(theme.appearance === "dark");
+      applyDarkMode(theme.appearance === "dark");
     }
-  }, [theme.appearance]);
+  }, [theme]);
 
   const updateTheme = (settings: Partial<ThemeSettings>) => {
     setTheme(prev => ({ ...prev, ...settings }));

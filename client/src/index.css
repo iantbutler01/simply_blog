@@ -12,34 +12,46 @@
     --theme-radius: 0px;
   }
 
-  :root:not(.dark) [data-theme-variant="professional"] {
+  [data-theme-variant="professional"] {
     --text-primary: theme('colors.gray.900');
-    --text-secondary: theme('colors.gray.600');
+    --text-secondary: theme('colors.gray.100');
   }
 
-  :root:not(.dark) [data-theme-variant="tint"] {
+  [data-theme-variant="tint"] {
     --text-primary: var(--primary);
     --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.600'));
   }
 
-  :root:not(.dark) [data-theme-variant="vibrant"] {
+  [data-theme-variant="vibrant"] {
     --text-primary: var(--primary);
     --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.900'));
   }
 
-  :root.dark [data-theme-variant="professional"] {
-    --text-primary: theme('colors.gray.100');
-    --text-secondary: theme('colors.gray.400');
+  .dark {
+    [data-theme-variant="professional"] {
+      --text-primary: theme('colors.gray.50');
+      --text-secondary: theme('colors.gray.500');
+    }
+
+    [data-theme-variant="tint"] {
+      --text-primary: var(--primary);
+      --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.300'));
+    }
+
+    [data-theme-variant="vibrant"] {
+      --text-primary: var(--primary);
+      --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.100'));
+    }
   }
 
-  :root.dark [data-theme-variant="tint"] {
-    --text-primary: var(--primary);
-    --text-secondary: color-mix(in srgb, var(--primary) 70%, theme('colors.gray.300'));
-  }
-
-  :root.dark [data-theme-variant="vibrant"] {
-    --text-primary: var(--primary);
-    --text-secondary: color-mix(in srgb, var(--primary) 85%, theme('colors.gray.100'));
+  h1:where(:not([class*="ignore-theme"])),
+  h2:where(:not([class*="ignore-theme"])),
+  h3:where(:not([class*="ignore-theme"])),
+  h4:where(:not([class*="ignore-theme"])),
+  h5:where(:not([class*="ignore-theme"])),
+  h6:where(:not([class*="ignore-theme"])) {
+    color: var(--text-secondary) !important;
+    @apply font-bold;
   }
 
   * {
@@ -50,16 +62,6 @@
     @apply font-sans antialiased bg-background;
   }
 
-  /* Style headings */
-  h1:where(:not([class*="ignore-theme"])),
-  h2:where(:not([class*="ignore-theme"])),
-  h3:where(:not([class*="ignore-theme"])),
-  h4:where(:not([class*="ignore-theme"])),
-  h5:where(:not([class*="ignore-theme"])),
-  h6:where(:not([class*="ignore-theme"])) {
-    color: var(--text-primary) !important;
-    @apply font-bold;
-  }
 
   /* Style regular text */
   p,
