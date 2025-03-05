@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
-import { CTABlockEditor } from "./CTABlockEditor"; // Import the new component
+import { CTABlockEditor } from "./CTABlockEditor";
 
 interface BlockEditorProps {
   value: Block[];
@@ -92,69 +92,62 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     onChange(newBlocks);
   };
 
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    const target = e.currentTarget as HTMLDivElement;
-
-    if (draggedIndex !== null && draggedIndex !== index) {
-      const rect = target.getBoundingClientRect();
-      const middleY = rect.top + rect.height / 2;
-
-      if (e.clientY < middleY) {
-        target.style.borderTop = "2px solid var(--primary)";
-        target.style.borderBottom = "";
-      } else {
-        target.style.borderTop = "";
-        target.style.borderBottom = "2px solid var(--primary)";
-      }
-    }
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    const target = e.currentTarget as HTMLDivElement;
-    target.style.borderTop = "";
-    target.style.borderBottom = "";
-  };
-
-  const handleDrop = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    const target = e.currentTarget as HTMLDivElement;
-    target.style.borderTop = "";
-    target.style.borderBottom = "";
-
-    if (draggedIndex === null) return;
-
-    const rect = target.getBoundingClientRect();
-    const middleY = rect.top + rect.height / 2;
-
-    if (e.clientY > middleY) {
-      index += 1;
-    }
-
-    if (draggedIndex !== index) {
-      moveBlock(draggedIndex, index);
-    }
-
-    setDraggedIndex(null);
-  };
-
   return (
     <div className="space-y-4 w-full">
       {blocks.map((block, index) => (
         <div
           key={index}
-          draggable
-          onDragStart={() => handleDragStart(index)}
-          onDragOver={(e) => handleDragOver(e, index)}
-          onDragLeave={handleDragLeave}
-          onDrop={(e) => handleDrop(e, index)}
           className="group relative flex gap-2 border bg-card rounded-lg overflow-hidden"
         >
-          <div className="flex flex-col items-center gap-2 text-muted-foreground p-4 border-r bg-muted/10">
+          <div 
+            className="flex flex-col items-center gap-2 text-muted-foreground p-4 border-r bg-muted/10"
+            draggable
+            onDragStart={() => setDraggedIndex(index)}
+            onDragOver={(e) => {
+              e.preventDefault();
+              const target = e.currentTarget.parentElement;
+              if (!target || draggedIndex === null || draggedIndex === index) return;
+
+              const rect = target.getBoundingClientRect();
+              const middleY = rect.top + rect.height / 2;
+
+              if (e.clientY < middleY) {
+                target.style.borderTop = "2px solid var(--primary)";
+                target.style.borderBottom = "";
+              } else {
+                target.style.borderTop = "";
+                target.style.borderBottom = "2px solid var(--primary)";
+              }
+            }}
+            onDragLeave={(e) => {
+              const target = e.currentTarget.parentElement;
+              if (!target) return;
+              target.style.borderTop = "";
+              target.style.borderBottom = "";
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              const target = e.currentTarget.parentElement;
+              if (!target || draggedIndex === null) return;
+
+              target.style.borderTop = "";
+              target.style.borderBottom = "";
+
+              const rect = target.getBoundingClientRect();
+              const middleY = rect.top + rect.height / 2;
+
+              let finalIndex = index;
+              if (e.clientY > middleY) {
+                finalIndex += 1;
+              }
+
+              if (draggedIndex !== finalIndex) {
+                moveBlock(draggedIndex, finalIndex);
+              }
+
+              setDraggedIndex(null);
+            }}
+          >
             <GripVertical className="h-4 w-4 cursor-move" />
             <Button
               variant="ghost"
@@ -310,7 +303,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
               <CTABlockEditor
                 block={block}
                 onChange={(updatedBlock) => updateBlock(index, updatedBlock)}
-                onRemove={() => removeBlock(index)}
+                onRemove={(e) => removeBlock(index, e)}
               />
             )}
           </div>
