@@ -27,13 +27,17 @@ export function CommentForm({ postId }: CommentFormProps) {
     defaultValues: {
       content: "",
       authorName: "",
-      authorEmail: undefined,
+      authorEmail: null,
     },
   });
 
   const mutation = useMutation({
     mutationFn: async (values: InsertComment) => {
-      const res = await apiRequest("POST", `/api/posts/${postId}/comments`, values);
+      const formData = {
+        ...values,
+        authorEmail: values.authorEmail || null,
+      };
+      const res = await apiRequest("POST", `/api/posts/${postId}/comments`, formData);
       return res.json();
     },
     onSuccess: () => {
@@ -91,11 +95,16 @@ export function CommentForm({ postId }: CommentFormProps) {
           <FormField
             control={form.control}
             name="authorEmail"
-            render={({ field }) => (
+            render={({ field: { value, onChange, ...field } }) => (
               <FormItem>
                 <FormLabel>Email (optional)</FormLabel>
                 <FormControl>
-                  <Input {...field} type="email" />
+                  <Input 
+                    {...field}
+                    value={value || ""}
+                    onChange={(e) => onChange(e.target.value || null)}
+                    type="email"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

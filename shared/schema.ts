@@ -123,7 +123,7 @@ export const insertImageSchema = createInsertSchema(images)
     size: z.string().min(1, "Size is required"),
   });
 
-// Add the comment schema after the image schema
+// Update the comment schema validation
 export const insertCommentSchema = createInsertSchema(comments)
   .omit({ id: true, createdAt: true, isApproved: true })
   .extend({
