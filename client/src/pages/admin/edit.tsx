@@ -180,7 +180,7 @@ export default function EditPost() {
           title: values.title,
           content: values.content,
           excerpt: values.excerpt,
-          tags: values.tags.split(","),
+          tags: values.tags,
           comment: values.comment,
         });
 
