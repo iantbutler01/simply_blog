@@ -48,26 +48,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute("data-theme-variant", theme.variant);
     document.documentElement.style.setProperty("--theme-radius", `${theme.radius}px`);
 
-    // Apply color scheme
-    const applyAppearance = (appearance: ThemeAppearance) => {
-      if (appearance === "system") {
-        const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        document.documentElement.classList.toggle("dark", isDark);
-      } else {
-        document.documentElement.classList.toggle("dark", appearance === "dark");
+    // Apply dark mode
+    const applyDarkMode = (isDark: boolean) => {
+      const html = document.querySelector('html');
+      if (html) {
+        html.classList.toggle('dark', isDark);
       }
     };
 
-    applyAppearance(theme.appearance);
-
-    // Listen for system theme changes
+    // Handle appearance changes
     if (theme.appearance === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      applyDarkMode(mediaQuery.matches);
+
       const handler = (e: MediaQueryListEvent) => {
-        document.documentElement.classList.toggle("dark", e.matches);
+        applyDarkMode(e.matches);
       };
       mediaQuery.addEventListener("change", handler);
       return () => mediaQuery.removeEventListener("change", handler);
+    } else {
+      applyDarkMode(theme.appearance === "dark");
     }
   }, [theme]);
 

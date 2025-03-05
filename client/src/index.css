@@ -14,7 +14,7 @@
 
   [data-theme-variant="professional"] {
     --text-primary: theme('colors.gray.900');
-    --text-secondary: theme('colors.gray.600');
+    --text-secondary: theme('colors.gray.100');
   }
 
   [data-theme-variant="tint"] {
@@ -29,8 +29,8 @@
 
   .dark {
     [data-theme-variant="professional"] {
-      --text-primary: theme('colors.gray.700');
-      --text-secondary: theme('colors.gray.100');
+      --text-primary: theme('colors.gray.50');
+      --text-secondary: theme('colors.gray.500');
     }
 
     [data-theme-variant="tint"] {
@@ -44,6 +44,16 @@
     }
   }
 
+  h1:where(:not([class*="ignore-theme"])),
+  h2:where(:not([class*="ignore-theme"])),
+  h3:where(:not([class*="ignore-theme"])),
+  h4:where(:not([class*="ignore-theme"])),
+  h5:where(:not([class*="ignore-theme"])),
+  h6:where(:not([class*="ignore-theme"])) {
+    color: var(--text-secondary) !important;
+    @apply font-bold;
+  }
+
   * {
     @apply border-border;
   }
@@ -51,7 +61,6 @@
   body {
     @apply font-sans antialiased bg-background;
   }
-
 
 
   /* Style regular text */

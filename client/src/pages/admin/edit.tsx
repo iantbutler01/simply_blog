@@ -19,12 +19,25 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { insertPostSchema, type Post, type Block } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { ImageUpload } from "@/components/blog/ImageUpload";
 import { SocialPreview } from "@/components/blog/SocialPreview";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -99,7 +112,9 @@ export default function EditPost() {
 
       form.reset({
         title: post.title,
-        content: Array.isArray(post.content) ? post.content : [{ type: "text", content: post.content as string, format: "html" }],
+        content: Array.isArray(post.content)
+          ? post.content
+          : [{ type: "text", content: post.content as string, format: "html" }],
         excerpt: post.excerpt,
         tags: post.tags,
         isDraft: post.isDraft,
@@ -129,12 +144,12 @@ export default function EditPost() {
         ...values,
         publishAt,
         canonicalUrl: values.canonicalUrl?.trim() || null,
-        content: values.content.map(block => {
+        content: values.content.map((block) => {
           if (block.type === "text") {
             return {
               type: "text",
               content: block.content || "",
-              format: block.format || "html"
+              format: block.format || "html",
             };
           } else {
             return {
@@ -144,10 +159,10 @@ export default function EditPost() {
               caption: block.caption,
               alt: block.alt,
               alignment: block.alignment,
-              size: block.size
+              size: block.size,
             };
           }
-        })
+        }),
       };
 
       // If editing existing post, first update with draft status
@@ -155,7 +170,7 @@ export default function EditPost() {
         // First set the post to draft state
         await apiRequest("PATCH", `/api/posts/${postId}`, {
           ...formattedValues,
-          isDraft: true
+          isDraft: true,
         });
 
         // Then save the version
@@ -168,13 +183,16 @@ export default function EditPost() {
         });
 
         // Invalidate versions query after saving
-        queryClient.invalidateQueries({ queryKey: [`/api/posts/${postId}/versions`] });
+        queryClient.invalidateQueries({
+          queryKey: [`/api/posts/${postId}/versions`],
+        });
 
         // Update form state to reflect draft status
         form.setValue("isDraft", true);
         toast({
           title: "Version saved",
-          description: "Post has been unpublished. Review and publish when ready.",
+          description:
+            "Post has been unpublished. Review and publish when ready.",
         });
       } else {
         await apiRequest("POST", "/api/posts", formattedValues);
@@ -252,13 +270,16 @@ export default function EditPost() {
   };
 
   return (
-    <div className="container py-12">
-      <div className="max-w-6xl mx-auto px-6">
+    <div className="py-12">
+      <div className="max-w-8xl mx-auto px-6">
         <h1 className="text-4xl font-bold mb-8">
           {postId ? "Edit Post" : "New Post"}
         </h1>
 
-        <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg border">
+        <ResizablePanelGroup
+          direction="horizontal"
+          className="min-h-[800px] rounded-lg border"
+        >
           <ResizablePanel defaultSize={50}>
             <div className="p-8 h-full overflow-auto">
               <Form {...form}>
@@ -325,7 +346,7 @@ export default function EditPost() {
                                 e.target.value
                                   .split(",")
                                   .map((tag) => tag.trim())
-                                  .filter(Boolean)
+                                  .filter(Boolean),
                               )
                             }
                           />
@@ -355,7 +376,9 @@ export default function EditPost() {
                                 onClick={() => publishNowMutation.mutate()}
                                 disabled={publishNowMutation.isPending}
                               >
-                                {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
+                                {publishNowMutation.isPending
+                                  ? "Publishing..."
+                                  : "Publish Now"}
                               </Button>
                             )}
                             <FormControl>
@@ -384,7 +407,7 @@ export default function EditPost() {
                                       variant={"outline"}
                                       className={cn(
                                         "w-[240px] pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
+                                        !field.value && "text-muted-foreground",
                                       )}
                                     >
                                       {field.value ? (
@@ -396,13 +419,17 @@ export default function EditPost() {
                                     </Button>
                                   </FormControl>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
+                                <PopoverContent
+                                  className="w-auto p-0"
+                                  align="start"
+                                >
                                   <Calendar
                                     mode="single"
                                     selected={field.value || undefined}
                                     onSelect={field.onChange}
                                     disabled={(date) =>
-                                      date < new Date() || date < new Date("1900-01-01")
+                                      date < new Date() ||
+                                      date < new Date("1900-01-01")
                                     }
                                     initialFocus
                                   />
@@ -427,14 +454,15 @@ export default function EditPost() {
                       <FormItem>
                         <FormLabel>Comment (for version history)</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Optional comment for this version" />
+                          <Input
+                            {...field}
+                            placeholder="Optional comment for this version"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-
 
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="analytics">
@@ -444,23 +472,38 @@ export default function EditPost() {
                           <div className="space-y-2 p-4 rounded-lg border">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <Eye className="h-4 w-4" />
-                              <span className="text-sm font-medium">Total Views</span>
+                              <span className="text-sm font-medium">
+                                Total Views
+                              </span>
                             </div>
-                            <p className="text-2xl font-bold">{post?.views || 0}</p>
+                            <p className="text-2xl font-bold">
+                              {post?.views || 0}
+                            </p>
                           </div>
                           <div className="space-y-2 p-4 rounded-lg border">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <Clock className="h-4 w-4" />
-                              <span className="text-sm font-medium">Reading Time</span>
+                              <span className="text-sm font-medium">
+                                Reading Time
+                              </span>
                             </div>
-                            <p className="text-2xl font-bold">{post?.readingTimeMinutes || 0}<span className="text-sm font-normal text-muted-foreground ml-1">min</span></p>
+                            <p className="text-2xl font-bold">
+                              {post?.readingTimeMinutes || 0}
+                              <span className="text-sm font-normal text-muted-foreground ml-1">
+                                min
+                              </span>
+                            </p>
                           </div>
                           <div className="space-y-2 p-4 rounded-lg border">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <Share2 className="h-4 w-4" />
-                              <span className="text-sm font-medium">Shares</span>
+                              <span className="text-sm font-medium">
+                                Shares
+                              </span>
                             </div>
-                            <p className="text-2xl font-bold">{post?.shareCount || 0}</p>
+                            <p className="text-2xl font-bold">
+                              {post?.shareCount || 0}
+                            </p>
                           </div>
                         </div>
                       </AccordionContent>
@@ -477,7 +520,10 @@ export default function EditPost() {
                                 <FormItem>
                                   <FormLabel>Meta Title</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="Custom title for search engines" />
+                                    <Input
+                                      {...field}
+                                      placeholder="Custom title for search engines"
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -491,7 +537,10 @@ export default function EditPost() {
                                 <FormItem>
                                   <FormLabel>Meta Description</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="Brief description for search results (max 160 characters)" />
+                                    <Input
+                                      {...field}
+                                      placeholder="Brief description for search results (max 160 characters)"
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -508,7 +557,10 @@ export default function EditPost() {
                                     <div className="flex items-center gap-4">
                                       <ImageUpload
                                         onUpload={(imageId, imageUrl) => {
-                                          console.log('Upload response:', { imageId, imageUrl });
+                                          console.log("Upload response:", {
+                                            imageId,
+                                            imageUrl,
+                                          });
                                           field.onChange(imageId);
                                         }}
                                       />
@@ -533,7 +585,10 @@ export default function EditPost() {
                                 <FormItem>
                                   <FormLabel>Canonical URL</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="https://example.com/original-article" />
+                                    <Input
+                                      {...field}
+                                      placeholder="https://example.com/original-article"
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -544,10 +599,22 @@ export default function EditPost() {
                           <div className="lg:border-l lg:pl-6">
                             <h3 className="font-medium mb-4">Social Preview</h3>
                             <SocialPreview
-                              title={form.watch("metaTitle") || form.watch("title")}
-                              description={form.watch("metaDescription") || form.watch("excerpt")}
-                              imageUrl={form.watch("socialImageId") ? `/api/images/${form.watch("socialImageId")}` : undefined}
-                              url={form.watch("canonicalUrl") || window.location.origin}
+                              title={
+                                form.watch("metaTitle") || form.watch("title")
+                              }
+                              description={
+                                form.watch("metaDescription") ||
+                                form.watch("excerpt")
+                              }
+                              imageUrl={
+                                form.watch("socialImageId")
+                                  ? `/api/images/${form.watch("socialImageId")}`
+                                  : undefined
+                              }
+                              url={
+                                form.watch("canonicalUrl") ||
+                                window.location.origin
+                              }
                             />
                           </div>
                         </div>
@@ -593,7 +660,9 @@ export default function EditPost() {
           <ResizablePanel defaultSize={50}>
             <div className="p-8 h-full overflow-auto">
               <div className="prose prose-lg max-w-none min-w-[500px]">
-                <h1 className="text-4xl font-bold mb-4">{form.watch("title")}</h1>
+                <h1 className="text-4xl font-bold mb-4">
+                  {form.watch("title")}
+                </h1>
 
                 <div className="flex items-center gap-4 mb-8 text-muted-foreground">
                   <div className="flex items-center gap-2">
@@ -624,18 +693,28 @@ export default function EditPost() {
                     } else if (block.type === "image" && block.imageId) {
                       return (
                         <figure key={index} className="my-12">
-                          <div className={`flex ${
-                            block.alignment === "left" ? "justify-start" :
-                              block.alignment === "right" ? "justify-end" :
-                                "justify-center"
-                          }`}>
-                            <div style={{
-                              width: block.size === "small" ? "300px" :
-                                 block.size === "medium" ? "500px" :
-                                 block.size === "large" ? "800px" :
-                                   "100%",
-                              maxWidth: "100%"
-                            }}>
+                          <div
+                            className={`flex ${
+                              block.alignment === "left"
+                                ? "justify-start"
+                                : block.alignment === "right"
+                                  ? "justify-end"
+                                  : "justify-center"
+                            }`}
+                          >
+                            <div
+                              style={{
+                                width:
+                                  block.size === "small"
+                                    ? "300px"
+                                    : block.size === "medium"
+                                      ? "500px"
+                                      : block.size === "large"
+                                        ? "800px"
+                                        : "100%",
+                                maxWidth: "100%",
+                              }}
+                            >
                               <img
                                 src={block.imageUrl}
                                 alt={block.alt || ""}
@@ -646,7 +725,9 @@ export default function EditPost() {
                           </div>
                           {block.caption && (
                             <div className="mt-4 text-center">
-                              <p className="text-sm text-muted-foreground">{block.caption}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {block.caption}
+                              </p>
                             </div>
                           )}
                         </figure>
