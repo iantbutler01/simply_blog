@@ -21,7 +21,7 @@ function TwitterCard({ title, description, imageUrl, url }: SocialPreviewProps) 
         />
       )}
       <div className="p-4">
-        <p className="text-sm text-gray-500 truncate">{url || 'yourdomain.com'}</p>
+        <p className="text-sm text-gray-500 truncate">{url || window.location.origin}</p>
         <h3 className="font-bold text-lg mt-1 line-clamp-2">
           {title || 'Title preview'}
         </h3>
@@ -45,7 +45,7 @@ function FacebookCard({ title, description, imageUrl, url }: SocialPreviewProps)
       )}
       <div className="p-4">
         <p className="text-xs text-gray-500 uppercase tracking-wide">
-          {url || 'yourdomain.com'}
+          {url || window.location.origin}
         </p>
         <h3 className="font-bold text-lg mt-1 line-clamp-2">
           {title || 'Title preview'}
@@ -69,7 +69,7 @@ function LinkedInCard({ title, description, imageUrl, url }: SocialPreviewProps)
         />
       )}
       <div className="p-4">
-        <p className="text-sm text-gray-500">{url || 'yourdomain.com'}</p>
+        <p className="text-sm text-gray-500">{url || window.location.origin}</p>
         <h3 className="font-bold text-xl mt-1 line-clamp-2">
           {title || 'Title preview'}
         </h3>

@@ -435,7 +435,6 @@ export default function EditPost() {
                   />
 
 
-
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="analytics">
                       <AccordionTrigger>Analytics</AccordionTrigger>
@@ -507,9 +506,10 @@ export default function EditPost() {
                                   <FormControl>
                                     <div className="flex items-center gap-4">
                                       <ImageUpload
-                                        onUpload={(url) => {
-                                          const id = url.split('/').pop() || '';
-                                          field.onChange(id);
+                                        onUpload={(image) => {
+                                          if (typeof image === 'object' && 'id' in image) {
+                                            field.onChange(image.id);
+                                          }
                                         }}
                                       />
                                       {field.value && (
