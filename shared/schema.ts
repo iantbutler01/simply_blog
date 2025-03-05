@@ -41,7 +41,7 @@ export const posts = pgTable("posts", {
   // SEO fields
   metaTitle: text("meta_title"),
   metaDescription: text("meta_description"),
-  socialImageId: text("social_image_id"),
+  socialImageId: integer("social_image_id"), // Changed from text to integer
   canonicalUrl: text("canonical_url"),
   // Analytics fields
   views: integer("views").notNull().default(0),
@@ -101,7 +101,7 @@ export const insertPostSchema = createInsertSchema(posts)
     publishAt: z.union([z.date(), z.null()]).optional(),
     metaTitle: z.string().optional(),
     metaDescription: z.string().max(160, "Meta description should not exceed 160 characters").optional(),
-    socialImageId: z.string().optional(),
+    socialImageId: z.number().optional(), // Changed from string to number
     canonicalUrl: z.union([z.string().url("Must be a valid URL"), z.string().max(0), z.null()]).optional(),
     views: z.number().optional(),
     shareCount: z.number().optional(),
