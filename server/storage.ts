@@ -5,7 +5,7 @@ import * as crypto from 'crypto';
 import { calculateReadingTime } from "./utils/analytics";
 import session from 'express-session';
 import connectPg from 'connect-pg-simple';
-import * as fs from 'fs'; // Import fs.promises
+import { promises as fs } from 'fs'; 
 
 const PostgresStore = connectPg(session);
 
@@ -568,7 +568,7 @@ export class DatabaseStorage implements IStorage {
         radius: settings.themeRadius,
       };
 
-      // Write the theme configuration using fs directly
+      // Write the theme configuration using fs.promises
       await fs.writeFile('theme.json', JSON.stringify(themeConfig, null, 2));
 
       console.log('Updated site settings:', settings);
