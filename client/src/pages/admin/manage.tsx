@@ -52,7 +52,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useEffect } from "react";
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function AdminManage() {
   const [, navigate] = useLocation();
@@ -76,6 +88,15 @@ export default function AdminManage() {
       themeVariant: theme.variant,
       themeAppearance: theme.appearance,
       themeRadius: theme.radius,
+    },
+  });
+
+  const passwordForm = useForm({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     },
   });
 
@@ -118,6 +139,30 @@ export default function AdminManage() {
     onError: (error: Error) => {
       toast({
         title: "Failed to update settings",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const passwordMutation = useMutation({
+    mutationFn: async (data: PasswordFormData) => {
+      const res = await apiRequest("POST", "/api/auth/password", {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Password updated successfully.",
+      });
+      passwordForm.reset();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -303,6 +348,80 @@ export default function AdminManage() {
 
                   <Button type="submit" disabled={settingsMutation.isPending}>
                     {settingsMutation.isPending ? "Saving..." : "Save Settings"}
+                  </Button>
+                </form>
+              </Form>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="security">
+            <AccordionTrigger className="text-xl font-semibold">Security Settings</AccordionTrigger>
+            <AccordionContent className="space-y-4 pt-4">
+              <Form {...passwordForm}>
+                <form
+                  onSubmit={passwordForm.handleSubmit((data) => passwordMutation.mutate(data))}
+                  className="space-y-6"
+                >
+                  <FormField
+                    control={passwordForm.control}
+                    name="currentPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Current Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="password"
+                            placeholder="Enter your current password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={passwordForm.control}
+                    name="newPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="password"
+                            placeholder="Enter your new password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={passwordForm.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm New Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="password"
+                            placeholder="Confirm your new password"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="submit"
+                    disabled={passwordMutation.isPending}
+                    className="w-full"
+                  >
+                    {passwordMutation.isPending ? "Updating..." : "Update Password"}
                   </Button>
                 </form>
               </Form>
