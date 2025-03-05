@@ -20,7 +20,9 @@ export function Head({ post, title, description, image, canonicalUrl }: HeadProp
 
   const pageTitle = post?.metaTitle || post?.title || title;
   const metaDescription = post?.metaDescription || post?.excerpt || description || defaultDescription;
-  const socialImage = post?.socialImageId ? `/api/images/${post.socialImageId}` : image;
+  const socialImage = post?.socialImageId 
+    ? `${window.location.origin}/api/images/${post.socialImageId}`
+    : image;
   const canonical = post?.canonicalUrl || canonicalUrl || window.location.href;
 
   return (

@@ -1,0 +1,51 @@
+<head>
+    <style data-vite-theme="" data-inject-first="">:root {
+      --background: 259 79% 83%;
+--foreground: 271 100% 12%;
+--muted: 261 76% 73%;
+--muted-foreground: 271 100% 12%;
+--popover: 256 100% 99%;
+--popover-foreground: 271 100% 12%;
+--card: 256 100% 99%;
+--card-foreground: 271 100% 12%;
+--border: 261 76% 73%;
+--input: 261 76% 73%;
+--primary: 262 100% 76%;
+--primary-foreground: 256 100% 99%;
+--secondary: 258 100% 89%;
+--secondary-foreground: 271 100% 12%;
+--accent: 258 100% 89%;
+--accent-foreground: 271 100% 12%;
+--destructive: 0 84.2% 60.2%;
+--destructive-foreground: 60 9.1% 97.8%;
+--ring: 262 100% 76%;
+--radius: 1rem;
+  }
+  .dark {
+      --background: 256 100% 1%;
+--foreground: 257 100% 97%;
+--muted: 265 52% 36%;
+--muted-foreground: 257 100% 97%;
+--popover: 266 70% 12%;
+--popover-foreground: 257 100% 97%;
+--card: 266 70% 12%;
+--card-foreground: 257 100% 97%;
+--border: 265 52% 36%;
+--input: 265 52% 36%;
+--primary: 264 73% 63%;
+--primary-foreground: 256 88% 99%;
+--secondary: 265 52% 36%;
+--secondary-foreground: 257 100% 97%;
+--accent: 265 52% 36%;
+--accent-foreground: 257 100% 97%;
+--destructive: 0 62.8% 30.6%;
+--destructive-foreground: 0 0% 98%;
+--ring: 264 73% 63%;
+--radius: 1rem;
+  }</style>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <script type="module" crossorigin="" src="/assets/index-D-z3OPyW.js"></script>
+    <link rel="stylesheet" crossorigin="" href="/assets/index-DfLn7Ocz.css">
+  <title>Bismuth - Changing the way teams tackle tech debt | Bismuth</title><link rel="canonical" href="https://blog-content-manager-ianbutler1.replit.app/blog/4" data-react-helmet="true"><meta name="description" content="Tech debt is drowning engineering teams, costing businesses $1.52T in 2024 alone. But adding headcount isn't realistic, and &quot;making time for quality&quot; fails quarter after quarter. Today we're launching a new version of Bismuth: an AI agent that integrates in less than 5 minutes with your backlog and VCS to autonomously fix P2 bugs and implement features from your existing tickets." data-react-helmet="true"><meta property="og:type" content="article" data-react-helmet="true"><meta property="og:title" content="Bismuth - Changing the way teams tackle tech debt" data-react-helmet="true"><meta property="og:description" content="Tech debt is drowning engineering teams, costing businesses $1.52T in 2024 alone. But adding headcount isn't realistic, and &quot;making time for quality&quot; fails quarter after quarter. Today we're launching a new version of Bismuth: an AI agent that integrates in less than 5 minutes with your backlog and VCS to autonomously fix P2 bugs and implement features from your existing tickets." data-react-helmet="true"><meta property="og:image" content="/api/images/11" data-react-helmet="true"><meta property="og:url" content="https://blog-content-manager-ianbutler1.replit.app/blog/4" data-react-helmet="true"><meta name="twitter:card" content="summary_large_image" data-react-helmet="true"><meta name="twitter:title" content="Bismuth - Changing the way teams tackle tech debt" data-react-helmet="true"><meta name="twitter:description" content="Tech debt is drowning engineering teams, costing businesses $1.52T in 2024 alone. But adding headcount isn't realistic, and &quot;making time for quality&quot; fails quarter after quarter. Today we're launching a new version of Bismuth: an AI agent that integrates in less than 5 minutes with your backlog and VCS to autonomously fix P2 bugs and implement features from your existing tickets." data-react-helmet="true"><meta name="twitter:image" content="/api/images/11" data-react-helmet="true"></head>
