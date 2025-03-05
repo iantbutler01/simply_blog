@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import { calculateReadingTime } from "./utils/analytics";
 import session from 'express-session';
 import connectPg from 'connect-pg-simple';
+import * as fs from 'fs/promises'; // Import fs.promises
 
 const PostgresStore = connectPg(session);
 
@@ -519,6 +520,10 @@ export class DatabaseStorage implements IStorage {
           id: 1,
           blogName: "My Blog",
           blogDescription: "Discover interesting articles and insights",
+          themePrimary: "#007ACC",
+          themeVariant: "professional",
+          themeAppearance: "system",
+          themeRadius: 0,
           updatedAt: new Date(),
         };
       }
@@ -554,6 +559,17 @@ export class DatabaseStorage implements IStorage {
           })
           .returning();
       }
+
+      // Update theme.json with the new settings
+      const themeConfig = {
+        primary: settings.themePrimary,
+        variant: settings.themeVariant,
+        appearance: settings.themeAppearance,
+        radius: settings.themeRadius,
+      };
+
+      // Write the theme configuration
+      await fs.promises.writeFile('theme.json', JSON.stringify(themeConfig, null, 2));
 
       console.log('Updated site settings:', settings);
       return settings;

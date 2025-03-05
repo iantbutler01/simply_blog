@@ -88,11 +88,21 @@ export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
   blogName: text("blog_name").notNull().default("My Blog"),
   blogDescription: text("blog_description").notNull().default("Discover interesting articles and insights"),
+  // Add theme settings
+  themePrimary: text("theme_primary").notNull().default("#007ACC"),
+  themeVariant: text("theme_variant").notNull().default("professional"),
+  themeAppearance: text("theme_appearance").notNull().default("system"),
+  themeRadius: integer("theme_radius").notNull().default(0),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const insertSiteSettingsSchema = createInsertSchema(siteSettings)
-  .omit({ id: true, updatedAt: true });
+  .omit({ id: true, updatedAt: true })
+  .extend({
+    themeVariant: z.enum(["professional", "tint", "vibrant"]),
+    themeAppearance: z.enum(["light", "dark", "system"]),
+    themeRadius: z.number().min(0).max(20),
+  });
 
 export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
 export type SiteSettings = typeof siteSettings.$inferSelect;

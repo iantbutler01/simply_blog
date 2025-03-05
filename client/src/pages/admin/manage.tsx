@@ -12,6 +12,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import {
   Table,
   TableBody,
   TableCell,
@@ -62,6 +70,10 @@ export default function AdminManage() {
     defaultValues: {
       blogName: "",
       blogDescription: "",
+      themePrimary: "#007ACC",
+      themeVariant: "professional",
+      themeAppearance: "system",
+      themeRadius: 0,
     },
   });
 
@@ -71,13 +83,18 @@ export default function AdminManage() {
       form.reset({
         blogName: settings.blogName,
         blogDescription: settings.blogDescription,
+        themePrimary: settings.themePrimary,
+        themeVariant: settings.themeVariant,
+        themeAppearance: settings.themeAppearance,
+        themeRadius: settings.themeRadius,
       });
     }
   }, [settings, form]);
 
   const settingsMutation = useMutation({
-    mutationFn: (values: { blogName: string; blogDescription: string }) => 
-      apiRequest("PATCH", "/api/settings", values),
+    mutationFn: async (values) => {
+      return apiRequest("PATCH", "/api/settings", values);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
       toast({
@@ -158,6 +175,111 @@ export default function AdminManage() {
                       </FormItem>
                     )}
                   />
+
+                  <div className="pt-4 border-t">
+                    <h3 className="text-lg font-medium mb-4">Theme Settings</h3>
+
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="themePrimary"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Primary Color</FormLabel>
+                            <FormControl>
+                              <div className="flex gap-2">
+                                <Input type="color" {...field} className="w-12 h-10 p-1" />
+                                <Input
+                                  type="text"
+                                  value={field.value}
+                                  onChange={(e) => field.onChange(e.target.value)}
+                                  placeholder="#000000"
+                                  className="flex-1"
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="themeVariant"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Theme Variant</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a theme variant" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="professional">Professional</SelectItem>
+                                <SelectItem value="tint">Tint</SelectItem>
+                                <SelectItem value="vibrant">Vibrant</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="themeAppearance"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Theme Appearance</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select appearance mode" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="light">Light</SelectItem>
+                                <SelectItem value="dark">Dark</SelectItem>
+                                <SelectItem value="system">System</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="themeRadius"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Border Radius</FormLabel>
+                            <FormControl>
+                              <div className="flex items-center gap-4">
+                                <Slider
+                                  min={0}
+                                  max={20}
+                                  step={1}
+                                  value={[field.value]}
+                                  onValueChange={([value]) => field.onChange(value)}
+                                  className="flex-1"
+                                />
+                                <span className="w-12 text-right">{field.value}px</span>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
 
                   <Button type="submit" disabled={settingsMutation.isPending}>
                     {settingsMutation.isPending ? "Saving..." : "Save Settings"}
