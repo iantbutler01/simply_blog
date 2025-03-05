@@ -14,11 +14,13 @@ function TwitterCard({ title, description, imageUrl, url }: SocialPreviewProps) 
   return (
     <div className="w-[500px] rounded-xl border bg-white shadow-lg overflow-hidden">
       {imageUrl && (
-        <img
-          src={imageUrl}
-          alt="Social preview"
-          className="w-full h-[250px] object-cover"
-        />
+        <div className="w-full h-[250px] relative">
+          <img
+            src={imageUrl}
+            alt="Social preview"
+            className="w-full h-full object-cover"
+          />
+        </div>
       )}
       <div className="p-4">
         <p className="text-sm text-gray-500 truncate">{url || window.location.origin}</p>
@@ -37,11 +39,13 @@ function FacebookCard({ title, description, imageUrl, url }: SocialPreviewProps)
   return (
     <div className="w-[500px] rounded border bg-white shadow-lg overflow-hidden">
       {imageUrl && (
-        <img
-          src={imageUrl}
-          alt="Social preview"
-          className="w-full h-[250px] object-cover"
-        />
+        <div className="w-full h-[250px] relative">
+          <img
+            src={imageUrl}
+            alt="Social preview"
+            className="w-full h-full object-cover"
+          />
+        </div>
       )}
       <div className="p-4">
         <p className="text-xs text-gray-500 uppercase tracking-wide">
@@ -62,11 +66,13 @@ function LinkedInCard({ title, description, imageUrl, url }: SocialPreviewProps)
   return (
     <div className="w-[500px] rounded border bg-white shadow-lg overflow-hidden">
       {imageUrl && (
-        <img
-          src={imageUrl}
-          alt="Social preview"
-          className="w-full h-[250px] object-cover"
-        />
+        <div className="w-full h-[250px] relative">
+          <img
+            src={imageUrl}
+            alt="Social preview"
+            className="w-full h-full object-cover"
+          />
+        </div>
       )}
       <div className="p-4">
         <p className="text-sm text-gray-500">{url || window.location.origin}</p>

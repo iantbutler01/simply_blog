@@ -546,7 +546,7 @@ export default function EditPost() {
                             <SocialPreview
                               title={form.watch("metaTitle") || form.watch("title")}
                               description={form.watch("metaDescription") || form.watch("excerpt")}
-                              imageUrl={form.watch("socialImageId") ? `/uploads/image-${form.watch("socialImageId")}` : undefined}
+                              imageUrl={form.watch("socialImageId") ? `/uploads/${form.watch("socialImageId")}` : undefined}
                               url={form.watch("canonicalUrl") || window.location.origin}
                             />
                           </div>
