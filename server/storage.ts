@@ -568,17 +568,6 @@ export class DatabaseStorage implements IStorage {
           .returning();
       }
 
-      // Update theme.json with the new settings
-      const themeConfig = {
-        primary: settings.themePrimary,
-        variant: settings.themeVariant,
-        appearance: settings.themeAppearance,
-        radius: settings.themeRadius,
-      };
-
-      // Write the theme configuration using fs.promises
-      await fs.writeFile('theme.json', JSON.stringify(themeConfig, null, 2));
-
       console.log('Updated site settings:', settings);
       return settings;
     } catch (error) {

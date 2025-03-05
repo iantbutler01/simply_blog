@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { useTheme } from "@/lib/theme-provider";
 import {
   Table,
   TableBody,
@@ -56,6 +57,7 @@ import { useEffect } from "react";
 export default function AdminManage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { theme, updateTheme } = useTheme();
 
   const { data: posts, isLoading: postsLoading } = useQuery<Post[]>({
     queryKey: ["/api/posts"],
@@ -70,10 +72,10 @@ export default function AdminManage() {
     defaultValues: {
       blogName: "",
       blogDescription: "",
-      themePrimary: "#007ACC",
-      themeVariant: "professional",
-      themeAppearance: "system",
-      themeRadius: 0,
+      themePrimary: theme.primary,
+      themeVariant: theme.variant,
+      themeAppearance: theme.appearance,
+      themeRadius: theme.radius,
     },
   });
 
@@ -93,7 +95,18 @@ export default function AdminManage() {
 
   const settingsMutation = useMutation({
     mutationFn: async (values) => {
-      return apiRequest("PATCH", "/api/settings", values);
+      // First update the database
+      const response = await apiRequest("PATCH", "/api/settings", values);
+
+      // Then update the theme context
+      updateTheme({
+        primary: values.themePrimary,
+        variant: values.themeVariant,
+        appearance: values.themeAppearance,
+        radius: values.themeRadius,
+      });
+
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
