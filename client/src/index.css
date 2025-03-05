@@ -30,7 +30,7 @@
   .dark {
     [data-theme-variant="professional"] {
       --text-primary: theme('colors.gray.100');
-      --text-secondary: theme('colors.gray.100');
+      --text-secondary: theme('colors.gray.400');
     }
 
     [data-theme-variant="tint"] {
@@ -44,6 +44,15 @@
     }
   }
 
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background;
+  }
+
+  /* Style headings */
   h1:where(:not([class*="ignore-theme"])),
   h2:where(:not([class*="ignore-theme"])),
   h3:where(:not([class*="ignore-theme"])),
@@ -53,15 +62,6 @@
     color: var(--text-secondary) !important;
     @apply font-bold;
   }
-
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply font-sans antialiased bg-background;
-  }
-
 
   /* Style regular text */
   p,
