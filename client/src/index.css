@@ -29,8 +29,8 @@
 
   .dark {
     [data-theme-variant="professional"] {
-      --text-primary: theme('colors.gray.100');
-      --text-secondary: theme('colors.gray.400');
+      --text-primary: theme('colors.gray.700');
+      --text-secondary: theme('colors.gray.100');
     }
 
     [data-theme-variant="tint"] {
@@ -52,16 +52,7 @@
     @apply font-sans antialiased bg-background;
   }
 
-  /* Explicitly style headings with high specificity */
-  h1:where(:not([class*="ignore-theme"])),
-  h2:where(:not([class*="ignore-theme"])),
-  h3:where(:not([class*="ignore-theme"])),
-  h4:where(:not([class*="ignore-theme"])),
-  h5:where(:not([class*="ignore-theme"])),
-  h6:where(:not([class*="ignore-theme"])) {
-    color: var(--text-primary) !important;
-    @apply font-bold;
-  }
+
 
   /* Style regular text */
   p,
