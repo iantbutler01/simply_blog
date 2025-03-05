@@ -122,6 +122,13 @@ export default function AdminManage() {
         description: "The post has been successfully deleted.",
       });
     },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to delete post",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   return (
@@ -361,9 +368,16 @@ export default function AdminManage() {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => deleteMutation.mutate(post.id)}
+                                onClick={async () => {
+                                  try {
+                                    await deleteMutation.mutateAsync(post.id);
+                                  } catch (error) {
+                                    // Error is handled in onError
+                                  }
+                                }}
+                                disabled={deleteMutation.isPending}
                               >
-                                Delete
+                                {deleteMutation.isPending ? "Deleting..." : "Delete"}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>

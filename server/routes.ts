@@ -171,8 +171,13 @@ export async function registerRoutes(app: Express) {
       return;
     }
 
-    await storage.deletePost(Number(req.params.id));
-    res.status(204).send();
+    try {
+      await storage.deletePost(Number(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      res.status(500).json({ message: "Failed to delete post" });
+    }
   });
 
   // Add the publish endpoint after other post endpoints
