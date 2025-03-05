@@ -346,9 +346,10 @@ export default function EditPost() {
                                 e.target.value
                                   .split(",")
                                   .map((tag) => tag.trim())
-                                  .filter(Boolean),
+                                  .filter(Boolean)
                               )
                             }
+                            placeholder="Enter tags separated by commas"
                           />
                         </FormControl>
                         <FormMessage />
