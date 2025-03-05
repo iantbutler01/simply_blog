@@ -6,6 +6,8 @@
   :root {
     --primary: theme('colors.blue.600');
     --primary-foreground: theme('colors.white');
+    --primary-gradient-from: var(--primary);
+    --primary-gradient-to: color-mix(in srgb, var(--primary) 70%, transparent);
 
     --theme-radius: 0px;
   }
@@ -51,18 +53,20 @@
   }
 
   /* Explicitly style headings with high specificity */
-  h1:where(:not([class*="ignore-theme"])), 
-  h2:where(:not([class*="ignore-theme"])), 
-  h3:where(:not([class*="ignore-theme"])), 
-  h4:where(:not([class*="ignore-theme"])), 
-  h5:where(:not([class*="ignore-theme"])), 
+  h1:where(:not([class*="ignore-theme"])),
+  h2:where(:not([class*="ignore-theme"])),
+  h3:where(:not([class*="ignore-theme"])),
+  h4:where(:not([class*="ignore-theme"])),
+  h5:where(:not([class*="ignore-theme"])),
   h6:where(:not([class*="ignore-theme"])) {
     color: var(--text-primary) !important;
     @apply font-bold;
   }
 
   /* Style regular text */
-  p, span, div:not([class*="prose"]) {
+  p,
+  span,
+  div:not([class*="prose"]) {
     color: var(--text-secondary);
   }
 
@@ -73,5 +77,10 @@
 
   .text-secondary-color {
     color: var(--text-secondary) !important;
+  }
+
+  /* Custom gradient text for site title */
+  .bg-gradient-to-r.from-primary.to-primary\/70 {
+    background-image: linear-gradient(to right, var(--primary-gradient-from), var(--primary-gradient-to)) !important;
   }
 }
