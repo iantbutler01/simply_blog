@@ -138,8 +138,16 @@ export class DatabaseStorage implements IStorage {
 
   async deletePost(id: number): Promise<void> {
     try {
+      // First delete all related comments
+      await db.delete(comments).where(eq(comments.postId, id));
+
+      // Delete all versions of this post
+      await db.delete(postVersions).where(eq(postVersions.postId, id));
+
+      // Finally delete the post itself
       await db.delete(posts).where(eq(posts.id, id));
-      console.log(`Deleted post ${id}`);
+
+      console.log(`Deleted post ${id} and all related data`);
     } catch (error) {
       console.error(`Failed to delete post ${id}:`, error);
       throw error;
