@@ -99,7 +99,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
           key={index}
           className="group relative flex gap-2 border bg-card rounded-lg overflow-hidden"
         >
-          <div 
+          <div
             className="flex flex-col items-center gap-2 text-muted-foreground p-4 border-r bg-muted/10"
             draggable
             onDragStart={() => setDraggedIndex(index)}
@@ -245,7 +245,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         }}
                       >
                         <img
-                          src={block.imageUrl}
+                          src={block.imageId ? `/api/images/${block.imageId}` : block.imageUrl}
                           alt={block.alt || ""}
                           className="rounded-lg border w-full h-auto object-contain"
                           style={{ minHeight: "200px" }}

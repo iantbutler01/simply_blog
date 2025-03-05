@@ -155,11 +155,20 @@ export default function EditPost() {
             return {
               type: "image",
               imageId: block.imageId,
-              imageUrl: block.imageUrl,
+              imageUrl: block.imageId ? `/api/images/${block.imageId}` : "",
               caption: block.caption,
               alt: block.alt,
               alignment: block.alignment,
               size: block.size,
+            };
+          } else if (block.type === "cta") {
+            return {
+              type: "cta",
+              content: block.content,
+              buttonText: block.buttonText,
+              buttonUrl: block.buttonUrl,
+              alignment: block.alignment,
+              buttonVariant: block.buttonVariant,
             };
           } else {
             return {
@@ -174,7 +183,7 @@ export default function EditPost() {
         }),
       };
 
-      formattedValues["tags"] = formattedValues["tags"].join(",");
+      formattedValues["tags"] = formattedValues["tags"].split(",");
 
       // If editing existing post, first update with draft status
       if (postId) {
