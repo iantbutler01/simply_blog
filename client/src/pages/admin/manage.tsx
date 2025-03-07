@@ -496,9 +496,12 @@ export default function AdminManage() {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Reset to Default Password</AlertDialogTitle>
+                      <AlertDialogTitle>
+                        Reset to Default Password
+                      </AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will reset your password to the default value. Are you sure?
+                        This will reset your password to the default value. Are
+                        you sure?
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -507,7 +510,9 @@ export default function AdminManage() {
                         onClick={() => resetPasswordMutation.mutate()}
                         disabled={resetPasswordMutation.isPending}
                       >
-                        {resetPasswordMutation.isPending ? "Resetting..." : "Reset Password"}
+                        {resetPasswordMutation.isPending
+                          ? "Resetting..."
+                          : "Reset Password"}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -569,14 +574,18 @@ export default function AdminManage() {
                     <TableCell>
                       <Switch
                         checked={!post.commentsDisabled}
-                        className="data-[state=checked]:bg-primary data-[state=checked]:opacity-100 data-[state=unchecked]:bg-muted/50"
+                        className="data-[state=checked]:bg-accent"
                         onCheckedChange={async (enabled) => {
                           try {
                             await apiRequest("PATCH", `/api/posts/${post.id}`, {
-                              commentsDisabled: !enabled
+                              commentsDisabled: !enabled,
                             });
-                            queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
-                            queryClient.invalidateQueries({ queryKey: [`/api/posts/${post.id}`] });
+                            queryClient.invalidateQueries({
+                              queryKey: ["/api/posts"],
+                            });
+                            queryClient.invalidateQueries({
+                              queryKey: [`/api/posts/${post.id}`],
+                            });
                             toast({
                               title: "Success",
                               description: `Comments ${enabled ? "enabled" : "disabled"} for this post.`,
@@ -590,7 +599,7 @@ export default function AdminManage() {
                           }
                         }}
                       />
-                      <span className="ml-2 text-sm text-muted-foreground">
+                      <span className="text-center text-sm text-muted-foreground">
                         {!post.commentsDisabled ? "Enabled" : "Disabled"}
                       </span>
                     </TableCell>
