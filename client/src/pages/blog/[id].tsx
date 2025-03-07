@@ -91,7 +91,7 @@ export default function BlogPost() {
       {!post.commentsDisabled && (
         <div className="mt-16 pt-8 border-t">
           <h2 className="text-2xl font-bold mb-8">Comments</h2>
-          {!commentsLoading && <CommentList postId={Number(id)} comments={comments} />}
+          <CommentList postId={Number(id)} comments={comments} />
           <div className="mt-8">
             <h3 className="text-lg font-semibold mb-4">Leave a Comment</h3>
             <CommentForm postId={Number(id)} />
