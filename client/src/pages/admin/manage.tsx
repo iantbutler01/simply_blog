@@ -569,13 +569,14 @@ export default function AdminManage() {
                     <TableCell>
                       <Switch
                         checked={!post.commentsDisabled}
-                        className="data-[state=checked]:bg-primary data-[state=checked]:opacity-90"
+                        className="data-[state=checked]:bg-primary data-[state=checked]:opacity-100 data-[state=unchecked]:bg-muted/50"
                         onCheckedChange={async (enabled) => {
                           try {
                             await apiRequest("PATCH", `/api/posts/${post.id}`, {
                               commentsDisabled: !enabled
                             });
                             queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+                            queryClient.invalidateQueries({ queryKey: [`/api/posts/${post.id}`] });
                             toast({
                               title: "Success",
                               description: `Comments ${enabled ? "enabled" : "disabled"} for this post.`,
@@ -589,6 +590,9 @@ export default function AdminManage() {
                           }
                         }}
                       />
+                      <span className="ml-2 text-sm text-muted-foreground">
+                        {!post.commentsDisabled ? "Enabled" : "Disabled"}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
