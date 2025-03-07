@@ -62,6 +62,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
+import { Switch } from "@/components/ui/switch";
 
 const passwordSchema = z
   .object({
@@ -528,6 +529,7 @@ export default function AdminManage() {
                   <TableHead>Status</TableHead>
                   <TableHead>Analytics</TableHead>
                   <TableHead>Created</TableHead>
+                  <TableHead>Comments</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -563,6 +565,29 @@ export default function AdminManage() {
                     </TableCell>
                     <TableCell>
                       {format(new Date(post.createdAt), "MMM d, yyyy")}
+                    </TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={!post.commentsDisabled}
+                        onCheckedChange={async (enabled) => {
+                          try {
+                            await apiRequest("PATCH", `/api/posts/${post.id}`, {
+                              commentsDisabled: !enabled
+                            });
+                            queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+                            toast({
+                              title: "Success",
+                              description: `Comments ${enabled ? "enabled" : "disabled"} for this post.`,
+                            });
+                          } catch (error) {
+                            toast({
+                              title: "Error",
+                              description: "Failed to update comment settings",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">

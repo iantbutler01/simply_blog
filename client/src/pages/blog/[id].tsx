@@ -40,7 +40,7 @@ export default function BlogPost() {
 
   const { data: comments = [], isLoading: commentsLoading } = useQuery({
     queryKey: [`/api/posts/${id}/comments`],
-    enabled: !!id,
+    enabled: !!id && !post?.commentsDisabled, // Only fetch comments if they're not disabled
   });
 
   if (postLoading || commentsLoading) {
@@ -86,15 +86,17 @@ export default function BlogPost() {
         ))}
       </article>
 
-      {/* Comments Section */}
-      <div className="mt-16 pt-8 border-t">
-        <h2 className="text-2xl font-bold mb-8">Comments</h2>
-        <CommentList postId={Number(id)} />
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-4">Leave a Comment</h3>
-          <CommentForm postId={Number(id)} />
+      {/* Comments Section - Only show if comments are not disabled */}
+      {!post.commentsDisabled && (
+        <div className="mt-16 pt-8 border-t">
+          <h2 className="text-2xl font-bold mb-8">Comments</h2>
+          <CommentList postId={Number(id)} />
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold mb-4">Leave a Comment</h3>
+            <CommentForm postId={Number(id)} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
