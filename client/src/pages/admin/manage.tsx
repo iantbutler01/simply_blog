@@ -199,6 +199,26 @@ export default function AdminManage() {
     },
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/auth/reset-to-default");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Password has been reset to default.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <div className="container py-12 max-w-6xl mx-auto px-6">
       <div className="flex justify-between items-center mb-8">
@@ -466,6 +486,32 @@ export default function AdminManage() {
                   </Button>
                 </form>
               </Form>
+              <div className="mt-4 pt-4 border-t">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="w-full">
+                      Reset to Default Password
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Reset to Default Password</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will reset your password to the default value. Are you sure?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => resetPasswordMutation.mutate()}
+                        disabled={resetPasswordMutation.isPending}
+                      >
+                        {resetPasswordMutation.isPending ? "Resetting..." : "Reset Password"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

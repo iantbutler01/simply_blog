@@ -183,7 +183,8 @@ export default function EditPost() {
         }),
       };
 
-      formattedValues["tags"] = formattedValues["tags"].split(",");
+      console.log(formattedValues["tags"]);
+      formattedValues["tags"] = formattedValues["tags"].join(",");
 
       // If editing existing post, first update with draft status
       if (postId) {

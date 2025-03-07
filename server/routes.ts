@@ -108,6 +108,26 @@ export async function registerRoutes(app: Express) {
     },
   );
 
+  // Add after other auth routes
+  app.post(
+    "/api/auth/reset-to-default",
+    requireAuth,
+    async (req: AuthenticatedRequest, res) => {
+      if (!isAdmin(req)) {
+        res.status(403).json({ message: "Forbidden" });
+        return;
+      }
+
+      try {
+        await storage.updatePassword(req.user.id, "bismuth@#!password1234");
+        res.json({ message: "Password reset to default successfully" });
+      } catch (error) {
+        console.error("Failed to reset password:", error);
+        res.status(500).json({ message: "Failed to reset password" });
+      }
+    },
+  );
+
   // Get site settings
   app.get("/api/settings", async (req, res) => {
     try {
