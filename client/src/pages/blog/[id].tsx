@@ -38,12 +38,13 @@ export default function BlogPost() {
     },
   });
 
+  // Only fetch comments if post exists and comments are enabled
   const { data: comments = [], isLoading: commentsLoading } = useQuery({
     queryKey: [`/api/posts/${id}/comments`],
-    enabled: !!id && !post?.commentsDisabled, // Only fetch comments if they're not disabled
+    enabled: Boolean(post) && !post.commentsDisabled,
   });
 
-  if (postLoading || commentsLoading) {
+  if (postLoading) {
     return (
       <div className="container py-12 max-w-3xl mx-auto px-6">
         <div className="h-96 animate-pulse bg-muted rounded-lg" />
@@ -80,7 +81,7 @@ export default function BlogPost() {
         ))}
       </div>
 
-      <article className="space-y-8">
+      <article className="prose prose-lg max-w-none space-y-8">
         {post.content.map((block, index) => (
           <BlockRenderer key={index} block={block} />
         ))}
@@ -90,7 +91,7 @@ export default function BlogPost() {
       {!post.commentsDisabled && (
         <div className="mt-16 pt-8 border-t">
           <h2 className="text-2xl font-bold mb-8">Comments</h2>
-          <CommentList postId={Number(id)} />
+          {!commentsLoading && <CommentList postId={Number(id)} comments={comments} />}
           <div className="mt-8">
             <h3 className="text-lg font-semibold mb-4">Leave a Comment</h3>
             <CommentForm postId={Number(id)} />

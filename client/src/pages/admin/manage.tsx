@@ -569,6 +569,7 @@ export default function AdminManage() {
                     <TableCell>
                       <Switch
                         checked={!post.commentsDisabled}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:opacity-90"
                         onCheckedChange={async (enabled) => {
                           try {
                             await apiRequest("PATCH", `/api/posts/${post.id}`, {
