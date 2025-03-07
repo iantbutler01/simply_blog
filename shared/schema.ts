@@ -45,6 +45,7 @@ export const blockSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
+// Add commentsDisabled to posts table
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -57,12 +58,14 @@ export const posts = pgTable("posts", {
   // SEO fields
   metaTitle: text("meta_title"),
   metaDescription: text("meta_description"),
-  socialImageId: integer("social_image_id"), // Changed from text to integer
+  socialImageId: integer("social_image_id"),
   canonicalUrl: text("canonical_url"),
   // Analytics fields
   views: integer("views").notNull().default(0),
   shareCount: integer("share_count").notNull().default(0),
   readingTimeMinutes: integer("reading_time_minutes").notNull().default(0),
+  // Comments setting
+  commentsDisabled: boolean("comments_disabled").notNull().default(false),
 });
 
 // New table for version history
@@ -138,6 +141,7 @@ export const insertUserSchema = createInsertSchema(users)
     password: z.string().min(8, "Password must be at least 8 characters"),
   });
 
+// Update insertPostSchema to include commentsDisabled
 export const insertPostSchema = createInsertSchema(posts)
   .omit({ id: true, createdAt: true })
   .extend({
@@ -161,7 +165,7 @@ export const insertPostSchema = createInsertSchema(posts)
       .string()
       .max(160, "Meta description should not exceed 160 characters")
       .optional(),
-    socialImageId: z.number().nullable().optional(), // Changed from string to number
+    socialImageId: z.number().nullable().optional(),
     canonicalUrl: z
       .union([
         z.string().url("Must be a valid URL"),
@@ -172,6 +176,7 @@ export const insertPostSchema = createInsertSchema(posts)
     views: z.number().optional(),
     shareCount: z.number().optional(),
     readingTimeMinutes: z.number().optional(),
+    commentsDisabled: z.boolean().optional(),
   });
 
 export const insertVersionSchema = createInsertSchema(postVersions)

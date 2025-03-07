@@ -240,7 +240,8 @@ export async function registerRoutes(app: Express) {
         );
         res.json(post);
       } catch (error) {
-        res.status(404).json({ message: "Post not found" });
+        console.error("Failed to update post:", error);
+        res.status(500).json({ message: "Failed to update post" });
       }
     },
   );
