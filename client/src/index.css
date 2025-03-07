@@ -58,6 +58,16 @@
     color: var(--text-secondary) !important;
   }
 
+  .prose {
+    color: var(--text-primary);
+  }
+
+
+  .prose :where(strong):not(:where([class~=not-prose], [class~=not-prose] *)) {
+    color: var(--text-primary) !important;
+    font-weight: 700 !important;
+  }
+
   * {
     @apply border-border;
   }
