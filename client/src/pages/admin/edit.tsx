@@ -754,15 +754,25 @@ export default function EditPost() {
                     } else if (block.type === "youtube") {
                       return (
                         <div key={index}>
-                          <iframe
-                            width="560"
-                            height="315"
-                            src={`https://www.youtube.com/embed/${block.videoId}`}
-                            title={block.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                          ></iframe>
+                          <div className={`${
+                            block.alignment === "left"
+                              ? "float-left mr-4 w-1/2"
+                              : block.alignment === "right"
+                              ? "float-right ml-4 w-1/2"
+                              : "w-full"
+                          }`}>
+                            <div className="relative w-full aspect-video">
+                              <iframe
+                                src={`https://www.youtube.com/embed/${block.videoId}`}
+                                title={block.title}
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowFullScreen
+                                className="absolute inset-0 w-full h-full rounded-lg border"
+                              />
+                            </div>
+                          </div>
+                          <div className="clear-both" />
                         </div>
                       );
                     }

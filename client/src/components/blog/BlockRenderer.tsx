@@ -64,15 +64,13 @@ export function BlockRenderer({ block }: BlockRendererProps) {
     case "youtube":
       return (
         <div className="my-12">
-          <div
-            className={`${
-              block.alignment === "left"
-                ? "float-left mr-4 w-1/2"
-                : block.alignment === "right"
-                ? "float-right ml-4 w-1/2"
-                : "w-full"
-            }`}
-          >
+          <div className={`${
+            block.alignment === "left"
+              ? "float-left mr-4 w-1/2"
+              : block.alignment === "right"
+              ? "float-right ml-4 w-1/2"
+              : "w-full"
+          }`}>
             <div className="relative w-full aspect-video">
               <iframe
                 src={`https://www.youtube.com/embed/${block.videoId}`}
