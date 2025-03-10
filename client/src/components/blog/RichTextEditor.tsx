@@ -6,6 +6,17 @@ import Image from "@tiptap/extension-image";
 import { Toggle } from "@/components/ui/toggle";
 import { Separator } from "@/components/ui/separator";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
   Bold,
   Italic,
   List,
@@ -18,7 +29,7 @@ import {
   AlignCenter,
   AlignRight
 } from "lucide-react";
-import React from 'react';
+import { useState } from 'react';
 import { ImageUpload } from "./ImageUpload";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -28,6 +39,9 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -40,6 +54,9 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
       }),
       Link.configure({
         openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary hover:underline cursor-pointer',
+        },
       }),
       Image.configure({
         HTMLAttributes: {
@@ -85,6 +102,25 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
       editor.commands.setContent(value);
     }
   }, [value, editor]);
+
+  const setLink = () => {
+    if (!editor) return;
+
+    if (linkUrl === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+
+    // Update existing link or create new one
+    editor.chain()
+      .focus()
+      .extendMarkRange('link')
+      .setLink({ href: linkUrl })
+      .run();
+
+    setLinkUrl('');
+    setIsLinkDialogOpen(false);
+  };
 
   const addImage = (url: string) => {
     if (editor) {
@@ -183,6 +219,42 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         </Toggle>
 
         <Separator orientation="vertical" className="mx-1 h-6" />
+
+        <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
+          <DialogTrigger asChild>
+            <Toggle
+              size="sm"
+              pressed={editor.isActive("link")}
+              aria-label="Add link"
+            >
+              <LinkIcon className="h-4 w-4" />
+            </Toggle>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Link</DialogTitle>
+              <DialogDescription>
+                Enter the URL for the link. Leave empty to remove the link.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <Input
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full"
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsLinkDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={setLink}>
+                {editor.isActive('link') ? 'Update Link' : 'Add Link'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Toggle
           size="sm"
@@ -305,6 +377,14 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
           height: auto;
           margin: 1rem 0;
           border-radius: 0.5rem;
+        }
+        .ProseMirror a {
+          color: var(--primary);
+          text-decoration: none;
+          cursor: pointer;
+        }
+        .ProseMirror a:hover {
+          text-decoration: underline;
         }
       `}</style>
     </div>
