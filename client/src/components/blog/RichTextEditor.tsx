@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, mergeAttributes, Node } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
@@ -35,6 +35,58 @@ import { useState } from 'react';
 import { ImageUpload } from "./ImageUpload";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+// Custom YouTube extension
+const YouTube = Node.create({
+  name: 'youtube',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      videoId: {
+        default: null,
+      },
+      title: {
+        default: null,
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-type="youtube"]',
+        getAttrs: (element) => {
+          if (!(element instanceof HTMLElement)) return false;
+          return {
+            videoId: element.getAttribute('data-video-id'),
+            title: element.getAttribute('data-title'),
+          };
+        },
+      },
+    ];
+  },
+
+  renderHTML({ node }) {
+    return ['div', 
+      mergeAttributes({
+        'data-type': 'youtube',
+        'data-video-id': node.attrs.videoId,
+        'data-title': node.attrs.title,
+        class: 'relative w-full aspect-video my-4',
+      }),
+      ['iframe', {
+        src: `https://www.youtube.com/embed/${node.attrs.videoId}`,
+        title: node.attrs.title || 'YouTube video',
+        class: 'absolute inset-0 w-full h-full rounded-lg border',
+        frameborder: '0',
+        allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+        allowfullscreen: 'true',
+      }],
+    ];
+  },
+});
+
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -67,6 +119,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
           class: 'rounded-lg',
         },
       }),
+      YouTube,
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -106,28 +159,20 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const addYoutubeVideo = () => {
     if (!editor || !youtubeUrl) return;
 
-    // Extract video ID from URL
     const videoId = extractYoutubeVideoId(youtubeUrl);
     if (!videoId) {
       alert('Invalid YouTube URL');
       return;
     }
 
-    // Insert YouTube block
-    const youtubeBlock = {
-      type: 'youtube',
-      videoId: videoId,
-    };
-
-    // Insert as HTML since TipTap doesn't natively support custom blocks
     editor.chain()
       .focus()
       .insertContent({
-        type: 'paragraph',
-        content: [{
-          type: 'text',
-          text: JSON.stringify(youtubeBlock)
-        }]
+        type: 'youtube',
+        attrs: {
+          videoId,
+          title: `YouTube video (${videoId})`,
+        },
       })
       .run();
 
@@ -215,7 +260,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
   return (
     <div className="w-full border rounded-lg overflow-hidden">
-      <div className="flex items-center gap-1 p-2 border-b bg-muted/50 overflow-x-auto">
+      <div className="flex items-center gap-1 p-2 border-b bg-muted/50">
         <Toggle
           size="sm"
           pressed={editor.isActive("bold")}
@@ -339,7 +384,6 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         <ImageUpload onUpload={addImage} />
 
         <Separator orientation="vertical" className="mx-1 h-6" />
-
         {editor.isActive('image') && (
           <>
             <Separator orientation="vertical" className="mx-1 h-6" />
