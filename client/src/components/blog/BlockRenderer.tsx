@@ -63,14 +63,22 @@ export function BlockRenderer({ block }: BlockRendererProps) {
       );
     case "youtube":
       return (
-        <div className="my-12 relative w-full aspect-video">
-          <iframe
-            src={`https://www.youtube.com/embed/${block.videoId}`}
-            title={block.title || "YouTube video"}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 w-full h-full rounded-lg border"
-          />
+        <div className="my-12">
+          <div className={`relative w-full aspect-video ${
+            block.alignment === "left"
+              ? "float-left mr-4"
+              : block.alignment === "right"
+              ? "float-right ml-4"
+              : "mx-auto"
+          }`}>
+            <iframe
+              src={`https://www.youtube.com/embed/${block.videoId}`}
+              title={block.title || "YouTube video"}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full rounded-lg border"
+            />
+          </div>
         </div>
       );
     default:

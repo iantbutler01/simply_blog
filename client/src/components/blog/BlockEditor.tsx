@@ -70,7 +70,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     e.stopPropagation();
     var newBlock: Block | null = null;
 
-    switch(type) {
+    switch (type) {
       case "text":
         newBlock = { type: "text", content: "", format: "html" };
         break;
@@ -114,6 +114,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
       type: "youtube",
       videoId,
       title: `YouTube video (${videoId})`,
+      alignment: "center", // Added alignment property
     };
 
     const newBlocks = [...blocks, newBlock];
@@ -357,7 +358,45 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
 
             {block.type === "youtube" && (
               <div className="space-y-4">
-                <div className="relative w-full aspect-video">
+                <div className="absolute top-0 right-0 flex gap-2 bg-background border shadow-sm rounded-lg p-2 z-10">
+                  <Toggle
+                    size="sm"
+                    pressed={block.alignment === "left"}
+                    onPressedChange={() =>
+                      updateBlock(index, { ...block, alignment: "left" })
+                    }
+                    aria-label="Align left"
+                  >
+                    <AlignLeft className="h-4 w-4" />
+                  </Toggle>
+                  <Toggle
+                    size="sm"
+                    pressed={block.alignment === "center"}
+                    onPressedChange={() =>
+                      updateBlock(index, { ...block, alignment: "center" })
+                    }
+                    aria-label="Align center"
+                  >
+                    <AlignCenter className="h-4 w-4" />
+                  </Toggle>
+                  <Toggle
+                    size="sm"
+                    pressed={block.alignment === "right"}
+                    onPressedChange={() =>
+                      updateBlock(index, { ...block, alignment: "right" })
+                    }
+                    aria-label="Align right"
+                  >
+                    <AlignRight className="h-4 w-4" />
+                  </Toggle>
+                </div>
+                <div className={`relative w-full aspect-video ${
+                  block.alignment === "left"
+                    ? "float-left mr-4"
+                    : block.alignment === "right"
+                    ? "float-right ml-4"
+                    : "mx-auto"
+                }`}>
                   <iframe
                     src={`https://www.youtube.com/embed/${block.videoId}`}
                     title={block.title || "YouTube video"}

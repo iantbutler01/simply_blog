@@ -175,6 +175,7 @@ export default function EditPost() {
               type: "youtube",
               videoId: block.videoId,
               title: block.title,
+              alignment: block.alignment || "center",
             };
           } else {
             return block;

@@ -47,6 +47,7 @@ export const blockSchema = z.discriminatedUnion("type", [
     type: z.literal("youtube"),
     videoId: z.string(),
     title: z.string().optional(),
+    alignment: z.enum(["left", "center", "right"]).default("center"),
   }),
 ]);
 
