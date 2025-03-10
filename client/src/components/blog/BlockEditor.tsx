@@ -114,7 +114,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
       type: "youtube",
       videoId,
       title: `YouTube video (${videoId})`,
-      alignment: "center", 
+      alignment: "center",
     };
 
     const newBlocks = [...blocks, newBlock];
@@ -390,34 +390,22 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                     <AlignRight className="h-4 w-4" />
                   </Toggle>
                 </div>
-                <div
-                  className={`${
-                    block.alignment === "left"
-                      ? "float-left mr-4 w-1/2"
-                      : block.alignment === "right"
-                      ? "float-right ml-4 w-1/2"
-                      : "w-full"
-                  }`}
-                >
-                  <div className="relative w-full aspect-video">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${block.videoId}`}
-                      title={block.title || "YouTube video"}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="absolute inset-0 w-full h-full rounded-lg border"
-                    />
-                  </div>
-                </div>
-                <div className="clear-both">
-                  <Input
-                    placeholder="Video title (optional)"
-                    value={block.title || ""}
-                    onChange={(e) =>
-                      updateBlock(index, { ...block, title: e.target.value })
-                    }
+                <div className="relative w-full aspect-video">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${block.videoId}`}
+                    title={block.title || "YouTube video"}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full rounded-lg border"
                   />
                 </div>
+                <Input
+                  placeholder="Video title (optional)"
+                  value={block.title || ""}
+                  onChange={(e) =>
+                    updateBlock(index, { ...block, title: e.target.value })
+                  }
+                />
               </div>
             )}
           </div>
