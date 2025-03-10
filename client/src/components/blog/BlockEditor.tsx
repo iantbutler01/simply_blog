@@ -114,7 +114,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
       type: "youtube",
       videoId,
       title: `YouTube video (${videoId})`,
-      alignment: "center", // Added alignment property
+      alignment: "center", 
     };
 
     const newBlocks = [...blocks, newBlock];
@@ -357,7 +357,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
             )}
 
             {block.type === "youtube" && (
-              <div className="space-y-4">
+              <div className="space-y-4 pt-12">
                 <div className="absolute top-0 right-0 flex gap-2 bg-background border shadow-sm rounded-lg p-2 z-10">
                   <Toggle
                     size="sm"
@@ -390,28 +390,34 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                     <AlignRight className="h-4 w-4" />
                   </Toggle>
                 </div>
-                <div className={`relative w-full aspect-video ${
-                  block.alignment === "left"
-                    ? "float-left mr-4"
-                    : block.alignment === "right"
-                    ? "float-right ml-4"
-                    : "mx-auto"
-                }`}>
-                  <iframe
-                    src={`https://www.youtube.com/embed/${block.videoId}`}
-                    title={block.title || "YouTube video"}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="absolute inset-0 w-full h-full rounded-lg border"
+                <div
+                  className={`${
+                    block.alignment === "left"
+                      ? "float-left mr-4 w-1/2"
+                      : block.alignment === "right"
+                      ? "float-right ml-4 w-1/2"
+                      : "w-full"
+                  }`}
+                >
+                  <div className="relative w-full aspect-video">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${block.videoId}`}
+                      title={block.title || "YouTube video"}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="absolute inset-0 w-full h-full rounded-lg border"
+                    />
+                  </div>
+                </div>
+                <div className="clear-both">
+                  <Input
+                    placeholder="Video title (optional)"
+                    value={block.title || ""}
+                    onChange={(e) =>
+                      updateBlock(index, { ...block, title: e.target.value })
+                    }
                   />
                 </div>
-                <Input
-                  placeholder="Video title (optional)"
-                  value={block.title || ""}
-                  onChange={(e) =>
-                    updateBlock(index, { ...block, title: e.target.value })
-                  }
-                />
               </div>
             )}
           </div>
