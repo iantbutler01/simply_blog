@@ -170,21 +170,20 @@ export default function EditPost() {
               alignment: block.alignment,
               buttonVariant: block.buttonVariant,
             };
-          } else {
+          } else if (block.type === "youtube") {
             return {
-              type: "cta",
-              content: block.content,
-              buttonText: block.buttonText,
-              buttonUrl: block.buttonUrl,
-              alignment: block.alignment,
-              buttonVariant: block.buttonVariant,
+              type: "youtube",
+              videoId: block.videoId,
+              title: block.title,
             };
+          } else {
+            return block;
           }
         }),
       };
 
       console.log(formattedValues["tags"]);
-      formattedValues["tags"] = formattedValues["tags"].join(",");
+      formattedValues["tags"] = formattedValues["tags"].split(",");
 
       // If editing existing post, first update with draft status
       if (postId) {
@@ -751,6 +750,20 @@ export default function EditPost() {
                       );
                     } else if (block.type === "cta") {
                       return <CTABlock key={index} block={block} />;
+                    } else if (block.type === "youtube") {
+                      return (
+                        <div key={index}>
+                          <iframe
+                            width="560"
+                            height="315"
+                            src={`https://www.youtube.com/embed/${block.videoId}`}
+                            title={block.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      );
                     }
                     return null;
                   })}

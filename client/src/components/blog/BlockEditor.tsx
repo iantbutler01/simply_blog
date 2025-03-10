@@ -10,6 +10,7 @@ import {
   AlignCenter,
   AlignRight,
   Image as ImageIcon,
+  Youtube,
 } from "lucide-react";
 import { type Block } from "@shared/schema";
 import {
@@ -19,8 +20,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
+import { Separator } from "@/components/ui/separator";
 import { CTABlockEditor } from "./CTABlockEditor";
 
 interface BlockEditorProps {
@@ -28,9 +39,18 @@ interface BlockEditorProps {
   onChange: (blocks: Block[]) => void;
 }
 
+const extractYoutubeId = (url: string): string | null => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
 export function BlockEditor({ value, onChange }: BlockEditorProps) {
   const [blocks, setBlocks] = useState<Block[]>(value);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [isYoutubeDialogOpen, setIsYoutubeDialogOpen] = useState(false);
+  const [activeBlockIndex, setActiveBlockIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (JSON.stringify(blocks) !== JSON.stringify(value)) {
@@ -45,34 +65,62 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
     onChange(newBlocks);
   };
 
-  const addBlock = (type: "text" | "image" | "cta", e: React.MouseEvent) => {
+  const addBlock = (type: "text" | "image" | "cta" | "youtube", e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     var newBlock: Block | null = null;
-    if (type === "text") {
-      newBlock = { type: "text", content: "", format: "html" };
-    } else if (type === "image") {
-      newBlock = {
-        type: "image",
-        imageId: 0,
-        alignment: "center",
-        size: "full",
-        imageUrl: "",
-      };
-    } else {
-      newBlock = {
-        type: "cta",
-        content: "",
-        buttonText: "Click here",
-        buttonUrl: "",
-        alignment: "center",
-        buttonVariant: "default",
-      };
+
+    switch(type) {
+      case "text":
+        newBlock = { type: "text", content: "", format: "html" };
+        break;
+      case "image":
+        newBlock = {
+          type: "image",
+          imageId: 0,
+          alignment: "center",
+          size: "full",
+          imageUrl: "",
+        };
+        break;
+      case "cta":
+        newBlock = {
+          type: "cta",
+          content: "",
+          buttonText: "Click here",
+          buttonUrl: "",
+          alignment: "center",
+          buttonVariant: "default",
+        };
+        break;
+      case "youtube":
+        setIsYoutubeDialogOpen(true);
+        return;
     }
 
     const newBlocks = [...blocks, newBlock];
     setBlocks(newBlocks);
     onChange(newBlocks);
+  };
+
+  const handleYoutubeSubmit = () => {
+    const videoId = extractYoutubeId(youtubeUrl);
+    if (!videoId) {
+      alert("Invalid YouTube URL");
+      return;
+    }
+
+    const newBlock: Block = {
+      type: "youtube",
+      videoId,
+      title: `YouTube video (${videoId})`,
+    };
+
+    const newBlocks = [...blocks, newBlock];
+    setBlocks(newBlocks);
+    onChange(newBlocks);
+    setYoutubeUrl("");
+    setIsYoutubeDialogOpen(false);
   };
 
   const removeBlock = (index: number, e: React.MouseEvent) => {
@@ -306,9 +354,57 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                 onRemove={(e) => removeBlock(index, e)}
               />
             )}
+
+            {block.type === "youtube" && (
+              <div className="space-y-4">
+                <div className="relative w-full aspect-video">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${block.videoId}`}
+                    title={block.title || "YouTube video"}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full rounded-lg border"
+                  />
+                </div>
+                <Input
+                  placeholder="Video title (optional)"
+                  value={block.title || ""}
+                  onChange={(e) =>
+                    updateBlock(index, { ...block, title: e.target.value })
+                  }
+                />
+              </div>
+            )}
           </div>
         </div>
       ))}
+
+      <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add YouTube Video</DialogTitle>
+            <DialogDescription>
+              Enter the YouTube video URL to embed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsYoutubeDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleYoutubeSubmit}>
+              Add Video
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex gap-2">
         <Button
@@ -337,6 +433,16 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
         >
           <Plus className="mr-2 h-4 w-4" />
           Add CTA
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => addBlock("youtube", e)}
+          type="button"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          <Youtube className="h-4 w-4" />
+          Add YouTube
         </Button>
       </div>
     </div>
