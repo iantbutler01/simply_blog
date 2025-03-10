@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -62,27 +63,6 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         HTMLAttributes: {
           class: 'rounded-lg',
         },
-        addAttributes() {
-          return {
-            src: {
-              default: null
-            },
-            alt: {
-              default: null
-            },
-            class: {
-              default: 'rounded-lg max-w-full mx-auto'
-            },
-            size: {
-              default: 'full',
-              rendered: false
-            },
-            alignment: {
-              default: 'center',
-              rendered: false
-            }
-          }
-        }
       }),
     ],
     content: value,
@@ -134,10 +114,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   };
 
   const setImageSize = (size: 'small' | 'medium' | 'large' | 'full') => {
-    const { view } = editor;
-    const { tr } = view.state;
-
-    editor.chain().focus().run();
+    if (!editor) return;
 
     const node = editor.view.state.selection.$anchor.node();
     if (node && node.type.name === 'image') {
@@ -168,7 +145,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   };
 
   const setImageAlignment = (alignment: 'left' | 'center' | 'right') => {
-    editor.chain().focus().run();
+    if (!editor) return;
 
     const node = editor.view.state.selection.$anchor.node();
     if (node && node.type.name === 'image') {
