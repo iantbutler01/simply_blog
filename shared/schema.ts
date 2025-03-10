@@ -43,6 +43,11 @@ export const blockSchema = z.discriminatedUnion("type", [
     buttonVariant: z.enum(["default", "outline", "secondary"]).default("default"),
     alignment: z.enum(["left", "center", "right"]).default("center"),
   }),
+  z.object({
+    type: z.literal("youtube"),
+    videoId: z.string(),
+    title: z.string().optional(),
+  }),
 ]);
 
 // Add commentsDisabled to posts table

@@ -61,6 +61,18 @@ export function BlockRenderer({ block }: BlockRendererProps) {
           <CTABlock block={block} />
         </div>
       );
+    case "youtube":
+      return (
+        <div className="my-12 relative w-full aspect-video">
+          <iframe
+            src={`https://www.youtube.com/embed/${block.videoId}`}
+            title={block.title || "YouTube video"}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="absolute inset-0 w-full h-full rounded-lg border"
+          />
+        </div>
+      );
     default:
       return null;
   }

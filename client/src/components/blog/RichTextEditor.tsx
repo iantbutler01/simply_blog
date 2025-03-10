@@ -28,7 +28,8 @@ import {
   Redo,
   AlignLeft,
   AlignCenter,
-  AlignRight
+  AlignRight,
+  Youtube
 } from "lucide-react";
 import { useState } from 'react';
 import { ImageUpload } from "./ImageUpload";
@@ -42,6 +43,8 @@ interface RichTextEditorProps {
 export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
+  const [isYoutubeDialogOpen, setIsYoutubeDialogOpen] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState('');
 
   const editor = useEditor({
     extensions: [
@@ -76,7 +79,6 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
     }
   });
 
-  // Update editor content when value prop changes
   React.useEffect(() => {
     if (editor && value !== editor.getHTML()) {
       editor.commands.setContent(value);
@@ -91,7 +93,6 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
       return;
     }
 
-    // Update existing link or create new one
     editor.chain()
       .focus()
       .extendMarkRange('link')
@@ -100,6 +101,44 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
 
     setLinkUrl('');
     setIsLinkDialogOpen(false);
+  };
+
+  const addYoutubeVideo = () => {
+    if (!editor || !youtubeUrl) return;
+
+    // Extract video ID from URL
+    const videoId = extractYoutubeVideoId(youtubeUrl);
+    if (!videoId) {
+      alert('Invalid YouTube URL');
+      return;
+    }
+
+    // Insert YouTube block
+    const youtubeBlock = {
+      type: 'youtube',
+      videoId: videoId,
+    };
+
+    // Insert as HTML since TipTap doesn't natively support custom blocks
+    editor.chain()
+      .focus()
+      .insertContent({
+        type: 'paragraph',
+        content: [{
+          type: 'text',
+          text: JSON.stringify(youtubeBlock)
+        }]
+      })
+      .run();
+
+    setYoutubeUrl('');
+    setIsYoutubeDialogOpen(false);
+  };
+
+  const extractYoutubeVideoId = (url: string): string | null => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
   };
 
   const addImage = (url: string) => {
@@ -228,6 +267,41 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
               </Button>
               <Button onClick={setLink}>
                 {editor.isActive('link') ? 'Update Link' : 'Add Link'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
+          <DialogTrigger asChild>
+            <Toggle
+              size="sm"
+              aria-label="Add YouTube video"
+            >
+              <Youtube className="h-4 w-4" />
+            </Toggle>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add YouTube Video</DialogTitle>
+              <DialogDescription>
+                Enter the YouTube video URL to embed.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <Input
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="w-full"
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsYoutubeDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={addYoutubeVideo}>
+                Add Video
               </Button>
             </DialogFooter>
           </DialogContent>
