@@ -114,7 +114,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
       type: "youtube",
       videoId,
       title: `YouTube video (${videoId})`,
-      alignment: "center",
+      alignment: "center", 
     };
 
     const newBlocks = [...blocks, newBlock];
@@ -358,16 +358,58 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
 
             {block.type === "youtube" && (
               <div className="space-y-4 pt-12">
-                <div className="relative w-full aspect-video">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${block.videoId}`}
-                    title={block.title || "YouTube video"}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="absolute inset-0 w-full h-full rounded-lg border"
-                  />
+                <div className="absolute top-0 right-0 flex gap-2 bg-background border shadow-sm rounded-lg p-2 z-10">
+                  <Toggle
+                    size="sm"
+                    pressed={block.alignment === "left"}
+                    onPressedChange={() =>
+                      updateBlock(index, { ...block, alignment: "left" })
+                    }
+                    aria-label="Align left"
+                  >
+                    <AlignLeft className="h-4 w-4" />
+                  </Toggle>
+                  <Toggle
+                    size="sm"
+                    pressed={block.alignment === "center"}
+                    onPressedChange={() =>
+                      updateBlock(index, { ...block, alignment: "center" })
+                    }
+                    aria-label="Align center"
+                  >
+                    <AlignCenter className="h-4 w-4" />
+                  </Toggle>
+                  <Toggle
+                    size="sm"
+                    pressed={block.alignment === "right"}
+                    onPressedChange={() =>
+                      updateBlock(index, { ...block, alignment: "right" })
+                    }
+                    aria-label="Align right"
+                  >
+                    <AlignRight className="h-4 w-4" />
+                  </Toggle>
                 </div>
-                <div>
+                <div
+                  className={`${
+                    block.alignment === "left"
+                      ? "float-left mr-4 w-1/2"
+                      : block.alignment === "right"
+                      ? "float-right ml-4 w-1/2"
+                      : "w-full"
+                  }`}
+                >
+                  <div className="relative w-full aspect-video">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${block.videoId}`}
+                      title={block.title || "YouTube video"}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="absolute inset-0 w-full h-full rounded-lg border"
+                    />
+                  </div>
+                </div>
+                <div className="clear-both">
                   <Input
                     placeholder="Video title (optional)"
                     value={block.title || ""}
