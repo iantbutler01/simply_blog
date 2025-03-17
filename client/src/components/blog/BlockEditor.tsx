@@ -59,6 +59,20 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
   }, [value]);
 
   const updateBlock = (index: number, updatedBlock: Block) => {
+    // Migrate single image to multi-image if needed
+    if (updatedBlock.type === "image") {
+      if (updatedBlock.imageId !== undefined && !updatedBlock.imageIds) {
+        updatedBlock = {
+          ...updatedBlock,
+          imageIds: [updatedBlock.imageId],
+          imageUrls: updatedBlock.imageUrl ? [updatedBlock.imageUrl] : [],
+          captions: updatedBlock.caption ? [updatedBlock.caption] : [],
+          alts: updatedBlock.alt ? [updatedBlock.alt] : [],
+          layout: "row",
+        };
+      }
+    }
+
     const newBlocks = [...blocks];
     newBlocks[index] = updatedBlock;
     setBlocks(newBlocks);
@@ -78,12 +92,12 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
         newBlock = {
           type: "image",
           imageIds: [],
-          alignment: "center",
-          size: "full",
-          layout: "row",
           imageUrls: [],
           captions: [],
           alts: [],
+          alignment: "center",
+          size: "full",
+          layout: "row",
         };
         break;
       case "cta":
@@ -224,7 +238,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
 
             {block.type === "image" && (
               <div className="space-y-4">
-                {block.imageIds.length > 0 ? (
+                {((block.imageIds && block.imageIds.length > 0) || block.imageId) ? (
                   <div className="pt-12">
                     <div className="absolute top-0 right-0 flex gap-2 bg-background border shadow-sm rounded-lg p-2 z-10">
                       <Toggle
@@ -257,6 +271,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                       >
                         <AlignRight className="h-4 w-4" />
                       </Toggle>
+
                       <Select
                         value={block.size}
                         onValueChange={(
@@ -273,21 +288,24 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                           <SelectItem value="full">Full</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Select
-                        value={block.layout}
-                        onValueChange={(value: "row" | "column" | "carousel") =>
-                          updateBlock(index, { ...block, layout: value })
-                        }
-                      >
-                        <SelectTrigger className="h-8 w-24">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="row">Row</SelectItem>
-                          <SelectItem value="column">Column</SelectItem>
-                          <SelectItem value="carousel">Carousel</SelectItem>
-                        </SelectContent>
-                      </Select>
+
+                      {block.imageIds && block.imageIds.length > 1 && (
+                        <Select
+                          value={block.layout}
+                          onValueChange={(value: "row" | "column" | "carousel") =>
+                            updateBlock(index, { ...block, layout: value })
+                          }
+                        >
+                          <SelectTrigger className="h-8 w-24">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="row">Row</SelectItem>
+                            <SelectItem value="column">Column</SelectItem>
+                            <SelectItem value="carousel">Carousel</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
                     </div>
                     <div
                       className={`flex ${
@@ -310,76 +328,50 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                                   : "100%",
                           maxWidth: "100%",
                         }}
-                        className={`grid gap-4 ${
-                          block.layout === "row"
-                            ? "grid-flow-col auto-cols-fr"
-                            : block.layout === "column"
-                              ? "grid-flow-row"
-                              : ""
-                        }`}
                       >
-                        {block.layout === "carousel" ? (
-                          <div className="relative overflow-hidden carousel-container">
-                            {/* Carousel implementation */}
-                            <div className="flex transition-transform duration-300 ease-in-out">
-                              {block.imageIds.map((imageId, imgIndex) => (
-                                <div key={imageId} className="w-full flex-shrink-0">
-                                  <img
-                                    src={`/api/images/${imageId}`}
-                                    alt={block.alts?.[imgIndex] || ""}
-                                    className="rounded-lg border w-full h-auto object-contain"
-                                    style={{ minHeight: "200px" }}
-                                  />
-                                  {block.captions?.[imgIndex] && (
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                      {block.captions[imgIndex]}
-                                    </p>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                            {/* Carousel controls */}
-                            <div className="flex justify-center gap-2 mt-4">
-                              {block.imageIds.map((_, i) => (
-                                <Button
-                                  key={i}
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-2 w-2 rounded-full"
-                                  onClick={() => {
-                                    const container = document.querySelector('.carousel-container');
-                                    if (container) {
-                                      container.scrollLeft = i * container.clientWidth;
-                                    }
-                                  }}
-                                />
-                              ))}
-                            </div>
+                        {block.imageId ? (
+                          <div>
+                            <img
+                              src={`/api/images/${block.imageId}`}
+                              alt={block.alt || ""}
+                              className="rounded-lg border w-full h-auto object-contain"
+                              style={{ minHeight: "200px" }}
+                            />
+                            {block.caption && (
+                              <p className="text-sm text-muted-foreground mt-2 text-center">
+                                {block.caption}
+                              </p>
+                            )}
                           </div>
-                        ) : (
-                          block.imageIds.map((imageId, imgIndex) => (
-                            <div key={imageId}>
-                              <img
-                                src={`/api/images/${imageId}`}
-                                alt={block.alts?.[imgIndex] || ""}
-                                className="rounded-lg border w-full h-auto object-contain"
-                                style={{ minHeight: "200px" }}
-                              />
-                              {block.captions?.[imgIndex] && (
-                                <p className="text-sm text-muted-foreground mt-2">
-                                  {block.captions[imgIndex]}
-                                </p>
-                              )}
-                            </div>
-                          ))
-                        )}
+                        ) : block.imageIds && block.imageIds.length > 0 ? (
+                          <div
+                            className={`grid gap-4 ${
+                              block.layout === "row"
+                                ? "grid-flow-col auto-cols-fr"
+                                : block.layout === "column"
+                                  ? "grid-flow-row"
+                                  : ""
+                            }`}
+                          >
+                            {block.imageIds.map((imageId, imgIndex) => (
+                              <div key={imageId}>
+                                <img
+                                  src={`/api/images/${imageId}`}
+                                  alt={block.alts?.[imgIndex] || ""}
+                                  className="rounded-lg border w-full h-auto object-contain"
+                                  style={{ minHeight: "200px" }}
+                                />
+                                {block.captions?.[imgIndex] && (
+                                  <p className="text-sm text-muted-foreground mt-2 text-center">
+                                    {block.captions[imgIndex]}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
-                    {block.captions && block.captions.length > 0 && (
-                      <div className="mt-4 text-center">
-                        {/* Captions are now handled individually within the image grid */}
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed rounded-lg">
@@ -388,45 +380,62 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                       onUpload={(imageId, imageUrl) => {
                         updateBlock(index, {
                           ...block,
-                          imageIds: [...block.imageIds, imageId],
-                          imageUrls: [...(block.imageUrls || []), imageUrl],
-                          captions: [...(block.captions || []), ""],
-                          alts: [...(block.alts || []), ""],
+                          imageIds: [imageId],
+                          imageUrls: [imageUrl],
+                          captions: [""],
+                          alts: [""],
                         });
                       }}
                     />
                   </div>
                 )}
-                <div className="grid gap-4 mt-4">
-                  {block.imageIds.map((_, imgIndex) => (
-                    <div key={imgIndex} className="space-y-2">
-                      <Input
-                        placeholder={`Image ${imgIndex + 1} caption (optional)`}
-                        value={block.captions?.[imgIndex] || ""}
-                        onChange={(e) => {
-                          const newCaptions = [...(block.captions || [])];
-                          newCaptions[imgIndex] = e.target.value;
-                          updateBlock(index, { ...block, captions: newCaptions });
-                        }}
-                      />
-                      <Input
-                        placeholder={`Image ${imgIndex + 1} alt text for accessibility`}
-                        value={block.alts?.[imgIndex] || ""}
-                        onChange={(e) => {
-                          const newAlts = [...(block.alts || [])];
-                          newAlts[imgIndex] = e.target.value;
-                          updateBlock(index, { ...block, alts: newAlts });
-                        }}
-                      />
-                    </div>
-                  ))}
-                  {block.imageIds.length > 0 && (
+                {block.imageId ? (
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Image caption (optional)"
+                      value={block.caption || ""}
+                      onChange={(e) =>
+                        updateBlock(index, { ...block, caption: e.target.value })
+                      }
+                    />
+                    <Input
+                      placeholder="Alt text for accessibility"
+                      value={block.alt || ""}
+                      onChange={(e) =>
+                        updateBlock(index, { ...block, alt: e.target.value })
+                      }
+                    />
+                  </div>
+                ) : block.imageIds && block.imageIds.length > 0 ? (
+                  <div className="space-y-4">
+                    {block.imageIds.map((_, imgIndex) => (
+                      <div key={imgIndex} className="space-y-2">
+                        <Input
+                          placeholder={`Image ${imgIndex + 1} caption (optional)`}
+                          value={block.captions?.[imgIndex] || ""}
+                          onChange={(e) => {
+                            const newCaptions = [...(block.captions || [])];
+                            newCaptions[imgIndex] = e.target.value;
+                            updateBlock(index, { ...block, captions: newCaptions });
+                          }}
+                        />
+                        <Input
+                          placeholder={`Image ${imgIndex + 1} alt text for accessibility`}
+                          value={block.alts?.[imgIndex] || ""}
+                          onChange={(e) => {
+                            const newAlts = [...(block.alts || [])];
+                            newAlts[imgIndex] = e.target.value;
+                            updateBlock(index, { ...block, alts: newAlts });
+                          }}
+                        />
+                      </div>
+                    ))}
                     <div className="flex justify-center">
                       <ImageUpload
                         onUpload={(imageId, imageUrl) => {
                           updateBlock(index, {
                             ...block,
-                            imageIds: [...block.imageIds, imageId],
+                            imageIds: [...(block.imageIds || []), imageId],
                             imageUrls: [...(block.imageUrls || []), imageUrl],
                             captions: [...(block.captions || []), ""],
                             alts: [...(block.alts || []), ""],
@@ -434,8 +443,8 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         }}
                       />
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : null}
               </div>
             )}
 

@@ -28,9 +28,13 @@ export const blockSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("image"),
-    imageIds: z.number().array(),
+    imageId: z.number().optional(), // Keep for backward compatibility
+    imageIds: z.number().array().optional(),
+    imageUrl: z.string().optional(), // Keep for backward compatibility
     imageUrls: z.string().array().optional(),
+    caption: z.string().optional(), // Keep for backward compatibility
     captions: z.string().array().optional(),
+    alt: z.string().optional(), // Keep for backward compatibility
     alts: z.string().array().optional(),
     layout: z.enum(["row", "column", "carousel"]).default("row"),
     alignment: z.enum(["left", "center", "right"]).optional().default("center"),
