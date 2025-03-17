@@ -112,11 +112,42 @@ export default function EditPost() {
         setSelectedTime(format(publishDate, "HH:mm"));
       }
 
+      // Process content blocks to ensure image blocks are properly formatted
+      const formattedContent = Array.isArray(post.content)
+        ? post.content.map(block => {
+            if (block.type === "image") {
+              // Check if it's a multiple image block
+              if (block.imageIds !== undefined) {
+                return {
+                  ...block,
+                  imageIds: block.imageIds,
+                  imageUrls: block.imageUrls || [],
+                  captions: block.captions || [],
+                  alts: block.alts || [],
+                  layout: block.layout || "row",
+                  alignment: block.alignment || "center",
+                  size: block.size || "full",
+                };
+              } else {
+                // Single image format
+                return {
+                  ...block,
+                  imageId: block.imageId,
+                  imageUrl: block.imageUrl,
+                  caption: block.caption,
+                  alt: block.alt,
+                  alignment: block.alignment || "center",
+                  size: block.size || "full",
+                };
+              }
+            }
+            return block;
+          })
+        : [{ type: "text", content: post.content as string, format: "html" }];
+
       form.reset({
         title: post.title,
-        content: Array.isArray(post.content)
-          ? post.content
-          : [{ type: "text", content: post.content as string, format: "html" }],
+        content: formattedContent,
         excerpt: post.excerpt,
         tags: post.tags.join(","),
         isDraft: post.isDraft,
