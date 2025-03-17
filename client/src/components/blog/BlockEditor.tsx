@@ -312,8 +312,8 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                         block.alignment === "left"
                           ? "justify-start"
                           : block.alignment === "right"
-                            ? "justify-end"
-                            : "justify-center"
+                          ? "justify-end"
+                          : "justify-center"
                       }`}
                     >
                       <div
@@ -322,10 +322,10 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                             block.size === "small"
                               ? "300px"
                               : block.size === "medium"
-                                ? "500px"
-                                : block.size === "large"
-                                  ? "800px"
-                                  : "100%",
+                              ? "500px"
+                              : block.size === "large"
+                              ? "800px"
+                              : "100%",
                           maxWidth: "100%",
                         }}
                       >
@@ -349,8 +349,8 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                               block.layout === "row"
                                 ? "grid-flow-col auto-cols-fr"
                                 : block.layout === "column"
-                                  ? "grid-flow-row"
-                                  : ""
+                                ? "grid-flow-row"
+                                : ""
                             }`}
                           >
                             {block.imageIds.map((imageId, imgIndex) => (
@@ -390,21 +390,47 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                   </div>
                 )}
                 {block.imageId ? (
-                  <div className="space-y-2">
-                    <Input
-                      placeholder="Image caption (optional)"
-                      value={block.caption || ""}
-                      onChange={(e) =>
-                        updateBlock(index, { ...block, caption: e.target.value })
-                      }
-                    />
-                    <Input
-                      placeholder="Alt text for accessibility"
-                      value={block.alt || ""}
-                      onChange={(e) =>
-                        updateBlock(index, { ...block, alt: e.target.value })
-                      }
-                    />
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="Image caption (optional)"
+                        value={block.caption || ""}
+                        onChange={(e) =>
+                          updateBlock(index, { ...block, caption: e.target.value })
+                        }
+                      />
+                      <Input
+                        placeholder="Alt text for accessibility"
+                        value={block.alt || ""}
+                        onChange={(e) =>
+                          updateBlock(index, { ...block, alt: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="flex justify-center">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          // Convert single image to multiple images
+                          updateBlock(index, {
+                            ...block,
+                            imageIds: block.imageId ? [block.imageId] : [],
+                            imageUrls: block.imageUrl ? [block.imageUrl] : [],
+                            captions: block.caption ? [block.caption] : [],
+                            alts: block.alt ? [block.alt] : [],
+                            layout: "row",
+                            // Remove single image properties
+                            imageId: undefined,
+                            imageUrl: undefined,
+                            caption: undefined,
+                            alt: undefined,
+                          });
+                        }}
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Another Image
+                      </Button>
+                    </div>
                   </div>
                 ) : block.imageIds && block.imageIds.length > 0 ? (
                   <div className="space-y-4">
