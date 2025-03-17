@@ -1,6 +1,6 @@
 import { type Block } from "@shared/schema";
 import { CTABlock } from "./CTABlock";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 interface BlockRendererProps {
   block: Block;
@@ -9,6 +9,21 @@ interface BlockRendererProps {
 export function BlockRenderer({ block }: BlockRendererProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeSlide, setActiveSlide] = useState(0);
+
+  // Monitor scroll position to update active slide
+  useEffect(() => {
+    const container = carouselRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const slideWidth = container.clientWidth;
+      const newActiveSlide = Math.round(container.scrollLeft / slideWidth);
+      setActiveSlide(newActiveSlide);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
 
   switch (block.type) {
     case "text":
@@ -62,12 +77,16 @@ export function BlockRenderer({ block }: BlockRendererProps) {
                   )}
                 </div>
               ) : block.imageIds && block.imageIds.length > 0 ? (
-                // Multiple images
                 block.layout === "carousel" ? (
                   <div className="relative overflow-hidden rounded-lg">
                     <div 
                       ref={carouselRef}
-                      className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth"
+                      className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth hide-scrollbar"
+                      style={{
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                        WebkitOverflowScrolling: 'touch'
+                      }}
                     >
                       {block.imageIds.map((imageId, imgIndex) => (
                         <div key={imageId} className="w-full flex-shrink-0 snap-center">

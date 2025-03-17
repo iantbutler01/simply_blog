@@ -46,6 +46,8 @@ import { TimePickerInput } from "@/components/ui/time-picker";
 import { VersionHistory } from "@/components/blog/VersionHistory";
 import { Eye, Clock, Share2 } from "lucide-react";
 import { CTABlock } from "@/components/blog/CTABlock";
+import { BlockRenderer } from "@/components/blog/BlockRenderer";
+
 
 type PostVersion = {
   id: number;
@@ -707,74 +709,12 @@ export default function EditPost() {
                           dangerouslySetInnerHTML={{ __html: block.content }}
                         />
                       );
-                    } else if (block.type === "image" && block.imageId) {
-                      return (
-                        <figure key={index} className="my-12">
-                          <div
-                            className={`flex ${
-                              block.alignment === "left"
-                                ? "justify-start"
-                                : block.alignment === "right"
-                                  ? "justify-end"
-                                  : "justify-center"
-                            }`}
-                          >
-                            <div
-                              style={{
-                                width:
-                                  block.size === "small"
-                                    ? "300px"
-                                    : block.size === "medium"
-                                      ? "500px"
-                                      : block.size === "large"
-                                        ? "800px"
-                                        : "100%",
-                                maxWidth: "100%",
-                              }}
-                            >
-                              <img
-                                src={`/api/images/${block.imageId}`}
-                                alt={block.alt || ""}
-                                className="rounded-lg border w-full h-auto object-contain"
-                                style={{ minHeight: "200px" }}
-                              />
-                            </div>
-                          </div>
-                          {block.caption && (
-                            <div className="mt-4 text-center">
-                              <p className="text-sm text-muted-foreground">
-                                {block.caption}
-                              </p>
-                            </div>
-                          )}
-                        </figure>
-                      );
+                    } else if (block.type === "image") {
+                      return <BlockRenderer key={index} block={block} />;
                     } else if (block.type === "cta") {
                       return <CTABlock key={index} block={block} />;
                     } else if (block.type === "youtube") {
-                      return (
-                        <div key={index}>
-                          <div className={`${
-                            block.alignment === "left"
-                              ? "float-left mr-4 w-1/2"
-                              : block.alignment === "right"
-                              ? "float-right ml-4 w-1/2"
-                              : "w-full"
-                          }`}>
-                            <div className="relative w-full aspect-video">
-                              <iframe
-                                src={`https://www.youtube.com/embed/${block.videoId}`}
-                                title={block.title}
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                allowFullScreen
-                                className="absolute inset-0 w-full h-full rounded-lg border"
-                              />
-                            </div>
-                          </div>
-                          <div className="clear-both" />
-                        </div>
-                      );
+                      return <BlockRenderer key={index} block={block} />;
                     }
                     return null;
                   })}
