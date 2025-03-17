@@ -15,7 +15,7 @@ export function BlockRenderer({ block }: BlockRendererProps) {
         />
       );
     case "image":
-      if (!block.imageId) return null;
+      if (!block.imageIds?.length) return null;
       return (
         <figure className="my-12">
           <div
@@ -23,8 +23,8 @@ export function BlockRenderer({ block }: BlockRendererProps) {
               block.alignment === "left"
                 ? "justify-start"
                 : block.alignment === "right"
-                ? "justify-end"
-                : "justify-center"
+                  ? "justify-end"
+                  : "justify-center"
             }`}
           >
             <div
@@ -33,26 +33,64 @@ export function BlockRenderer({ block }: BlockRendererProps) {
                   block.size === "small"
                     ? "300px"
                     : block.size === "medium"
-                    ? "500px"
-                    : block.size === "large"
-                    ? "800px"
-                    : "100%",
+                      ? "500px"
+                      : block.size === "large"
+                        ? "800px"
+                        : "100%",
                 maxWidth: "100%",
               }}
             >
-              <img
-                src={`/api/images/${block.imageId}`}
-                alt={block.alt || ""}
-                className="rounded-lg border w-full h-auto object-contain"
-                style={{ minHeight: "200px" }}
-              />
+              {block.layout === "carousel" ? (
+                <div className="relative overflow-hidden rounded-lg">
+                  <div className="flex snap-x snap-mandatory overflow-x-auto">
+                    {block.imageIds.map((imageId, imgIndex) => (
+                      <div key={imageId} className="w-full flex-shrink-0 snap-center">
+                        <img
+                          src={`/api/images/${imageId}`}
+                          alt={block.alts?.[imgIndex] || ""}
+                          className="w-full h-auto object-contain"
+                          style={{ minHeight: "200px" }}
+                        />
+                        {block.captions?.[imgIndex] && (
+                          <div className="mt-2 text-center">
+                            <p className="text-sm text-muted-foreground">
+                              {block.captions[imgIndex]}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={`grid gap-4 ${
+                    block.layout === "row"
+                      ? "grid-flow-col auto-cols-fr"
+                      : "grid-flow-row"
+                  }`}
+                >
+                  {block.imageIds.map((imageId, imgIndex) => (
+                    <div key={imageId}>
+                      <img
+                        src={`/api/images/${imageId}`}
+                        alt={block.alts?.[imgIndex] || ""}
+                        className="rounded-lg border w-full h-auto object-contain"
+                        style={{ minHeight: "200px" }}
+                      />
+                      {block.captions?.[imgIndex] && (
+                        <div className="mt-2 text-center">
+                          <p className="text-sm text-muted-foreground">
+                            {block.captions[imgIndex]}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-          {block.caption && (
-            <div className="mt-4 text-center">
-              <p className="text-sm text-muted-foreground">{block.caption}</p>
-            </div>
-          )}
         </figure>
       );
     case "cta":
@@ -68,8 +106,8 @@ export function BlockRenderer({ block }: BlockRendererProps) {
             block.alignment === "left"
               ? "float-left mr-4 w-1/2"
               : block.alignment === "right"
-              ? "float-right ml-4 w-1/2"
-              : "w-full"
+                ? "float-right ml-4 w-1/2"
+                : "w-full"
           }`}>
             <div className="relative w-full aspect-video">
               <iframe

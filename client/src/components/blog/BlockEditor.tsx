@@ -77,10 +77,13 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
       case "image":
         newBlock = {
           type: "image",
-          imageId: 0,
+          imageIds: [],
           alignment: "center",
           size: "full",
-          imageUrl: "",
+          layout: "row",
+          imageUrls: [],
+          captions: [],
+          alts: [],
         };
         break;
       case "cta":
@@ -221,7 +224,7 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
 
             {block.type === "image" && (
               <div className="space-y-4">
-                {block.imageId ? (
+                {block.imageIds.length > 0 ? (
                   <div className="pt-12">
                     <div className="absolute top-0 right-0 flex gap-2 bg-background border shadow-sm rounded-lg p-2 z-10">
                       <Toggle
@@ -270,6 +273,21 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                           <SelectItem value="full">Full</SelectItem>
                         </SelectContent>
                       </Select>
+                      <Select
+                        value={block.layout}
+                        onValueChange={(value: "row" | "column" | "carousel") =>
+                          updateBlock(index, { ...block, layout: value })
+                        }
+                      >
+                        <SelectTrigger className="h-8 w-24">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="row">Row</SelectItem>
+                          <SelectItem value="column">Column</SelectItem>
+                          <SelectItem value="carousel">Carousel</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div
                       className={`flex ${
@@ -292,20 +310,74 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                                   : "100%",
                           maxWidth: "100%",
                         }}
+                        className={`grid gap-4 ${
+                          block.layout === "row"
+                            ? "grid-flow-col auto-cols-fr"
+                            : block.layout === "column"
+                              ? "grid-flow-row"
+                              : ""
+                        }`}
                       >
-                        <img
-                          src={block.imageId ? `/api/images/${block.imageId}` : block.imageUrl}
-                          alt={block.alt || ""}
-                          className="rounded-lg border w-full h-auto object-contain"
-                          style={{ minHeight: "200px" }}
-                        />
+                        {block.layout === "carousel" ? (
+                          <div className="relative overflow-hidden carousel-container">
+                            {/* Carousel implementation */}
+                            <div className="flex transition-transform duration-300 ease-in-out">
+                              {block.imageIds.map((imageId, imgIndex) => (
+                                <div key={imageId} className="w-full flex-shrink-0">
+                                  <img
+                                    src={`/api/images/${imageId}`}
+                                    alt={block.alts?.[imgIndex] || ""}
+                                    className="rounded-lg border w-full h-auto object-contain"
+                                    style={{ minHeight: "200px" }}
+                                  />
+                                  {block.captions?.[imgIndex] && (
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                      {block.captions[imgIndex]}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                            {/* Carousel controls */}
+                            <div className="flex justify-center gap-2 mt-4">
+                              {block.imageIds.map((_, i) => (
+                                <Button
+                                  key={i}
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-2 w-2 rounded-full"
+                                  onClick={() => {
+                                    const container = document.querySelector('.carousel-container');
+                                    if (container) {
+                                      container.scrollLeft = i * container.clientWidth;
+                                    }
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          block.imageIds.map((imageId, imgIndex) => (
+                            <div key={imageId}>
+                              <img
+                                src={`/api/images/${imageId}`}
+                                alt={block.alts?.[imgIndex] || ""}
+                                className="rounded-lg border w-full h-auto object-contain"
+                                style={{ minHeight: "200px" }}
+                              />
+                              {block.captions?.[imgIndex] && (
+                                <p className="text-sm text-muted-foreground mt-2">
+                                  {block.captions[imgIndex]}
+                                </p>
+                              )}
+                            </div>
+                          ))
+                        )}
                       </div>
                     </div>
-                    {block.caption && (
+                    {block.captions && block.captions.length > 0 && (
                       <div className="mt-4 text-center">
-                        <p className="text-sm text-muted-foreground">
-                          {block.caption}
-                        </p>
+                        {/* Captions are now handled individually within the image grid */}
                       </div>
                     )}
                   </div>
@@ -314,36 +386,55 @@ export function BlockEditor({ value, onChange }: BlockEditorProps) {
                     <ImageIcon className="h-8 w-8 text-muted-foreground" />
                     <ImageUpload
                       onUpload={(imageId, imageUrl) => {
-                        console.log(
-                          "Image uploaded, id:",
-                          imageId,
-                          "url:",
-                          imageUrl,
-                        );
                         updateBlock(index, {
                           ...block,
-                          imageId,
-                          imageUrl,
+                          imageIds: [...block.imageIds, imageId],
+                          imageUrls: [...(block.imageUrls || []), imageUrl],
+                          captions: [...(block.captions || []), ""],
+                          alts: [...(block.alts || []), ""],
                         });
                       }}
                     />
                   </div>
                 )}
-                <div className="space-y-2">
-                  <Input
-                    placeholder="Image caption (optional)"
-                    value={block.caption || ""}
-                    onChange={(e) =>
-                      updateBlock(index, { ...block, caption: e.target.value })
-                    }
-                  />
-                  <Input
-                    placeholder="Alt text for accessibility"
-                    value={block.alt || ""}
-                    onChange={(e) =>
-                      updateBlock(index, { ...block, alt: e.target.value })
-                    }
-                  />
+                <div className="grid gap-4 mt-4">
+                  {block.imageIds.map((_, imgIndex) => (
+                    <div key={imgIndex} className="space-y-2">
+                      <Input
+                        placeholder={`Image ${imgIndex + 1} caption (optional)`}
+                        value={block.captions?.[imgIndex] || ""}
+                        onChange={(e) => {
+                          const newCaptions = [...(block.captions || [])];
+                          newCaptions[imgIndex] = e.target.value;
+                          updateBlock(index, { ...block, captions: newCaptions });
+                        }}
+                      />
+                      <Input
+                        placeholder={`Image ${imgIndex + 1} alt text for accessibility`}
+                        value={block.alts?.[imgIndex] || ""}
+                        onChange={(e) => {
+                          const newAlts = [...(block.alts || [])];
+                          newAlts[imgIndex] = e.target.value;
+                          updateBlock(index, { ...block, alts: newAlts });
+                        }}
+                      />
+                    </div>
+                  ))}
+                  {block.imageIds.length > 0 && (
+                    <div className="flex justify-center">
+                      <ImageUpload
+                        onUpload={(imageId, imageUrl) => {
+                          updateBlock(index, {
+                            ...block,
+                            imageIds: [...block.imageIds, imageId],
+                            imageUrls: [...(block.imageUrls || []), imageUrl],
+                            captions: [...(block.captions || []), ""],
+                            alts: [...(block.alts || []), ""],
+                          });
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             )}
