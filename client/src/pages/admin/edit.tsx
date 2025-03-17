@@ -115,7 +115,23 @@ export default function EditPost() {
       form.reset({
         title: post.title,
         content: Array.isArray(post.content)
-          ? post.content
+          ? post.content.map(block => {
+              if (block.type === "image") {
+                // Handle both single and multiple image formats
+                if (block.imageId !== undefined) {
+                  return {
+                    ...block,
+                    imageUrl: block.imageId ? `/api/images/${block.imageId}` : "",
+                  };
+                } else if (block.imageIds) {
+                  return {
+                    ...block,
+                    imageUrls: block.imageIds.map(id => `/api/images/${id}`),
+                  };
+                }
+              }
+              return block;
+            })
           : [{ type: "text", content: post.content as string, format: "html" }],
         excerpt: post.excerpt,
         tags: post.tags.join(","),
@@ -156,7 +172,7 @@ export default function EditPost() {
           } else if (block.type === "image") {
             // Handle both single and multiple image formats
             if (block.imageId !== undefined) {
-              // Single image format
+              // Single image format - keep existing behavior
               return {
                 type: "image",
                 imageId: block.imageId,
@@ -166,7 +182,7 @@ export default function EditPost() {
                 alignment: block.alignment,
                 size: block.size,
               };
-            } else {
+            } else if (block.imageIds && block.imageIds.length > 0) {
               // Multiple image format
               return {
                 type: "image",
@@ -179,6 +195,7 @@ export default function EditPost() {
                 size: block.size,
               };
             }
+            return block; // Return unchanged if no images
           } else if (block.type === "cta") {
             return {
               type: "cta",
@@ -195,9 +212,8 @@ export default function EditPost() {
               title: block.title,
               alignment: block.alignment || "center",
             };
-          } else {
-            return block;
           }
+          return block;
         }),
       };
 
