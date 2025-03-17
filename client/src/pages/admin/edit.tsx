@@ -112,42 +112,11 @@ export default function EditPost() {
         setSelectedTime(format(publishDate, "HH:mm"));
       }
 
-      // Process content blocks to ensure image blocks are properly formatted
-      const formattedContent = Array.isArray(post.content)
-        ? post.content.map(block => {
-            if (block.type === "image") {
-              // Check if it's a multiple image block
-              if (block.imageIds !== undefined) {
-                return {
-                  ...block,
-                  imageIds: block.imageIds,
-                  imageUrls: block.imageUrls || [],
-                  captions: block.captions || [],
-                  alts: block.alts || [],
-                  layout: block.layout || "row",
-                  alignment: block.alignment || "center",
-                  size: block.size || "full",
-                };
-              } else {
-                // Single image format
-                return {
-                  ...block,
-                  imageId: block.imageId,
-                  imageUrl: block.imageUrl,
-                  caption: block.caption,
-                  alt: block.alt,
-                  alignment: block.alignment || "center",
-                  size: block.size || "full",
-                };
-              }
-            }
-            return block;
-          })
-        : [{ type: "text", content: post.content as string, format: "html" }];
-
       form.reset({
         title: post.title,
-        content: formattedContent,
+        content: Array.isArray(post.content)
+          ? post.content
+          : [{ type: "text", content: post.content as string, format: "html" }],
         excerpt: post.excerpt,
         tags: post.tags.join(","),
         isDraft: post.isDraft,
@@ -176,7 +145,6 @@ export default function EditPost() {
       const formattedValues = {
         ...values,
         publishAt,
-        tags: values.tags.split(",").map(tag => tag.trim()).filter(Boolean),
         canonicalUrl: values.canonicalUrl?.trim() || null,
         content: values.content.map((block) => {
           if (block.type === "text") {
@@ -187,7 +155,7 @@ export default function EditPost() {
             };
           } else if (block.type === "image") {
             // Handle both single and multiple image formats
-            if ('imageId' in block && block.imageId !== undefined) {
+            if (block.imageId !== undefined) {
               // Single image format
               return {
                 type: "image",
@@ -195,20 +163,20 @@ export default function EditPost() {
                 imageUrl: block.imageUrl,
                 caption: block.caption,
                 alt: block.alt,
-                alignment: block.alignment || "center",
-                size: block.size || "full",
+                alignment: block.alignment,
+                size: block.size,
               };
-            } else if ('imageIds' in block && block.imageIds) {
+            } else {
               // Multiple image format
               return {
                 type: "image",
                 imageIds: block.imageIds,
-                imageUrls: block.imageUrls || [],
-                captions: block.captions || [],
-                alts: block.alts || [],
-                layout: block.layout || "row",
-                alignment: block.alignment || "center",
-                size: block.size || "full",
+                imageUrls: block.imageUrls,
+                captions: block.captions,
+                alts: block.alts,
+                layout: block.layout,
+                alignment: block.alignment,
+                size: block.size,
               };
             }
           } else if (block.type === "cta") {
@@ -227,21 +195,27 @@ export default function EditPost() {
               title: block.title,
               alignment: block.alignment || "center",
             };
+          } else {
+            return block;
           }
-          return block;
         }),
       };
 
+
       // If editing existing post, first update with draft status
       if (postId) {
-        await apiRequest("PATCH", `/api/posts/${postId}`, formattedValues);
+        // First set the post to draft state
+        await apiRequest("PATCH", `/api/posts/${postId}`, {
+          ...formattedValues,
+          isDraft: true,
+        });
 
         // Then save the version
         await apiRequest("POST", `/api/posts/${postId}/versions`, {
           title: values.title,
           content: values.content,
           excerpt: values.excerpt,
-          tags: values.tags.split(",").map(tag => tag.trim()).filter(Boolean),
+          tags: values.tags,
           comment: values.comment,
         });
 
