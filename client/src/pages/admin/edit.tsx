@@ -154,15 +154,31 @@ export default function EditPost() {
               format: block.format || "html",
             };
           } else if (block.type === "image") {
-            return {
-              type: "image",
-              imageId: block.imageId,
-              imageUrl: block.imageId ? `/api/images/${block.imageId}` : "",
-              caption: block.caption,
-              alt: block.alt,
-              alignment: block.alignment,
-              size: block.size,
-            };
+            // Handle both single and multiple image formats
+            if (block.imageId !== undefined) {
+              // Single image format
+              return {
+                type: "image",
+                imageId: block.imageId,
+                imageUrl: block.imageUrl,
+                caption: block.caption,
+                alt: block.alt,
+                alignment: block.alignment,
+                size: block.size,
+              };
+            } else {
+              // Multiple image format
+              return {
+                type: "image",
+                imageIds: block.imageIds,
+                imageUrls: block.imageUrls,
+                captions: block.captions,
+                alts: block.alts,
+                layout: block.layout,
+                alignment: block.alignment,
+                size: block.size,
+              };
+            }
           } else if (block.type === "cta") {
             return {
               type: "cta",
@@ -185,8 +201,6 @@ export default function EditPost() {
         }),
       };
 
-      console.log(formattedValues["tags"]);
-      formattedValues["tags"] = formattedValues["tags"].join(",");
 
       // If editing existing post, first update with draft status
       if (postId) {
