@@ -176,6 +176,7 @@ export default function EditPost() {
       const formattedValues = {
         ...values,
         publishAt,
+        tags: values.tags.split(",").map(tag => tag.trim()).filter(Boolean),
         canonicalUrl: values.canonicalUrl?.trim() || null,
         content: values.content.map((block) => {
           if (block.type === "text") {
@@ -186,7 +187,7 @@ export default function EditPost() {
             };
           } else if (block.type === "image") {
             // Handle both single and multiple image formats
-            if (block.imageId !== undefined) {
+            if ('imageId' in block && block.imageId !== undefined) {
               // Single image format
               return {
                 type: "image",
@@ -194,20 +195,20 @@ export default function EditPost() {
                 imageUrl: block.imageUrl,
                 caption: block.caption,
                 alt: block.alt,
-                alignment: block.alignment,
-                size: block.size,
+                alignment: block.alignment || "center",
+                size: block.size || "full",
               };
-            } else {
+            } else if ('imageIds' in block && block.imageIds) {
               // Multiple image format
               return {
                 type: "image",
                 imageIds: block.imageIds,
-                imageUrls: block.imageUrls,
-                captions: block.captions,
-                alts: block.alts,
-                layout: block.layout,
-                alignment: block.alignment,
-                size: block.size,
+                imageUrls: block.imageUrls || [],
+                captions: block.captions || [],
+                alts: block.alts || [],
+                layout: block.layout || "row",
+                alignment: block.alignment || "center",
+                size: block.size || "full",
               };
             }
           } else if (block.type === "cta") {
@@ -226,27 +227,21 @@ export default function EditPost() {
               title: block.title,
               alignment: block.alignment || "center",
             };
-          } else {
-            return block;
           }
+          return block;
         }),
       };
 
-
       // If editing existing post, first update with draft status
       if (postId) {
-        // First set the post to draft state
-        await apiRequest("PATCH", `/api/posts/${postId}`, {
-          ...formattedValues,
-          isDraft: true,
-        });
+        await apiRequest("PATCH", `/api/posts/${postId}`, formattedValues);
 
         // Then save the version
         await apiRequest("POST", `/api/posts/${postId}/versions`, {
           title: values.title,
           content: values.content,
           excerpt: values.excerpt,
-          tags: values.tags,
+          tags: values.tags.split(",").map(tag => tag.trim()).filter(Boolean),
           comment: values.comment,
         });
 
