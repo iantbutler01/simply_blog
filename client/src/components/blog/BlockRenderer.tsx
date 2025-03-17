@@ -1,11 +1,15 @@
 import { type Block } from "@shared/schema";
 import { CTABlock } from "./CTABlock";
+import { useRef, useState } from "react";
 
 interface BlockRendererProps {
   block: Block;
 }
 
 export function BlockRenderer({ block }: BlockRendererProps) {
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+
   switch (block.type) {
     case "text":
       return (
@@ -59,31 +63,73 @@ export function BlockRenderer({ block }: BlockRendererProps) {
                 </div>
               ) : block.imageIds && block.imageIds.length > 0 ? (
                 // Multiple images
-                <div
-                  className={`grid gap-4 ${
-                    block.layout === "row"
-                      ? "grid-flow-col auto-cols-fr"
-                      : block.layout === "column"
-                      ? "grid-flow-row"
-                      : ""
-                  }`}
-                >
-                  {block.imageIds.map((imageId, imgIndex) => (
-                    <div key={imageId}>
-                      <img
-                        src={`/api/images/${imageId}`}
-                        alt={block.alts?.[imgIndex] || ""}
-                        className="rounded-lg border w-full h-auto object-contain"
-                        style={{ minHeight: "200px" }}
-                      />
-                      {block.captions?.[imgIndex] && (
-                        <p className="text-sm text-muted-foreground mt-2 text-center">
-                          {block.captions[imgIndex]}
-                        </p>
-                      )}
+                block.layout === "carousel" ? (
+                  <div className="relative overflow-hidden rounded-lg">
+                    <div 
+                      ref={carouselRef}
+                      className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth"
+                    >
+                      {block.imageIds.map((imageId, imgIndex) => (
+                        <div key={imageId} className="w-full flex-shrink-0 snap-center">
+                          <img
+                            src={`/api/images/${imageId}`}
+                            alt={block.alts?.[imgIndex] || ""}
+                            className="w-full h-auto object-contain rounded-lg border"
+                            style={{ minHeight: "200px" }}
+                          />
+                          {block.captions?.[imgIndex] && (
+                            <p className="text-sm text-muted-foreground mt-2 text-center">
+                              {block.captions[imgIndex]}
+                            </p>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                      {block.imageIds.map((_, i) => (
+                        <button
+                          key={i}
+                          className={`w-2 h-2 rounded-full ${i === activeSlide ? 'bg-primary' : 'bg-muted'}`}
+                          aria-label={`Go to slide ${i + 1}`}
+                          onClick={() => {
+                            if (carouselRef.current) {
+                              const slideWidth = carouselRef.current.clientWidth;
+                              carouselRef.current.scrollTo({
+                                left: i * slideWidth,
+                                behavior: 'smooth'
+                              });
+                              setActiveSlide(i);
+                            }
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className={`grid gap-4 ${
+                      block.layout === "row"
+                        ? "grid-flow-col auto-cols-fr"
+                        : "grid-flow-row"
+                    }`}
+                  >
+                    {block.imageIds.map((imageId, imgIndex) => (
+                      <div key={imageId}>
+                        <img
+                          src={`/api/images/${imageId}`}
+                          alt={block.alts?.[imgIndex] || ""}
+                          className="rounded-lg border w-full h-auto object-contain"
+                          style={{ minHeight: "200px" }}
+                        />
+                        {block.captions?.[imgIndex] && (
+                          <p className="text-sm text-muted-foreground mt-2 text-center">
+                            {block.captions[imgIndex]}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )
               ) : null}
             </div>
           </div>
