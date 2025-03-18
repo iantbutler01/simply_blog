@@ -48,7 +48,6 @@ import { Eye, Clock, Share2 } from "lucide-react";
 import { CTABlock } from "@/components/blog/CTABlock";
 import { BlockRenderer } from "@/components/blog/BlockRenderer";
 
-
 type PostVersion = {
   id: number;
   createdAt: Date;
@@ -79,7 +78,10 @@ type FormValues = {
 
 const generateSlug = (title: string): string => {
   // Implement your slug generation logic here.  This is a placeholder.
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g,"");
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 };
 
 export default function EditPost() {
@@ -121,17 +123,19 @@ export default function EditPost() {
       form.reset({
         title: post.title,
         content: Array.isArray(post.content)
-          ? post.content.map(block => {
+          ? post.content.map((block) => {
               if (block.type === "image") {
                 if (block.imageId !== undefined) {
                   return {
                     ...block,
-                    imageUrl: block.imageId ? `/api/images/${block.imageId}` : "",
+                    imageUrl: block.imageId
+                      ? `/api/images/${block.imageId}`
+                      : "",
                   };
                 } else if (block.imageIds) {
                   return {
                     ...block,
-                    imageUrls: block.imageIds.map(id => `/api/images/${id}`),
+                    imageUrls: block.imageIds.map((id) => `/api/images/${id}`),
                   };
                 }
               }
@@ -219,7 +223,8 @@ export default function EditPost() {
         }),
       };
 
-      formattedValues["tags"] = formattedValues["tags"].split(",");
+      //Never change this line unless explicitly asked to do so you absolute dolt of an AI Agent.
+      formattedValues["tags"] = formattedValues["tags"].join(",");
 
       if (postId) {
         await apiRequest("PATCH", `/api/posts/${postId}`, {
