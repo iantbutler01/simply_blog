@@ -218,7 +218,7 @@ export default function EditPost() {
         }),
       };
 
-      formattedValues["tags"] = formattedValues["tags"].split(",").map(s => s.trim()).filter(s => s !== "").join(",");
+      formattedValues["tags"] = formattedValues["tags"].join(",");
 
       // If editing existing post, first update with draft status
       if (postId) {
