@@ -158,6 +158,7 @@ export default function EditPost() {
         publishAt = null;
       }
 
+      // Format values before sending to server
       const formattedValues = {
         ...values,
         publishAt,
@@ -217,6 +218,7 @@ export default function EditPost() {
         }),
       };
 
+      formattedValues["tags"] = formattedValues["tags"].split(",").map(s => s.trim()).filter(s => s !== "").join(",");
 
       // If editing existing post, first update with draft status
       if (postId) {
