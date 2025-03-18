@@ -190,6 +190,15 @@ export async function registerRoutes(app: Express) {
     res.json(posts);
   });
 
+  app.get("/api/posts/by-slug/:slug", async (req, res) => {
+    const post = await storage.getPostBySlug(req.params.slug);
+    if (!post) {
+      res.status(404).json({ message: "Post not found" });
+      return;
+    }
+    res.json(post);
+  });
+
   app.get("/api/posts/:id", async (req, res) => {
     const post = await storage.getPost(Number(req.params.id));
     if (!post) {
@@ -214,6 +223,16 @@ export async function registerRoutes(app: Express) {
         res.status(400).json({ message: result.error.message });
         return;
       }
+
+      // If no slug provided, generate one from title
+      if (!result.data.slug) {
+        result.data.slug = result.data.title
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-");
+      }
+
       const post = await storage.createPost(result.data);
       res.status(201).json(post);
     },
@@ -233,6 +252,16 @@ export async function registerRoutes(app: Express) {
         res.status(400).json({ message: result.error.message });
         return;
       }
+
+      // If title is being updated but no slug is provided, generate new slug
+      if (result.data.title && !result.data.slug) {
+        result.data.slug = result.data.title
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-");
+      }
+
       try {
         const post = await storage.updatePost(
           Number(req.params.id),

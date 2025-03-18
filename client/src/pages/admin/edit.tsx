@@ -73,7 +73,13 @@ type FormValues = {
   metaDescription: string;
   socialImageId: number | null;
   canonicalUrl: string;
-  comment?: string; // Optional comment for version history
+  slug: string;
+  comment?: string;
+};
+
+const generateSlug = (title: string): string => {
+  // Implement your slug generation logic here.  This is a placeholder.
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g,"");
 };
 
 export default function EditPost() {
@@ -101,10 +107,10 @@ export default function EditPost() {
       metaDescription: "",
       socialImageId: null,
       canonicalUrl: "",
+      slug: "",
     },
   });
 
-  // Update form when post data is loaded
   useEffect(() => {
     if (post) {
       const publishDate = post.publishAt ? new Date(post.publishAt) : null;
@@ -117,7 +123,6 @@ export default function EditPost() {
         content: Array.isArray(post.content)
           ? post.content.map(block => {
               if (block.type === "image") {
-                // Handle both single and multiple image formats
                 if (block.imageId !== undefined) {
                   return {
                     ...block,
@@ -141,13 +146,13 @@ export default function EditPost() {
         metaDescription: post.metaDescription || "",
         socialImageId: post.socialImageId,
         canonicalUrl: post.canonicalUrl || "",
+        slug: post.slug || "",
       });
     }
   }, [post, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      // Combine date and time for publishAt if both are set
       let publishAt = values.publishAt;
       if (publishAt && !values.isDraft) {
         const timeparts = selectedTime.split(":");
@@ -158,7 +163,6 @@ export default function EditPost() {
         publishAt = null;
       }
 
-      // Format values before sending to server
       const formattedValues = {
         ...values,
         publishAt,
@@ -171,9 +175,7 @@ export default function EditPost() {
               format: block.format || "html",
             };
           } else if (block.type === "image") {
-            // Handle both single and multiple image formats
             if (block.imageId !== undefined) {
-              // Single image format - keep existing behavior
               return {
                 type: "image",
                 imageId: block.imageId,
@@ -184,7 +186,6 @@ export default function EditPost() {
                 size: block.size,
               };
             } else if (block.imageIds && block.imageIds.length > 0) {
-              // Multiple image format
               return {
                 type: "image",
                 imageIds: block.imageIds,
@@ -196,7 +197,7 @@ export default function EditPost() {
                 size: block.size,
               };
             }
-            return block; // Return unchanged if no images
+            return block;
           } else if (block.type === "cta") {
             return {
               type: "cta",
@@ -218,17 +219,14 @@ export default function EditPost() {
         }),
       };
 
-      formattedValues["tags"] = formattedValues["tags"].join(",");
+      formattedValues["tags"] = formattedValues["tags"].split(",");
 
-      // If editing existing post, first update with draft status
       if (postId) {
-        // First set the post to draft state
         await apiRequest("PATCH", `/api/posts/${postId}`, {
           ...formattedValues,
           isDraft: true,
         });
 
-        // Then save the version
         await apiRequest("POST", `/api/posts/${postId}/versions`, {
           title: values.title,
           content: values.content,
@@ -237,12 +235,10 @@ export default function EditPost() {
           comment: values.comment,
         });
 
-        // Invalidate versions query after saving
         queryClient.invalidateQueries({
           queryKey: [`/api/posts/${postId}/versions`],
         });
 
-        // Update form state to reflect draft status
         form.setValue("isDraft", true);
         toast({
           title: "Version saved",
@@ -316,6 +312,7 @@ export default function EditPost() {
       metaDescription: form.getValues("metaDescription"),
       socialImageId: form.getValues("socialImageId"),
       canonicalUrl: form.getValues("canonicalUrl"),
+      slug: version.title, //Added this line
     });
 
     toast({
@@ -323,6 +320,15 @@ export default function EditPost() {
       description: "You can now review and save the changes.",
     });
   };
+
+  useEffect(() => {
+    const title = form.watch("title");
+    const currentSlug = form.watch("slug");
+
+    if (title && !currentSlug && !postId) {
+      form.setValue("slug", generateSlug(title));
+    }
+  }, [form.watch("title"), form]);
 
   return (
     <div className="py-12">
@@ -350,6 +356,26 @@ export default function EditPost() {
                         <FormLabel>Title</FormLabel>
                         <FormControl>
                           <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL Slug</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="custom-url-slug"
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

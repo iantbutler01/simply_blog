@@ -60,11 +60,12 @@ export const blockSchema = z.discriminatedUnion("type", [
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  content: jsonb("content").notNull(), // Store blocks as JSON
+  slug: text("slug").notNull().unique(), // Add unique slug field
+  content: jsonb("content").notNull(),
   excerpt: text("excerpt").notNull(),
   tags: text("tags").array().notNull(),
   isDraft: boolean("is_draft").notNull().default(true),
-  publishAt: timestamp("publish_at"), // New field for scheduled publishing
+  publishAt: timestamp("publish_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   // SEO fields
   metaTitle: text("meta_title"),
@@ -157,6 +158,7 @@ export const insertPostSchema = createInsertSchema(posts)
   .omit({ id: true, createdAt: true })
   .extend({
     title: z.string().min(1, "Title is required"),
+    slug: z.string().optional(), // Make optional since we'll generate it from title if not provided
     content: z.array(blockSchema),
     excerpt: z.string().min(1, "Excerpt is required"),
     tags: z

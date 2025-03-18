@@ -18,6 +18,7 @@ export interface IStorage {
   deletePost(id: number): Promise<void>;
   searchPosts(query: string): Promise<Post[]>;
   getPostsByTag(tag: string): Promise<Post[]>;
+  getPostBySlug(slug: string): Promise<Post | undefined>; // Add getPostBySlug to the interface
 
   // Image methods
   getImage(id: number): Promise<Image | undefined>;
@@ -587,6 +588,16 @@ export class DatabaseStorage implements IStorage {
       console.log(`Updated password for user ${userId}`);
     } catch (error) {
       console.error(`Failed to update password for user ${userId}:`, error);
+      throw error;
+    }
+  }
+  async getPostBySlug(slug: string): Promise<Post | undefined> {
+    try {
+      const [post] = await db.select().from(posts).where(eq(posts.slug, slug));
+      console.log(`Retrieved post by slug ${slug}:`, post ? 'found' : 'not found');
+      return post;
+    } catch (error) {
+      console.error(`Failed to get post by slug ${slug}:`, error);
       throw error;
     }
   }

@@ -34,7 +34,8 @@ function Router() {
       <main>
         <Switch>
           <Route path="/" component={BlogIndex} />
-          <Route path="/blog/:id" component={BlogPost} />
+          <Route path="/blog/:slug" component={BlogPost} />
+          <Route path="/blog/id/:id" component={BlogPost} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/admin/manage">
             <ProtectedRoute component={AdminManage} />
