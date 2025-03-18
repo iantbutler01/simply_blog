@@ -616,7 +616,12 @@ export async function registerRoutes(app: Express) {
         );
 
       if (isCrawler) {
-        const post = await storage.getPost(Number(req.params.id));
+        // First try to get post by slug if it's not a number
+        const isNumericId = !isNaN(Number(req.params.id));
+        const post = isNumericId
+          ? await storage.getPost(Number(req.params.id))
+          : await storage.getPostBySlug(req.params.id);
+
         if (!post) {
           res.status(404).send("Post not found");
           return;
