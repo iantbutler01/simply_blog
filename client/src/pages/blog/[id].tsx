@@ -14,17 +14,21 @@ export default function BlogPost() {
   const { id } = useParams();
   const [, navigate] = useLocation();
 
-  // Silently record view without showing count
+  // First try to load by slug if it looks like a slug (not a number)
+  const isSlug = isNaN(Number(id));
+  const endpoint = isSlug ? `/api/posts/by-slug/${id}` : `/api/posts/${id}`;
+
+  // Record view without showing count
   const viewMutation = useMutation({
-    mutationFn: async () => {
-      await apiRequest("POST", `/api/posts/${id}/view`);
+    mutationFn: async (postId: number) => {
+      await apiRequest("POST", `/api/posts/${postId}/view`);
     },
   });
 
   const { data: post, isLoading: postLoading } = useQuery<Post>({
-    queryKey: [`/api/posts/${id}`],
+    queryKey: [endpoint],
     queryFn: async () => {
-      const res = await fetch(`/api/posts/${id}`);
+      const res = await fetch(endpoint);
       if (!res.ok) throw new Error("Failed to fetch post");
       const post = await res.json();
       // Redirect if trying to access a draft post directly
@@ -33,14 +37,14 @@ export default function BlogPost() {
         return null;
       }
       // Record view after successful load
-      viewMutation.mutate();
+      viewMutation.mutate(post.id);
       return post;
     },
   });
 
   // Only fetch comments if post exists and comments are enabled
   const { data: comments = [], isLoading: commentsLoading } = useQuery({
-    queryKey: [`/api/posts/${id}/comments`],
+    queryKey: [`/api/posts/${post?.id}/comments`],
     enabled: Boolean(post) && !post.commentsDisabled,
   });
 
@@ -91,10 +95,10 @@ export default function BlogPost() {
       {!post.commentsDisabled && (
         <div className="mt-16 pt-8 border-t">
           <h2 className="text-2xl font-bold mb-8">Comments</h2>
-          <CommentList postId={Number(id)} comments={comments} />
+          <CommentList postId={post.id} comments={comments} />
           <div className="mt-8">
             <h3 className="text-lg font-semibold mb-4">Leave a Comment</h3>
-            <CommentForm postId={Number(id)} />
+            <CommentForm postId={post.id} />
           </div>
         </div>
       )}

@@ -11,13 +11,15 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, isAdmin }: PostCardProps) {
-  console.log('PostCard socialImageId:', post.socialImageId); // Add logging
+  // Generate the URL for the post - use slug if available, otherwise use ID
+  const postUrl = post.slug ? `/blog/${post.slug}` : `/blog/id/${post.id}`;
+
   return (
     <Card className="hover:shadow-lg transition-all duration-300 group overflow-hidden">
       <div className="flex flex-col md:flex-row">
         {post.socialImageId && (
           <div className="md:w-1/3 relative">
-            <Link href={`/blog/${post.id}`}>
+            <Link href={postUrl}>
               <img
                 src={`/api/images/${post.socialImageId}`}
                 alt={post.title}
@@ -28,7 +30,7 @@ export function PostCard({ post, isAdmin }: PostCardProps) {
         )}
         <div className={`flex-1 p-6 ${!post.socialImageId ? 'md:p-6' : 'md:p-8'}`}>
           <div className="space-y-4">
-            <Link href={`/blog/${post.id}`}>
+            <Link href={postUrl}>
               <h2 className="text-2xl font-bold group-hover:text-primary transition-colors cursor-pointer">
                 {post.title}
               </h2>
