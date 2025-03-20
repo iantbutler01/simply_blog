@@ -164,7 +164,8 @@ export class DatabaseStorage implements IStorage {
         .where(
           or(
             sql`${posts.title} ILIKE ${`%${query}%`}`,
-            sql`${posts.content} ILIKE ${`%${query}%`}`
+            sql`${posts.content}::text ILIKE ${`%${query}%`}`,
+            sql`array_to_string(${posts.tags}, ',') ILIKE ${`%${query}%`}`
           )
         )
         .orderBy(desc(posts.createdAt));

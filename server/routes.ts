@@ -187,6 +187,9 @@ export async function registerRoutes(app: Express) {
       }
     }
 
+    // Sort posts by creation date, newest first
+    posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
     res.json(posts);
   });
 
